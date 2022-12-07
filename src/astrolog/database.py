@@ -15,6 +15,14 @@ class AstroLogModel(Model):
         database = db
 
 
+class Location(AstroLogModel):
+    name = TextField()
+    country = TextField()
+    latitude = TextField()
+    longitude = TextField()
+    altitude = IntegerField()
+
+
 class Filter(AstroLogModel):
     name = TextField()
 
@@ -60,6 +68,7 @@ class Object(AstroLogModel):
 
 class Session(AstroLogModel):
     date = DateField()
+    location = ForeignKeyField(Location)
 
     @property
     def observations(self):

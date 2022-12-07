@@ -1,10 +1,10 @@
 import datetime
 from unittest import TestCase
 
-from astrolog.database import (EyePiece, Filter, Object, Observation, Session,
+from astrolog.database import (EyePiece, Filter, Location, Object, Observation, Session,
                                Telescope, db)
 
-MODELS = [Session, EyePiece, Filter, Object, Observation, Telescope]
+MODELS = [Session, EyePiece, Filter, Location, Object, Observation, Telescope]
 
 
 def get_telescope(name, aperture, focal_length):
@@ -25,6 +25,11 @@ def get_eyepiece(type, focal_length, width):
 def get_object(name, magnitude):
     object, _ = Object.get_or_create(name=name, magnitude=magnitude)
     return object
+
+
+def get_location(name, country, latitude, longitude, altitude):
+    location, _ = Location.get_or_create(name=name, country=country, latitude=latitude, longitude=longitude, altitude=altitude)
+    return location
 
 
 class TestDB(TestCase):
@@ -74,10 +79,20 @@ class TestDB(TestCase):
         telescope.use_eyepiece(kellner)
         self.assertEqual(telescope.magnification, magnification2)
 
+    def test_location(self):
+        horsens = get_location(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
+        self.assertEqual(horsens.name, 'Horsens')
+        self.assertEqual(horsens.country, 'Denmark')
+        self.assertEqual(horsens.latitude, '55:51:38')
+        self.assertEqual(horsens.longitude, '-9:51:1')
+        self.assertEqual(horsens.altitude, 0)
+
     def test_empty_session(self):
+        horsens = get_location(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
-        session, _ = Session.get_or_create(date=september_13_1989)
+        session, _ = Session.get_or_create(date=september_13_1989, location=horsens)
         self.assertEqual(session.date, september_13_1989)
+        self.assertEqual(session.location, horsens)
         self.assertEqual(len(session.observation_set), 0)
 
     def test_object(self):
@@ -92,8 +107,9 @@ class TestDB(TestCase):
         telescope.use_eyepiece(plossl)
         magnification = telescope.magnification
 
+        horsens = get_location(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
-        session, _ = Session.get_or_create(date=september_13_1989)
+        session, _ = Session.get_or_create(date=september_13_1989, location=horsens)
 
         betelgeuse = get_object(name='Betelgeuse', magnitude=0.45)
 
@@ -117,8 +133,9 @@ class TestDB(TestCase):
         kellner = get_eyepiece(type='Kellner', focal_length=15, width=1.25)
         telescope = get_telescope(name='Explorer 150P', aperture=150, focal_length=750)
 
+        horsens = get_location(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
-        session, _ = Session.get_or_create(date=september_13_1989)
+        session, _ = Session.get_or_create(date=september_13_1989, location=horsens)
 
         arcturus = get_object(name='Arcturus', magnitude=-0.05)
         betelgeuse = get_object(name='Betelgeuse', magnitude=0.45)
