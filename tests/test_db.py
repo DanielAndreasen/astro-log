@@ -1,5 +1,6 @@
 import datetime
 from unittest import TestCase
+from peewee import IntegrityError
 
 from astrolog.database import (EyePiece, Filter, Location, Object, Observation, Session,
                                Telescope, db)
@@ -94,6 +95,19 @@ class TestDB(TestCase):
         self.assertEqual(session.date, september_13_1989)
         self.assertEqual(session.location, horsens)
         self.assertEqual(len(session.observation_set), 0)
+        self.assertEqual(session.moon_phase, None)
+
+    def test_session_with_moon_phases(self):
+        horsens = get_location(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
+        september_13_1989 = datetime.datetime(1989, 9, 13).date()
+        session, _ = Session.get_or_create(date=september_13_1989, location=horsens, moon_phase=86)
+        self.assertEqual(session.moon_phase, 86)
+        # Too high moon_phase
+        with self.assertRaises(IntegrityError):
+            session, _ = Session.get_or_create(date=september_13_1989, location=horsens, moon_phase=101)
+        # Too low moon_phase
+        with self.assertRaises(IntegrityError):
+            session, _ = Session.get_or_create(date=september_13_1989, location=horsens, moon_phase=-1)
 
     def test_object(self):
         arcturus = get_object(name='Arcturus', magnitude=-0.05)

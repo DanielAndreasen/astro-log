@@ -1,5 +1,5 @@
 import os
-from peewee import FloatField, ForeignKeyField, IntegerField, SqliteDatabase, Model, DateField, TextField
+from peewee import FloatField, ForeignKeyField, IntegerField, SqliteDatabase, Model, DateField, TextField, Check
 from playhouse.sqlite_ext import SqliteExtDatabase
 
 ASTRO_LOG_DB = os.getenv('ASTRO_LOG_DB', 'AstroLog.db')
@@ -69,6 +69,7 @@ class Object(AstroLogModel):
 class Session(AstroLogModel):
     date = DateField()
     location = ForeignKeyField(Location)
+    moon_phase = IntegerField(null=True, constraints=[Check('moon_phase >= 0'), Check('moon_phase <= 100')])
 
     @property
     def observations(self):
