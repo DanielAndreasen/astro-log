@@ -66,10 +66,17 @@ class Object(AstroLogModel):
     magnitude = FloatField()
 
 
+class Condition(AstroLogModel):
+    temperature = IntegerField()
+    humidity = IntegerField(null=True, constraints=[Check('humidity >= 0'), Check('humidity <= 100')])
+    seeing = FloatField(null=True)
+
+
 class Session(AstroLogModel):
     date = DateField()
     location = ForeignKeyField(Location)
     moon_phase = IntegerField(null=True, constraints=[Check('moon_phase >= 0'), Check('moon_phase <= 100')])
+    condition = ForeignKeyField(Condition, null=True)
 
     @property
     def observations(self):

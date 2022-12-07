@@ -2,16 +2,20 @@ import datetime
 from unittest import TestCase
 from peewee import IntegrityError
 
-from astrolog.database import (EyePiece, Filter, Location, Object, Observation, Session,
+from astrolog.database import (Condition, EyePiece, Filter, Location, Object, Observation, Session,
                                Telescope, db)
 
-MODELS = [Session, EyePiece, Filter, Location, Object, Observation, Telescope]
+MODELS = [Condition, Session, EyePiece, Filter, Location, Object, Observation, Telescope]
 
 
 def get_telescope(name, aperture, focal_length):
     telescope, _ = Telescope.get_or_create(name=name, aperture=aperture, focal_length=focal_length)
     return telescope
 
+
+def get_condition(temperature, humidity, seeing=None):
+    condition = Condition.create(temperature=temperature, humidity=humidity, seeing=seeing)
+    return condition
 
 def get_filter(name):
     filter, _ = Filter.get_or_create(name=name)
@@ -88,6 +92,20 @@ class TestDB(TestCase):
         self.assertEqual(horsens.longitude, '-9:51:1')
         self.assertEqual(horsens.altitude, 0)
 
+    def test_condition(self):
+        condition1 = get_condition(temperature=-2, humidity=65)
+        self.assertEqual(condition1.temperature, -2)
+        self.assertEqual(condition1.humidity, 65)
+        self.assertEqual(condition1.seeing, None)
+        condition2 = get_condition(temperature=-2, humidity=65, seeing=1.2)
+        self.assertEqual(condition2.seeing, 1.2)
+        # Too high humidity
+        with self.assertRaises(IntegrityError):
+            get_condition(temperature=-2, humidity=101, seeing=1.2)
+        # Too low humidity
+        with self.assertRaises(IntegrityError):
+            get_condition(temperature=-2, humidity=-1, seeing=1.2)
+
     def test_empty_session(self):
         horsens = get_location(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
@@ -96,8 +114,16 @@ class TestDB(TestCase):
         self.assertEqual(session.location, horsens)
         self.assertEqual(len(session.observation_set), 0)
         self.assertEqual(session.moon_phase, None)
+        self.assertEqual(session.condition, None)
 
     def test_session_with_moon_phases(self):
+        horsens = get_location(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
+        september_13_1989 = datetime.datetime(1989, 9, 13).date()
+        condition = get_condition(temperature=-2, humidity=65, seeing=1.2)
+        session, _ = Session.get_or_create(date=september_13_1989, location=horsens, condition=condition)
+        self.assertEqual(session.condition, condition)
+
+    def test_session_with_condition(self):
         horsens = get_location(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
         session, _ = Session.get_or_create(date=september_13_1989, location=horsens, moon_phase=86)
