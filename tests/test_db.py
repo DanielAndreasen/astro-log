@@ -27,7 +27,7 @@ def get_object(name, magnitude):
     return object
 
 
-class MockDB(TestCase):
+class TestDB(TestCase):
 
     def setUp(self) -> None:
         db.create_tables(MODELS)
