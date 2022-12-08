@@ -1,5 +1,7 @@
 import os
-from peewee import FloatField, ForeignKeyField, IntegerField, SqliteDatabase, Model, DateField, TextField, Check
+
+from peewee import (Check, DateField, FloatField, ForeignKeyField,
+                    IntegerField, Model, SqliteDatabase, TextField)
 from playhouse.sqlite_ext import SqliteExtDatabase
 
 ASTRO_LOG_DB = os.getenv('ASTRO_LOG_DB', 'AstroLog.db')
@@ -91,7 +93,7 @@ class Observation(AstroLogModel):
     eyepiece = ForeignKeyField(EyePiece)
     optic_filter = ForeignKeyField(Filter, null=True)
     note = TextField(null=True)
-    
+
     @property
     def magnification(self):
         self.telescope.use_eyepiece(self.eyepiece)

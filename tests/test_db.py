@@ -1,9 +1,10 @@
 import datetime
 from unittest import TestCase
+
 from peewee import IntegrityError
 
-from astrolog.database import (Condition, EyePiece, Filter, Location, Object, Observation, Session,
-                               Telescope, db)
+from astrolog.database import (Condition, EyePiece, Filter, Location, Object,
+                               Observation, Session, Telescope, db)
 
 MODELS = [Condition, Session, EyePiece, Filter, Location, Object, Observation, Telescope]
 
@@ -16,6 +17,7 @@ def get_telescope(name, aperture, focal_length):
 def get_condition(temperature, humidity, seeing=None):
     condition = Condition.create(temperature=temperature, humidity=humidity, seeing=seeing)
     return condition
+
 
 def get_filter(name):
     filter, _ = Filter.get_or_create(name=name)
@@ -41,7 +43,7 @@ class TestDB(TestCase):
 
     def setUp(self) -> None:
         db.create_tables(MODELS)
-        
+
     def tearDown(self) -> None:
         db.drop_tables(MODELS)
 
