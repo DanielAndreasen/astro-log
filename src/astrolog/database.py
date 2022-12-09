@@ -6,10 +6,10 @@ from playhouse.sqlite_ext import SqliteExtDatabase
 
 ASTRO_LOG_DB = os.getenv('ASTRO_LOG_DB', 'AstroLog.db')
 
-if os.getenv('ASTRO_LOG_TEST') == 'true':
-    db = SqliteExtDatabase(':memory:')
-else:
+if os.getenv('ASTRO_LOG_PROD') == 'true':
     db = SqliteDatabase(ASTRO_LOG_DB)
+else:
+    db = SqliteExtDatabase(':memory:')
 
 
 class AstroLogModel(Model):
