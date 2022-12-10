@@ -2,3 +2,4 @@ venv
 __pycache__
 astrolog.egg-info
 .coverage
+build/

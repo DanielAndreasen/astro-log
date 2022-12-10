@@ -21,5 +21,4 @@ jobs:
         run: |
           pip install .
           pip install pytest-cov
-          pytest --cov=src tests/
-          coverage report
+          pytest --cov=astrolog --cov-report term-missing
