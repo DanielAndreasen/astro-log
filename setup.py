@@ -9,6 +9,12 @@ setup(
 
     test_suite='tests',
 
+    python_requires='>=3.10',
+
+    install_requires=[
+        'peewee'
+    ],
+
     author='Daniel Thaagaard Andreasen',
     license='MIT'
 )
