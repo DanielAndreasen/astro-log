@@ -4,3 +4,4 @@ astrolog.egg-info
 .coverage
 build/
 *.db
+*.py,cover
