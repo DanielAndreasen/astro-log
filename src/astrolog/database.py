@@ -97,3 +97,7 @@ class Observation(AstroLogModel):
     def magnification(self):
         self.telescope.use_eyepiece(self.eyepiece)
         return self.telescope.magnification
+
+
+MODELS = [Condition, Session, EyePiece, Filter, Location, Object, Observation, Telescope]
+db.create_tables(MODELS)
