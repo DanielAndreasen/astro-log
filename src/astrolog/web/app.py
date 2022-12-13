@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, flash, render_template
+from flask import Flask, flash, redirect, render_template, url_for
 
 from astrolog.database import Session
 
@@ -19,6 +19,7 @@ def session(session_id):
     session = Session.get_or_none(session_id)
     if not session:
         flash(f'Session with id {session_id} was not found', category='warning')
+        return redirect(url_for('main'))
     return render_template('session.html', session=session)
 
 

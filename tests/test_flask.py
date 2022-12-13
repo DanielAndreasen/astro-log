@@ -44,12 +44,12 @@ class TestApp(ClientTestCase):
         self.assertInResponse(b'Telescopes</a>', response)
         self.assertInResponse(b'Equipment</a>', response)
 
-    def test_get_session(self, client):
-        response = client.get('/')
-        self.assertStatus(response, 200)
-        self.assertInResponse(b'AstroLog', response)
-        self.assertInResponse(b'<button class="btn btn-outline-primary" href="#">Get session</button>', response)
+    def test_get_empty_session(self, client):
+        session_id = 1
+        response = client.get(f'/session/{session_id}')
+        self.assertInResponse('You should be redirected automatically to the target URL: <a href="/">/</a>.'.encode(), response)
 
+    def test_get_session(self, client):
         session = get_standard_session()
         loc = session.location
         response = client.get('/session/1')
