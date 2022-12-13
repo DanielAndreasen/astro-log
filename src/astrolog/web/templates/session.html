@@ -1,0 +1,45 @@
+{% extends "template.html" %}
+
+{% block body %}
+{% set loc = session.location %}
+
+<h2>Session - <small>{{session.date.strftime('%d/%m/%Y')}}</small>; Location - <small title="Lat.: {{loc.latitude}}, Lon.: {{loc.longitude}}, Alt.: {{loc.altitude}}m">{{session.location.name}}</small></h2>
+
+
+<table class="table table-hover">
+  <thead>
+  <tr>
+  </tr>
+    <th>Object</th>
+    <th>Magnitude</th>
+    <th>Telescope</th>
+    <th>Eyepiece</th>
+    <th>Magnification</th>
+    <th>Filter</th>
+    <th>Note</th>
+  </thead>
+  <tbody>
+    {% for observation in session.observations %}
+      <tr class="clickable-row" data-ref="observation/{{observation.id}}">
+        <td>{{observation.object.name}}</td>
+        <td>{{observation.object.magnitude}}</td>
+        <td>{{observation.telescope.name}} (f{{observation.telescope.f_ratio}})</td>
+        <td>{{observation.eyepiece.type}}</td>
+        <td>{{observation.magnification}}X</td>
+        <td>{{observation.optic_filter.name}}</td>
+        <td>{{observation.note or ''}}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<script>
+jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.location = $(this).data("href");
+    });
+});
+</script>
+
+
+{% endblock %}
