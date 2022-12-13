@@ -22,8 +22,10 @@ def new_session():
         date = datetime.datetime.strptime(request.form.get('date'), '%Y-%m-%d')
         session, created = Session.get_or_create(location=location, date=date)
         if created:
-            return f'New session created! {session}'
-        return f'This session already exists! {session}'
+            flash(f'New session created! {session.id}', category='success')
+            return render_template('session_new.html', locations=Location)
+        flash(f'This session already exists! {session.id}', category='warning')
+        return render_template('session_new.html', locations=Location)
     return render_template('session_new.html', locations=Location)
 
 

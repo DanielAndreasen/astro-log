@@ -96,3 +96,7 @@ class TestApp(ClientTestCase):
         self.assertIsNotNone(session)
         self.assertEqual(session.location.name, horsens.name)
         self.assertEqual(session.date.strftime('%Y-%m-%d'), '1989-09-13')
+
+        # Try to create the same session again
+        response = client.post('/session/new', data={'location': horsens.name, 'date': '1989-09-13'})
+        self.assertInResponse(f'This session already exists! {session.id}'.encode(), response)
