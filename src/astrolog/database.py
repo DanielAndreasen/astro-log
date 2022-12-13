@@ -55,7 +55,7 @@ class Telescope(AstroLogModel):
     @property
     def magnification(self):
         if 'eyepiece' in self.__dict__.keys():
-            return self.focal_length / self.eyepiece.focal_length
+            return int(self.focal_length / self.eyepiece.focal_length)
         return None
 
     def use_eyepiece(self, eyepiece: EyePiece) -> None:
