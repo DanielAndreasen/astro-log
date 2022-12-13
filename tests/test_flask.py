@@ -40,6 +40,7 @@ class TestApp(ClientTestCase):
         response = client.get('/')
         self.assertStatus(response, 200)
         self.assertInResponse(b'AstroLog</a>', response)
+        self.assertInResponse(b'New session</a>', response)
         self.assertInResponse(b'All sessions</a>', response)
         self.assertInResponse(b'Telescopes</a>', response)
         self.assertInResponse(b'Equipment</a>', response)
@@ -50,6 +51,9 @@ class TestApp(ClientTestCase):
         self.assertInResponse('You should be redirected automatically to the target URL: <a href="/">/</a>.'.encode(), response)
 
     def test_get_session(self, client):
+        response = client.get('/')
+        self.assertStatus(response, 200)
+        self.assertInResponse(b'All sessions</a>', response)
         session = get_standard_session()
         loc = session.location
         response = client.get('/session/1')
@@ -85,6 +89,9 @@ class TestApp(ClientTestCase):
             self.assertInResponse(note, response)
 
     def test_create_session(self, client):
+        response = client.get('/')
+        self.assertStatus(response, 200)
+        self.assertInResponse(b'New session</a>', response)
         response = client.get('/session/new')
         self.assertStatus(response, 200)
         self.assertEqual(len(Session), 0)
