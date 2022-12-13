@@ -4,7 +4,8 @@ from flask import Flask, flash, render_template
 
 from astrolog.database import Session
 
-app = Flask(__name__)
+app = Flask(__name__,
+            template_folder='templates')
 app.secret_key = os.urandom(24)
 
 
