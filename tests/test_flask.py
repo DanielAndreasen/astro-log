@@ -14,13 +14,18 @@ def get_standard_session() -> Session:
     return session
 
 
-def add_observation(session: Session) -> None:
-    orion_nebula, _ = Object.get_or_create(name='M42', magnitude=5.42)
-    moon, _ = Object.get_or_create(name='Moon', magnitude=-14)
+def setup_and_get_equipment():
     telescope, _ = Telescope.get_or_create(name='Explorer 150P', aperture=150, focal_length=750)
     plossl, _ = EyePiece.get_or_create(type='Plössl', focal_length=6, width=1.25)
     kellner, _ = EyePiece.get_or_create(type='Kellner', focal_length=15, width=1.25)
     moon_filter, _ = Filter.get_or_create(name='Moon filter')
+    return telescope, plossl, kellner, moon_filter
+
+
+def add_observation(session: Session) -> None:
+    telescope, plossl, kellner, moon_filter = setup_and_get_equipment()
+    orion_nebula, _ = Object.get_or_create(name='M42', magnitude=5.42)
+    moon, _ = Object.get_or_create(name='Moon', magnitude=-14)
     Observation(object=orion_nebula, session=session, telescope=telescope, eyepiece=plossl, note='Saw the trapez stars').save()
     Observation(object=moon, session=session, telescope=telescope, eyepiece=kellner, optic_filter=moon_filter).save()
 
@@ -107,3 +112,67 @@ class TestApp(ClientTestCase):
         # Try to create the same session again
         response = client.post('/session/new', data={'location': horsens.name, 'date': '1989-09-13'})
         self.assertLocationHeader(response, '/observation/new/session/1')
+
+    def test_add_observation_negatives(self, client):
+        # No sessions yet
+        response = client.get('/observation/new/session/1')
+        self.assertLocationHeader(response, '/')
+
+        # Various negative scenarios
+        horsens = Location.create(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
+        self.assertLocationHeader(client.post('/session/new', data={'location': horsens.name, 'date': '1989-09-13'}), '/observation/new/session/1')
+        setup_and_get_equipment()
+
+        # Scenario 1: No object name
+        data = {'magnitude': 4.32,
+                'telescope': 'Explorer 150P', 'eyepiece': 'Kellner',
+                'optical_filter': 'Moon filter', 'note': 'Hold da op!'}
+        self.assertLocationHeader(client.post('/observation/new/session/1', data=data), '/observation/new/session/1')
+        # Scenario 2: No object magnitude
+        data = {'object': 'M42',
+                'telescope': 'Explorer 150P', 'eyepiece': 'Kellner',
+                'optical_filter': 'Moon filter', 'note': 'Hold da op!'}
+        self.assertLocationHeader(client.post('/observation/new/session/1', data=data), '/observation/new/session/1')
+        # Scenario 3: No telescope
+        data = {'object': 'M42', 'magnitude': 4.32,
+                'telescope': 'dummy', 'eyepiece': 'Kellner',
+                'optical_filter': 'Moon filter', 'note': 'Hold da op!'}
+        self.assertLocationHeader(client.post('/observation/new/session/1', data=data), '/observation/new/session/1')
+        # Scenario 4: No eyepiece
+        data = {'object': 'M42', 'magnitude': 4.32,
+                'telescope': 'Explorer 150P', 'eyepiece': 'dummy',
+                'optical_filter': 'Moon filter', 'note': 'Hold da op!'}
+        self.assertLocationHeader(client.post('/observation/new/session/1', data=data), '/observation/new/session/1')
+
+    def test_add_observation(self, client):
+        self.assertInResponse(b'New session</a>', client.get('/'))
+        self.assertStatus(client.get('/session/new'), 200)
+        horsens = Location.create(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
+        self.assertLocationHeader(client.post('/session/new', data={'location': horsens.name, 'date': '1989-09-13'}), '/observation/new/session/1')
+        session = Session.get_or_none(1)
+        self.assertIsNotNone(session)
+
+        # Check content on this page
+        response = client.get('/observation/new/session/1')
+        self.assertInResponse(b'Object*</label>', response)
+        self.assertInResponse(b'Magnitude*</label>', response)
+        self.assertInResponse(b'Telescope*</label>', response)
+        self.assertInResponse(b'Eyepiece*</label>', response)
+        self.assertInResponse(b'Filter (optional)</label>', response)
+        self.assertInResponse(b'Note (optional)</label>', response)
+        self.assertInResponse(b'Add observation</button>', response)
+
+        # Actual make an observation
+        self.assertEqual(len(Observation), 0)
+        setup_and_get_equipment()
+        data = {'object': 'M42', 'magnitude': 4.32,
+                'telescope': 'Explorer 150P', 'eyepiece': 'Kellner',
+                'optical_filter': 'Moon filter', 'note': 'Hold da op!'}
+        response = client.post(f'/observation/new/session/{session.id}', data=data)
+        observation = Observation.get_or_none(1)
+        loc = session.location
+        self.assertIsNotNone(observation)
+        self.assertEqual(len(Observation), 1)
+        self.assertInResponse(b'Observation created', response)
+        self.assertInResponse(f'Session - <small>{session.date.strftime("%d/%m/%Y")}</small>'.encode(), response)
+        self.assertInResponse(f'Location - <small title="Lat.: {loc.latitude}, Lon.: {loc.longitude}, Alt.: {loc.altitude}m">{session.location.name}</small>'.encode(), response)

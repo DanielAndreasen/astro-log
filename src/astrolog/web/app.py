@@ -3,7 +3,8 @@ import os
 
 from flask import Flask, flash, redirect, render_template, request, url_for
 
-from astrolog.database import Location, Session
+from astrolog.database import (EyePiece, Filter, Location, Object, Observation,
+                               Session, Telescope)
 
 app = Flask(__name__,
             template_folder='templates')
@@ -27,6 +28,42 @@ def new_session():
         flash(f'This session already exists! {session.id}', category='warning')
         return redirect(url_for('new_observation', session_id=session.id))
     return render_template('session_new.html', locations=Location)
+
+
+@app.route('/observation/new/session/<int:session_id>', methods=['GET', 'POST'])
+def new_observation(session_id):
+    session = Session.get_or_none(session_id)
+    if not session:
+        flash(f'Session with id {session_id} was not found', category='warning')
+        return redirect(url_for('main'))
+    if request.method == 'POST':
+        form = request.form
+        if not (obj := form.get('object', None)):
+            flash('Object name must be provided', category='danger')
+            return redirect(url_for('new_observation', session_id=session.id))
+        if not (magnitude := form.get('magnitude', None)):
+            flash('Object magnitude must be provided', category='danger')
+            return redirect(url_for('new_observation', session_id=session.id))
+        obj, new_object = Object.get_or_create(name=obj, magnitude=magnitude)
+        if new_object:
+            flash(f'Congratulations! First time observing {obj.name}', category='success')
+        telescope = Telescope.get_or_none(name=form.get('telescope'))
+        if telescope is None:
+            flash(f'Telescope {form.get("telescope")} was not found', category='danger')
+            return redirect(url_for('new_observation', session_id=session.id))
+        eyepiece = EyePiece.get_or_none(type=form.get('eyepiece'))
+        if eyepiece is None:
+            flash(f'Eyepiece {form.get("eyepiece")} was not found', category='danger')
+            return redirect(url_for('new_observation', session_id=session.id))
+        optical_filter = Filter.get_or_none(name=form.get('optic_filter'))
+        Observation.create(session=session, object=obj, telescope=telescope,
+                           eyepiece=eyepiece, optical_filter=optical_filter,
+                           note=form.get('note', None))
+        flash('Observation created', category='success')
+
+    return render_template('observation.html', session=session,
+                           telescopes=Telescope, eyepieces=EyePiece,
+                           optical_filters=Filter)
 
 
 @app.route('/session/<int:session_id>')
