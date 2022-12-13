@@ -28,7 +28,12 @@ def add_observation(session: Session) -> None:
 class TestApp(ClientTestCase):
     app = app
 
-    def tearDown(self, *args) -> None:
+    def setUp(self, client) -> None:
+        client
+        db.create_tables(MODELS)
+
+    def tearDown(self, client) -> None:
+        client
         db.drop_tables(MODELS)
 
     def test_landing_page(self, client):
