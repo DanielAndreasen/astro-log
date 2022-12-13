@@ -23,9 +23,9 @@ def new_session():
         session, created = Session.get_or_create(location=location, date=date)
         if created:
             flash(f'New session created! {session.id}', category='success')
-            return render_template('session_new.html', locations=Location)
+            return redirect(url_for('new_observation', session_id=session.id))
         flash(f'This session already exists! {session.id}', category='warning')
-        return render_template('session_new.html', locations=Location)
+        return redirect(url_for('new_observation', session_id=session.id))
     return render_template('session_new.html', locations=Location)
 
 
