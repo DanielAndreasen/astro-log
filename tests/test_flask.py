@@ -21,7 +21,7 @@ def add_observation(session: Session) -> None:
     plossl, _ = EyePiece.get_or_create(type='Plössl', focal_length=6, width=1.25)
     kellner, _ = EyePiece.get_or_create(type='Kellner', focal_length=15, width=1.25)
     moon_filter, _ = Filter.get_or_create(name='Moon filter')
-    Observation(object=orion_nebula, session=session, telescope=telescope, eyepiece=plossl).save()
+    Observation(object=orion_nebula, session=session, telescope=telescope, eyepiece=plossl, note='Saw the trapez stars').save()
     Observation(object=moon, session=session, telescope=telescope, eyepiece=kellner, optic_filter=moon_filter).save()
 
 
@@ -83,3 +83,16 @@ class TestApp(ClientTestCase):
             self.assertInResponse(magnification, response)
             self.assertInResponse(filter_, response)
             self.assertInResponse(note, response)
+
+    def test_create_session(self, client):
+        response = client.get('/session/new')
+        self.assertStatus(response, 200)
+        self.assertEqual(len(Session), 0)
+
+        horsens, _ = Location.get_or_create(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
+        response = client.post('/session/new', data={'location': horsens.name, 'date': '1989-09-13'})
+        session = Session.get_or_none(1)
+        self.assertEqual(len(Session), 1)
+        self.assertIsNotNone(session)
+        self.assertEqual(session.location.name, horsens.name)
+        self.assertEqual(session.date.strftime('%Y-%m-%d'), '1989-09-13')

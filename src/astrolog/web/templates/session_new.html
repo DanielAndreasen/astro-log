@@ -1,0 +1,28 @@
+{% extends "template.html" %}
+
+{% block body %}
+
+<form method="POST">
+
+  <div class="mb-1 row">
+    <label for="date" class="col-sm-1 col-form-label">Date</label>
+    <div class="col-sm-2">
+      <input name="date" type="date" class="form-control-plaintext" id="date">
+    </div>
+  </div>
+
+  <div class="mb-3 row">
+    <label for="location" class="col-sm-1 col-form-label">Location</label>
+    <div class="col-sm-2">
+      <select name="location" class="form-select form-control-plaintext" id="location">
+        {% for location in locations %}
+          <option value="{{location.name}}">{{location.name}}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Create new session</button>
+</form>
+
+
+{% endblock %}

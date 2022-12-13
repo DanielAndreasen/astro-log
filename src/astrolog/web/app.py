@@ -1,8 +1,9 @@
+import datetime
 import os
 
-from flask import Flask, flash, redirect, render_template, url_for
+from flask import Flask, flash, redirect, render_template, request, url_for
 
-from astrolog.database import Session
+from astrolog.database import Location, Session
 
 app = Flask(__name__,
             template_folder='templates')
@@ -12,6 +13,18 @@ app.secret_key = os.urandom(24)
 @app.route('/')
 def main():
     return render_template('main.html')
+
+
+@app.route('/session/new', methods=['GET', 'POST'])
+def new_session():
+    if request.method == 'POST':
+        location = Location.get_or_none(name=request.form.get('location'))
+        date = datetime.datetime.strptime(request.form.get('date'), '%Y-%m-%d')
+        session, created = Session.get_or_create(location=location, date=date)
+        if created:
+            return f'New session created! {session}'
+        return f'This session already exists! {session}'
+    return render_template('session_new.html', locations=Location)
 
 
 @app.route('/session/<int:session_id>')
