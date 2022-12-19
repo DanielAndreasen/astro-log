@@ -1,4 +1,5 @@
 import os
+from typing import Iterable, Optional
 
 from peewee import (Check, DateField, FloatField, ForeignKeyField,
                     IntegerField, Model, SqliteDatabase, TextField)
@@ -37,7 +38,7 @@ class EyePiece(AstroLogModel):
         self.optic_filter_ = optic_filter
 
     @property
-    def optic_filter(self):
+    def optic_filter(self) -> Optional[Filter]:
         if 'optic_filter_' in self.__dict__.keys():
             return self.optic_filter_
         return None
@@ -49,11 +50,11 @@ class Telescope(AstroLogModel):
     focal_length = IntegerField()
 
     @property
-    def f_ratio(self):
+    def f_ratio(self) -> float:
         return self.focal_length / self.aperture
 
     @property
-    def magnification(self):
+    def magnification(self) -> Optional[int]:
         if 'eyepiece' in self.__dict__.keys():
             return int(self.focal_length / self.eyepiece.focal_length)
         return None
@@ -80,7 +81,7 @@ class Session(AstroLogModel):
     condition = ForeignKeyField(Condition, null=True)
 
     @property
-    def observations(self):
+    def observations(self) -> Iterable['Observation']:
         for observation in self.observation_set:
             yield observation
 
@@ -94,7 +95,7 @@ class Observation(AstroLogModel):
     note = TextField(null=True)
 
     @property
-    def magnification(self):
+    def magnification(self) -> Optional[int]:
         self.telescope.use_eyepiece(self.eyepiece)
         return self.telescope.magnification
 

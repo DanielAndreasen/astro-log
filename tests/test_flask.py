@@ -1,4 +1,5 @@
 import datetime
+from typing import Tuple
 
 from flask_unittest import ClientTestCase
 
@@ -14,7 +15,7 @@ def get_standard_session() -> Session:
     return session
 
 
-def setup_and_get_equipment():
+def setup_and_get_equipment() -> Tuple[Telescope, EyePiece, EyePiece, Filter]:
     telescope, _ = Telescope.get_or_create(name='Explorer 150P', aperture=150, focal_length=750)
     plossl, _ = EyePiece.get_or_create(type='Plössl', focal_length=6, width=1.25)
     kellner, _ = EyePiece.get_or_create(type='Kellner', focal_length=15, width=1.25)

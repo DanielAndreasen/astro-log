@@ -8,7 +8,7 @@ from astrolog.database import (Condition, EyePiece, Filter, Location, Object,
 MODELS = [Condition, Session, EyePiece, Filter, Location, Object, Observation, Telescope]
 
 
-def get_and_create_session_with_n_observations(date, object=None, n=1):
+def get_and_create_session_with_n_observations(date, object=None, n=1) -> Session:
     location = Location.create(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
     session = Session.create(date=date, location=location)
     if object is None:

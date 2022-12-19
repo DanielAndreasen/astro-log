@@ -9,32 +9,32 @@ from astrolog.database import (Condition, EyePiece, Filter, Location, Object,
 MODELS = [Condition, Session, EyePiece, Filter, Location, Object, Observation, Telescope]
 
 
-def get_telescope(name, aperture, focal_length):
+def get_telescope(name, aperture, focal_length) -> Telescope:
     telescope, _ = Telescope.get_or_create(name=name, aperture=aperture, focal_length=focal_length)
     return telescope
 
 
-def get_condition(temperature, humidity, seeing=None):
+def get_condition(temperature, humidity, seeing=None) -> Condition:
     condition = Condition.create(temperature=temperature, humidity=humidity, seeing=seeing)
     return condition
 
 
-def get_filter(name):
+def get_filter(name) -> Filter:
     filter, _ = Filter.get_or_create(name=name)
     return filter
 
 
-def get_eyepiece(type, focal_length, width):
+def get_eyepiece(type, focal_length, width) -> EyePiece:
     eyepiece, _ = EyePiece.get_or_create(type=type, focal_length=focal_length, width=width)
     return eyepiece
 
 
-def get_object(name, magnitude):
+def get_object(name, magnitude) -> Object:
     object, _ = Object.get_or_create(name=name, magnitude=magnitude)
     return object
 
 
-def get_location(name, country, latitude, longitude, altitude):
+def get_location(name, country, latitude, longitude, altitude) -> Location:
     location, _ = Location.get_or_create(name=name, country=country, latitude=latitude, longitude=longitude, altitude=altitude)
     return location
 
