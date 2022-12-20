@@ -230,3 +230,27 @@ class TestApp(ClientTestCase):
         self.assertInResponse(f'<td>{telescope.aperture}mm</td>'.encode(), response)
         self.assertInResponse(f'<td>{telescope.focal_length}mm</td>'.encode(), response)
         self.assertInResponse(f'<td>{telescope.f_ratio}</td>'.encode(), response)
+
+    def test_add_eyepiece(self, client):
+        response = client.get('/equipments')
+
+        self.assertStatus(response, 200)
+        self.assertInResponse(b'<button type="submit" class="btn btn-primary">Add eyepiece</button>', response)
+        self.assertInResponse('<tbody>\n        \n      </tbody>'.encode(), response)
+        # Negative scenarios - Missing type
+        data = {'focal_length': 6, 'widht': 1.25}
+        self.assertLocationHeader(client.post('/equipments/new/eyepiece', data=data), '/equipments')
+        # Negative scenarios - Missing focal length
+        data = {'type': 'Plössl', 'widht': 1.25}
+        self.assertLocationHeader(client.post('/equipments/new/eyepiece', data=data), '/equipments')
+        # Negative scenarios - Missing width
+        data = {'type': 'Plössl', 'focal_length': 6}
+        self.assertLocationHeader(client.post('/equipments/new/eyepiece', data=data), '/equipments')
+        # Insert data
+        data = {'type': 'Plössl', 'focal_length': 6, 'width': 1.25}
+        response = client.post('/equipments/new/eyepiece', data=data)
+        eyepiece = EyePiece.get(1)
+        response = client.get('/equipments')
+        self.assertInResponse(f'<td>{eyepiece.type}</td>'.encode(), response)
+        self.assertInResponse(f'<td>{eyepiece.focal_length}mm</td>'.encode(), response)
+        self.assertInResponse(f'<td>{eyepiece.width}"</td>'.encode(), response)

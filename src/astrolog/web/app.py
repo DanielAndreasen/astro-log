@@ -102,5 +102,26 @@ def new_telescope():
     return redirect(url_for('equipments'))
 
 
+@app.route('/equipments/new/eyepiece', methods=['GET', 'POST'])
+def new_eyepiece():
+    if request.method == 'POST':
+        form = request.form
+        if not (type_ := form.get('type', None)):
+            flash('Eyepiece type must be provided', category='danger')
+            return redirect(url_for('equipments'))
+        if not (focal_length := form.get('focal_length', None)):
+            flash('Eyepiece focal length must be provided', category='danger')
+            return redirect(url_for('equipments'))
+        if not (width := form.get('width', None)):
+            flash('Eyepiece width must be provided', category='danger')
+            return redirect(url_for('equipments'))
+        eyepiece, created = EyePiece.get_or_create(type=type_, focal_length=focal_length, width=width)
+        if created:
+            flash(f'Eyepiece "{eyepiece.type}" was created', category='success')
+        else:
+            flash(f'Eyepiece "{eyepiece.name}" already exists', category='warning')
+    return redirect(url_for('equipments'))
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)  # pragma: no cover
