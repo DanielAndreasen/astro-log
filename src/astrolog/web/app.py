@@ -75,5 +75,11 @@ def session(session_id):
     return render_template('session.html', session=session)
 
 
+@app.route('/equipments')
+def equipments():
+    return render_template('equipments.html', telescopes=Telescope,
+                           eyepieces=EyePiece, filters=Filter)
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)  # pragma: no cover

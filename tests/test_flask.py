@@ -177,3 +177,31 @@ class TestApp(ClientTestCase):
         self.assertInResponse(b'Observation created', response)
         self.assertInResponse(f'Session - <small>{session.date.strftime("%d/%m/%Y")}</small>'.encode(), response)
         self.assertInResponse(f'Location - <small title="Lat.: {loc.latitude}, Lon.: {loc.longitude}, Alt.: {loc.altitude}m">{session.location.name}</small>'.encode(), response)
+
+    def test_list_equipments(self, client):
+        telescope, plossl, kellner, moon_filter = setup_and_get_equipment()
+        response = client.get('/equipments')
+
+        self.assertStatus(response, 200)
+        self.assertInResponse(b'<h2>Telescopes</h2>', response)
+        self.assertInResponse(b'<th>Name</th>', response)
+        self.assertInResponse(b'<th>Aperture</th>', response)
+        self.assertInResponse(b'<th>Focal length</th>', response)
+        self.assertInResponse(b'<th>f ratio</th>', response)
+        self.assertInResponse(f'<td>{telescope.name}</td>'.encode(), response)
+        self.assertInResponse(f'<td>{telescope.aperture}mm</td>'.encode(), response)
+        self.assertInResponse(f'<td>{telescope.focal_length}mm</td>'.encode(), response)
+        self.assertInResponse(f'<td>{telescope.f_ratio}</td>'.encode(), response)
+
+        self.assertInResponse(b'<h2>Eyepieces</h2>', response)
+        self.assertInResponse(b'<th>Type</th>', response)
+        self.assertInResponse(b'<th>Focal length</th>', response)
+        self.assertInResponse(b'<th>Width</th>', response)
+        for eyepiece in (plossl, kellner):
+            self.assertInResponse(f'<td>{eyepiece.type}</td>'.encode(), response)
+            self.assertInResponse(f'<td>{eyepiece.focal_length}mm</td>'.encode(), response)
+            self.assertInResponse(f'<td>{eyepiece.width}"</td>'.encode(), response)
+
+        self.assertInResponse(b'<h2>Filters</h2>', response)
+        self.assertInResponse(b'<th>Name</th>', response)
+        self.assertInResponse(f'<td>{moon_filter.name}</td>'.encode(), response)
