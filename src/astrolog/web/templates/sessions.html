@@ -1,0 +1,24 @@
+{% extends "template.html" %}
+
+{% block body %}
+
+<table class="table table-hover">
+  <thead>
+  <tr>
+  </tr>
+    <th>Date</th>
+    <th>Location</th>
+    <th>No. of observations</th>
+  </thead>
+  <tbody>
+    {% for session in sessions %}
+      <tr>
+        <td><a class="btn btn-primary" href="{{url_for('session', session_id=session.id)}}">{{session.date}}</a></td>
+        <td>{{session.location.name}}</td>
+        <td>{{session.number_of_observations}}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

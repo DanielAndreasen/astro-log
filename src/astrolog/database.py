@@ -85,6 +85,10 @@ class Session(AstroLogModel):
         for observation in self.observation_set:
             yield observation
 
+    @property
+    def number_of_observations(self):
+        return len(self.observation_set)
+
 
 class Observation(AstroLogModel):
     object = ForeignKeyField(Object)

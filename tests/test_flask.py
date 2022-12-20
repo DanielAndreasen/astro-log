@@ -48,13 +48,25 @@ class TestApp(ClientTestCase):
         self.assertInResponse(b'AstroLog</a>', response)
         self.assertInResponse(b'New session</a>', response)
         self.assertInResponse(b'All sessions</a>', response)
-        self.assertInResponse(b'Telescopes</a>', response)
         self.assertInResponse(b'Equipment</a>', response)
 
     def test_get_empty_session(self, client):
         session_id = 1
         response = client.get(f'/session/{session_id}')
         self.assertInResponse('You should be redirected automatically to the target URL: <a href="/">/</a>.'.encode(), response)
+
+    def test_list_all_sessions(self, client):
+        self.assertStatus(client.get('/'), 200)
+        response = client.get('/session/all')
+        self.assertInResponse(b'<th>Date</th>', response)
+        self.assertInResponse(b'<th>Location</th>', response)
+        self.assertInResponse(b'<th>No. of observations</th>', response)
+        self.assertInResponse('<tbody>\n    \n  </tbody'.encode(), response)
+        session = get_standard_session()
+        response = client.get('/session/all')
+        self.assertInResponse(f'<td><a class="btn btn-primary" href="/session/{session.id}">{session.date}</a></td>'.encode(), response)
+        self.assertInResponse(f'<td>{session.location.name}</td>'.encode(), response)
+        self.assertInResponse(f'<td>{session.number_of_observations}</td>'.encode(), response)
 
     def test_get_session(self, client):
         response = client.get('/')

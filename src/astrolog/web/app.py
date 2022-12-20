@@ -66,6 +66,11 @@ def new_observation(session_id):
                            optical_filters=Filter)
 
 
+@app.route('/session/all')
+def all_sessions():
+    return render_template('sessions.html', sessions=Session)
+
+
 @app.route('/session/<int:session_id>')
 def session(session_id):
     session = Session.get_or_none(session_id)

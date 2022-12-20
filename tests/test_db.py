@@ -117,6 +117,7 @@ class TestDB(TestCase):
         self.assertEqual(len(session.observation_set), 0)
         self.assertEqual(session.moon_phase, None)
         self.assertEqual(session.condition, None)
+        self.assertEqual(session.number_of_observations, 0)
 
     def test_session_with_moon_phases(self):
         horsens = get_location(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
@@ -169,6 +170,7 @@ class TestDB(TestCase):
         observation.save()
         self.assertEqual(observation.optic_filter, None)
         self.assertEqual(observation.note, 'Wow, what a view tonight!')
+        self.assertEqual(session.number_of_observations, 2)
 
     def test_session_with_observations(self):
         plossl = get_eyepiece(type='Plössl', focal_length=6, width=1.25)
