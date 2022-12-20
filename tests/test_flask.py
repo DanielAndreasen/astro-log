@@ -230,6 +230,8 @@ class TestApp(ClientTestCase):
         self.assertInResponse(f'<td>{telescope.aperture}mm</td>'.encode(), response)
         self.assertInResponse(f'<td>{telescope.focal_length}mm</td>'.encode(), response)
         self.assertInResponse(f'<td>{telescope.f_ratio}</td>'.encode(), response)
+        # Try create the same telescope again
+        self.assertLocationHeader(client.post('/equipments/new/telescope', data=data), '/equipments')
 
     def test_add_eyepiece(self, client):
         response = client.get('/equipments')
@@ -254,3 +256,23 @@ class TestApp(ClientTestCase):
         self.assertInResponse(f'<td>{eyepiece.type}</td>'.encode(), response)
         self.assertInResponse(f'<td>{eyepiece.focal_length}mm</td>'.encode(), response)
         self.assertInResponse(f'<td>{eyepiece.width}"</td>'.encode(), response)
+        # Try create the same eyepiece again
+        self.assertLocationHeader(client.post('/equipments/new/eyepiece', data=data), '/equipments')
+
+    def test_add_filter(self, client):
+        response = client.get('/equipments')
+
+        self.assertStatus(response, 200)
+        self.assertInResponse(b'<button type="submit" class="btn btn-primary">Add filter</button>', response)
+        self.assertInResponse('<tbody>\n        \n      </tbody>'.encode(), response)
+        # Negative scenarios - Missing name
+        data = {}
+        self.assertLocationHeader(client.post('/equipments/new/filter', data=data), '/equipments')
+        # Insert data
+        data = {'name': 'H alpha'}
+        response = client.post('/equipments/new/filter', data=data)
+        h_alpha = Filter.get(1)
+        response = client.get('/equipments')
+        self.assertInResponse(f'<td>{h_alpha.name}</td>'.encode(), response)
+        # Try create the same filter again
+        self.assertLocationHeader(client.post('/equipments/new/filter', data=data), '/equipments')

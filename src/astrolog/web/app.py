@@ -81,7 +81,7 @@ def equipments():
                            eyepieces=EyePiece, filters=Filter)
 
 
-@app.route('/equipments/new/telescope', methods=['GET', 'POST'])
+@app.route('/equipments/new/telescope', methods=['POST'])
 def new_telescope():
     if request.method == 'POST':
         form = request.form
@@ -102,7 +102,7 @@ def new_telescope():
     return redirect(url_for('equipments'))
 
 
-@app.route('/equipments/new/eyepiece', methods=['GET', 'POST'])
+@app.route('/equipments/new/eyepiece', methods=['POST'])
 def new_eyepiece():
     if request.method == 'POST':
         form = request.form
@@ -119,7 +119,22 @@ def new_eyepiece():
         if created:
             flash(f'Eyepiece "{eyepiece.type}" was created', category='success')
         else:
-            flash(f'Eyepiece "{eyepiece.name}" already exists', category='warning')
+            flash(f'Eyepiece "{eyepiece.type}" already exists', category='warning')
+    return redirect(url_for('equipments'))
+
+
+@app.route('/equipments/new/filter', methods=['POST'])
+def new_filter():
+    if request.method == 'POST':
+        form = request.form
+        if not (name := form.get('name', None)):
+            flash('Filter name must be provided', category='danger')
+            return redirect(url_for('equipments'))
+        filter_, created = Filter.get_or_create(name=name)
+        if created:
+            flash(f'Eyepiece "{filter_.name}" was created', category='success')
+        else:
+            flash(f'Eyepiece "{filter_.name}" already exists', category='warning')
     return redirect(url_for('equipments'))
 
 
