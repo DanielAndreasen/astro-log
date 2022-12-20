@@ -81,5 +81,26 @@ def equipments():
                            eyepieces=EyePiece, filters=Filter)
 
 
+@app.route('/equipments/new/telescope', methods=['GET', 'POST'])
+def new_telescope():
+    if request.method == 'POST':
+        form = request.form
+        if not (name := form.get('name', None)):
+            flash('Telescope name must be provided', category='danger')
+            return redirect(url_for('equipments'))
+        if not (aperture := form.get('aperture', None)):
+            flash('Telescope aperture must be provided', category='danger')
+            return redirect(url_for('equipments'))
+        if not (focal_length := form.get('focal_length', None)):
+            flash('Telescope focal length must be provided', category='danger')
+            return redirect(url_for('equipments'))
+        telescope, created = Telescope.get_or_create(name=name, aperture=aperture, focal_length=focal_length)
+        if created:
+            flash(f'Telescope "{telescope.name}" was created', category='success')
+        else:
+            flash(f'Telescope "{telescope.name}" already exists', category='warning')
+    return redirect(url_for('equipments'))
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)  # pragma: no cover

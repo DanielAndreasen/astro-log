@@ -27,6 +27,33 @@
         {% endfor %}
       </tbody>
     </table>
+
+    <form action="{{url_for('new_telescope')}}" method="POST">
+
+      <div class="mb-1 row">
+        <label for="name" class="col-sm-1 col-form-label">Name</label>
+        <div class="col-sm-5">
+          <input name="name" type="text" class="form-control-plaintext" id="name">
+        </div>
+      </div>
+
+      <div class="mb-1 row">
+        <label for="aperture" class="col-sm-1 col-form-label">Aperture</label>
+        <div class="col-sm-5">
+          <input name="aperture" type="text" class="form-control-plaintext" id="aperture">
+        </div>
+      </div>
+
+      <div class="mb-1 row">
+        <label for="focal_length" class="col-sm-1 col-form-label">Focal length</label>
+        <div class="col-sm-5">
+          <input name="focal_length" type="text" class="form-control-plaintext" id="focal_length">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Add telescope</button>
+    </form>
+
   </div>
 
   <div class="col-4">

@@ -205,3 +205,28 @@ class TestApp(ClientTestCase):
         self.assertInResponse(b'<h2>Filters</h2>', response)
         self.assertInResponse(b'<th>Name</th>', response)
         self.assertInResponse(f'<td>{moon_filter.name}</td>'.encode(), response)
+
+    def test_add_telescope(self, client):
+        response = client.get('/equipments')
+
+        self.assertStatus(response, 200)
+        self.assertInResponse(b'<button type="submit" class="btn btn-primary">Add telescope</button>', response)
+        self.assertInResponse('<tbody>\n        \n      </tbody>'.encode(), response)
+        # Negative scenarios - Missing name
+        data = {'aperture': 150, 'focal_length': 750}
+        self.assertLocationHeader(client.post('/equipments/new/telescope', data=data), '/equipments')
+        # Negative scenarios - Missing aperture
+        data = {'name': 'Explorer 150P', 'focal_length': 750}
+        self.assertLocationHeader(client.post('/equipments/new/telescope', data=data), '/equipments')
+        # Negative scenarios - Missing focal length
+        data = {'name': 'Explorer 150P', 'aperture': 150}
+        self.assertLocationHeader(client.post('/equipments/new/telescope', data=data), '/equipments')
+        # Insert data
+        data = {'name': 'Explorer 150P', 'aperture': 150, 'focal_length': 750}
+        response = client.post('/equipments/new/telescope', data=data)
+        telescope = Telescope.get(1)
+        response = client.get('/equipments')
+        self.assertInResponse(f'<td>{telescope.name}</td>'.encode(), response)
+        self.assertInResponse(f'<td>{telescope.aperture}mm</td>'.encode(), response)
+        self.assertInResponse(f'<td>{telescope.focal_length}mm</td>'.encode(), response)
+        self.assertInResponse(f'<td>{telescope.f_ratio}</td>'.encode(), response)
