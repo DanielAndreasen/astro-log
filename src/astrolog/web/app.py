@@ -16,6 +16,7 @@ def main():
     return render_template('main.html')
 
 
+# Sessions
 @app.route('/session/new', methods=['GET', 'POST'])
 def new_session():
     if request.method == 'POST':
@@ -80,6 +81,7 @@ def session(session_id):
     return render_template('session.html', session=session)
 
 
+# Equipments
 @app.route('/equipments')
 def equipments():
     return render_template('equipments.html', telescopes=Telescope,
@@ -143,6 +145,7 @@ def new_filter():
     return redirect(url_for('equipments'))
 
 
+# Locations
 @app.route('/locations')
 def locations():
     return render_template('locations.html', locations=Location)

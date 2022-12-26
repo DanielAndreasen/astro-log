@@ -308,6 +308,8 @@ class TestApp(ClientTestCase):
         data = {'name': 'Horsens', 'country': 'Denmark', 'latitude': '55:51:38', 'longitude': '-9:51:1', 'altitude': 0}
         response = client.post('/locations/new', data=data)
         self.assertLocationHeader(response, '/locations')
+        # Create same location again (nothing happens)
+        self.assertLocationHeader(client.post('/locations/new', data=data), '/locations')
 
         # Check content of the added location
         response = client.get('/locations')
@@ -319,3 +321,27 @@ class TestApp(ClientTestCase):
         self.assertInResponse(f'<td>{location.latitude}</td>'.encode(), response)
         self.assertInResponse(f'<td>{location.longitude}</td>'.encode(), response)
         self.assertInResponse(f'<td>{location.altitude}</td>'.encode(), response)
+        location = Location.get_or_none(2)
+        self.assertIsNone(location)
+
+    def test_add_location_negatives(self, client):
+        # Add a location - no name
+        data = {'country': 'Denmark', 'latitude': '55:51:38', 'longitude': '-9:51:1', 'altitude': 0}
+        response = client.post('/locations/new', data=data)
+        self.assertLocationHeader(response, '/locations')
+        # Add a location - no country
+        data = {'name': 'Horsens', 'latitude': '55:51:38', 'longitude': '-9:51:1', 'altitude': 0}
+        response = client.post('/locations/new', data=data)
+        self.assertLocationHeader(response, '/locations')
+        # Add a location - no latitude
+        data = {'name': 'Horsens', 'country': 'Denmark', 'longitude': '-9:51:1', 'altitude': 0}
+        response = client.post('/locations/new', data=data)
+        self.assertLocationHeader(response, '/locations')
+        # Add a location - no longitude
+        data = {'name': 'Horsens', 'country': 'Denmark', 'latitude': '55:51:38', 'altitude': 0}
+        response = client.post('/locations/new', data=data)
+        self.assertLocationHeader(response, '/locations')
+        # Add a location - no altitude
+        data = {'name': 'Horsens', 'country': 'Denmark', 'latitude': '55:51:38', 'longitude': '-9:51:1'}
+        response = client.post('/locations/new', data=data)
+        self.assertLocationHeader(response, '/locations')
