@@ -288,3 +288,34 @@ class TestApp(ClientTestCase):
         self.assertInResponse(f'<td>{h_alpha.name}</td>'.encode(), response)
         # Try create the same filter again
         self.assertLocationHeader(client.post('/equipments/new/filter', data=data), '/equipments')
+
+    def test_add_location(self, client):
+        response = client.get('/locations')
+
+        # No locations added yet
+        self.assertStatus(response, 200)
+        self.assertInResponse(b'<h2>Locations</h2>', response)
+        self.assertInResponse(b'<h2>Locations</h2>', response)
+        self.assertInResponse(b'<th>Name</th>', response)
+        self.assertInResponse(b'<th>Country</th>', response)
+        self.assertInResponse(b'<th>Latitude</th>', response)
+        self.assertInResponse(b'<th>Longitude</th>', response)
+        self.assertInResponse(b'<th>Altitude</th>', response)
+        self.assertInResponse(b'<tbody>\n    \n  </tbody>', response)
+        self.assertInResponse(b'<button type="submit" class="btn btn-primary">Add location</button>', response)
+
+        # Add a location
+        data = {'name': 'Horsens', 'country': 'Denmark', 'latitude': '55:51:38', 'longitude': '-9:51:1', 'altitude': 0}
+        response = client.post('/locations/new', data=data)
+        self.assertLocationHeader(response, '/locations')
+
+        # Check content of the added location
+        response = client.get('/locations')
+        location = Location.get(1)
+        self.assertStatus(response, 200)
+        self.assertInResponse(b'<h2>Locations</h2>', response)
+        self.assertInResponse(f'<td>{location.name}</td>'.encode(), response)
+        self.assertInResponse(f'<td>{location.country}</td>'.encode(), response)
+        self.assertInResponse(f'<td>{location.latitude}</td>'.encode(), response)
+        self.assertInResponse(f'<td>{location.longitude}</td>'.encode(), response)
+        self.assertInResponse(f'<td>{location.altitude}</td>'.encode(), response)

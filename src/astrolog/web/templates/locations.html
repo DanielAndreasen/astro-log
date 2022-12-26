@@ -1,0 +1,64 @@
+{% extends "template.html" %}
+
+{% block body %}
+
+<h2>Locations</h2>
+
+<table class="table table-hover">
+  <thead>
+  <tr>
+  </tr>
+    <th>Name</th>
+    <th>Country</th>
+    <th>Latitude</th>
+    <th>Longitude</th>
+    <th>Altitude</th>
+  </thead>
+  <tbody>
+    {% for location in locations %}
+      <tr>
+        <td>{{location.name}}</td>
+        <td>{{location.country}}</td>
+        <td>{{location.latitude}}</td>
+        <td>{{location.longitude}}</td>
+        <td>{{location.altitude}}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<form action="{{url_for('new_location')}}" method="POST">
+  <div class="mb-1 row">
+    <label for="name" class="col-sm-1 col-form-label">Name</label>
+    <div class="col-sm-5">
+      <input name="name" type="text" class="form-control-plaintext" id="name">
+    </div>
+  </div>
+  <div class="mb-1 row">
+    <label for="country" class="col-sm-1 col-form-label">Country</label>
+    <div class="col-sm-5">
+      <input name="country" type="text" class="form-control-plaintext" id="country">
+    </div>
+  </div>
+  <div class="mb-1 row">
+    <label for="latitude" class="col-sm-1 col-form-label">Latitude</label>
+    <div class="col-sm-5">
+      <input name="latitude" type="text" class="form-control-plaintext" id="latitude">
+    </div>
+  </div>
+  <div class="mb-1 row">
+    <label for="longitude" class="col-sm-1 col-form-label">Longitude</label>
+    <div class="col-sm-5">
+      <input name="longitude" type="text" class="form-control-plaintext" id="longitude">
+    </div>
+  </div>
+  <div class="mb-1 row">
+    <label for="altitude" class="col-sm-1 col-form-label">Altitude</label>
+    <div class="col-sm-5">
+      <input name="altitude" type="text" class="form-control-plaintext" id="altitude">
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Add location</button>
+</form>
+
+{% endblock %}

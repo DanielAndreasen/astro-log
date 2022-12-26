@@ -143,5 +143,37 @@ def new_filter():
     return redirect(url_for('equipments'))
 
 
+@app.route('/locations')
+def locations():
+    return render_template('locations.html', locations=Location)
+
+
+@app.route('/locations/new', methods=['POST'])
+def new_location():
+    form = request.form
+    if not (name := form.get('name', None)):
+        flash('Name must be provided', category='danger')
+        return redirect(url_for('locations'))
+    if not (country := form.get('country', None)):
+        flash('Cuntry must be provided', category='danger')
+        return redirect(url_for('locations'))
+    if not (latitude := form.get('latitude', None)):
+        flash('Latitude must be provided', category='danger')
+        return redirect(url_for('locations'))
+    if not (longitude := form.get('longitude', None)):
+        flash('Longitude must be provided', category='danger')
+        return redirect(url_for('locations'))
+    if not (altitude := form.get('altitude', None)):
+        flash('Altitude must be provided', category='danger')
+        return redirect(url_for('locations'))
+    location, created = Location.get_or_create(name=name, country=country,
+                                               latitude=latitude, longitude=longitude, altitude=altitude)
+    if created:
+        flash(f'Location "{location.name}" was created', category='success')
+    else:
+        flash(f'Location "{location.name}" already exists', category='warning')
+    return redirect(url_for('locations'))
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)  # pragma: no cover
