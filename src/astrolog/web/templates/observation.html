@@ -47,6 +47,7 @@
     <label for="optical_filter" class="col-sm-1 col-form-label">Filter (optional)</label>
     <div class="col-sm-2">
       <select name="optical_filter" class="form-select form-control-plaintext" id="optical_filter">
+        <option value=""></option>
         {% for optical_filter in optical_filters %}
           <option value="{{optical_filter.name}}">{{optical_filter.name}}</option>
         {% endfor %}
