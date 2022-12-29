@@ -2,8 +2,9 @@ import datetime
 from unittest import TestCase
 
 from astrolog import api
-from astrolog.database import (Condition, EyePiece, Filter, Location, Object,
-                               Observation, Session, Telescope, db)
+from astrolog.database import (Binocular, Condition, EyePiece, Filter,
+                               Location, Object, Observation, Session,
+                               Telescope, db)
 
 MODELS = [Condition, Session, EyePiece, Filter, Location, Object, Observation, Telescope]
 
@@ -93,3 +94,76 @@ class TestDB(TestCase):
         self.assertEqual(len(res['sessions']), 20 - 2)
         for actual, expected in zip(sessions, res['sessions']):
             self.assertEqual(actual, expected)
+
+    def test_create_observations(self):
+        date = datetime.datetime(2013, 12, 1).date()
+        location = Location.create(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
+        session = Session.create(date=date, location=location)
+        betelgeuse = Object.create(name='Betelgeuse', magnitude=0.45)
+        telescope = Telescope.create(name='Explorer 150P', aperture=150, focal_length=750)
+        eyepiece = EyePiece.create(type='Plössl', focal_length=6, width=1.25)
+        optic_filter = Filter.create(name='Moon filter')
+
+        # First observe with telescope
+        observation, created = api.create_observation(session, betelgeuse, telescope=telescope, eyepiece=eyepiece, optic_filter=optic_filter)
+        self.assertTrue(created)
+        self.assertIsInstance(observation, Observation)
+        self.assertEqual(observation.session, session)
+        self.assertEqual(observation.object, betelgeuse)
+        self.assertEqual(observation.telescope, telescope)
+        self.assertEqual(observation.eyepiece, eyepiece)
+        self.assertEqual(observation.optic_filter, optic_filter)
+        self.assertIsNone(observation.note)
+        self.assertIsNone(observation.binocular)
+        self.assertFalse(observation.naked_eye)
+
+        # Make the same observation, and see it gives the same result
+        observation, created = api.create_observation(session, betelgeuse, telescope=telescope, eyepiece=eyepiece, optic_filter=optic_filter)
+        self.assertFalse(created)
+
+        # Make observation with binoculars
+        binocular = Binocular.create(name='Something', aperture=50, magnification=12)
+        observation, created = api.create_observation(session, betelgeuse, binocular=binocular)
+        self.assertTrue(created)
+        self.assertIsInstance(observation, Observation)
+        self.assertEqual(observation.session, session)
+        self.assertEqual(observation.object, betelgeuse)
+        self.assertEqual(observation.binocular, binocular)
+        self.assertIsNone(observation.telescope)
+        self.assertFalse(observation.naked_eye)
+
+        # Make naked eye observation
+        observation, created = api.create_observation(session, betelgeuse)
+        self.assertTrue(created)
+        self.assertIsInstance(observation, Observation)
+        self.assertEqual(observation.session, session)
+        self.assertEqual(observation.object, betelgeuse)
+        self.assertIsNone(observation.binocular)
+        self.assertIsNone(observation.telescope)
+        self.assertTrue(observation.naked_eye)
+
+    def test_create_observations_nagetives(self):
+        date = datetime.datetime(2013, 12, 1).date()
+        location = Location.create(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
+        session = Session.create(date=date, location=location)
+        betelgeuse = Object.create(name='Betelgeuse', magnitude=0.45)
+        telescope = Telescope.create(name='Explorer 150P', aperture=150, focal_length=750)
+        eyepiece = EyePiece.create(type='Plössl', focal_length=6, width=1.25)
+        optic_filter = Filter.create(name='Moon filter')
+        binocular = Binocular.create(name='Something', aperture=50, magnification=12)
+
+        # Telescope and binocular
+        with self.assertRaises(ValueError):
+            api.create_observation(session, betelgeuse, telescope=telescope, binocular=binocular)
+
+        # Binocular with eyepiece
+        with self.assertRaises(ValueError):
+            api.create_observation(session, betelgeuse, binocular=binocular, eyepiece=eyepiece)
+
+        # Binocular with eyepiece
+        with self.assertRaises(ValueError):
+            api.create_observation(session, betelgeuse, binocular=binocular, optic_filter=optic_filter)
+
+        # Telescope and not eyepiece
+        with self.assertRaises(ValueError):
+            api.create_observation(session, betelgeuse, telescope=telescope)

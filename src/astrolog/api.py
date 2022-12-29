@@ -1,6 +1,7 @@
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Tuple, Union
 
-from astrolog.database import Observation, Session
+from astrolog.database import (Binocular, EyePiece, Filter, Object,
+                               Observation, Session, Telescope)
 
 
 def get_session(date) -> Dict[str, Union[List[Observation], Session]]:
@@ -22,3 +23,22 @@ def get_observations_of_object(object) -> Dict[str, List[Observation]]:
     if not len(observations):
         return {'observations': []}
     return {'observations': list(observations)}
+
+
+def create_observation(session: Session, object: Object,
+                       binocular: Optional[Binocular] = None, telescope: Optional[Telescope] = None,
+                       eyepiece: Optional[EyePiece] = None, optic_filter: Optional[Filter] = None,
+                       note: Optional[str] = None) -> Tuple[Observation, bool]:
+
+    if binocular and telescope:
+        raise ValueError('Not possible to make observation with both telescope and binoculars')
+    if binocular and eyepiece:
+        raise ValueError('Not possible to make observation with an eyepiece in binoculars')
+    if binocular and optic_filter:
+        raise ValueError('Not possible to make observation with an optical filter in binoculars')
+    if telescope and not eyepiece:
+        raise ValueError('Telescope require an eyepiece to function')
+
+    return Observation.get_or_create(session=session, object=object, binocular=binocular,
+                                     telescope=telescope, eyepiece=eyepiece, optic_filter=optic_filter,
+                                     note=note)

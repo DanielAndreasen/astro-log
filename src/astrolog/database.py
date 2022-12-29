@@ -110,6 +110,10 @@ class Observation(AstroLogModel):
         self.telescope.use_eyepiece(self.eyepiece)
         return self.telescope.magnification
 
+    @property
+    def naked_eye(self) -> bool:
+        return not self.telescope and not self.binocular
+
 
 MODELS = [Condition, Binocular, Session, EyePiece, Filter, Location, Object, Observation, Telescope]
 db.create_tables(MODELS)
