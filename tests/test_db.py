@@ -3,15 +3,19 @@ from unittest import TestCase
 
 from peewee import IntegrityError
 
-from astrolog.database import (Condition, EyePiece, Filter, Location, Object,
-                               Observation, Session, Telescope, db)
-
-MODELS = [Condition, Session, EyePiece, Filter, Location, Object, Observation, Telescope]
+from astrolog.database import (MODELS, Binocular, Condition, EyePiece, Filter,
+                               Location, Object, Observation, Session,
+                               Telescope, db)
 
 
 def get_telescope(name, aperture, focal_length) -> Telescope:
     telescope, _ = Telescope.get_or_create(name=name, aperture=aperture, focal_length=focal_length)
     return telescope
+
+
+def get_binocular(name, aperture, magnification) -> Binocular:
+    binocular, _ = Binocular.get_or_create(name=name, aperture=aperture, magnification=magnification)
+    return binocular
 
 
 def get_condition(temperature, humidity, seeing=None) -> Condition:
@@ -66,6 +70,12 @@ class TestDB(TestCase):
         red_filter = get_filter(name='Red filter')
         plossl.use_filter(red_filter)
         self.assertEqual(plossl.optic_filter, red_filter)
+
+    def test_binocular(self):
+        binocular = get_binocular(name='Something', aperture=50, magnification=12)
+        self.assertEqual(binocular.name, 'Something')
+        self.assertEqual(binocular.aperture, 50)
+        self.assertEqual(binocular.magnification, 12)
 
     def test_telescope(self):
         telescope = get_telescope(name='Explorer 150P', aperture=150, focal_length=750)
@@ -143,7 +153,20 @@ class TestDB(TestCase):
         self.assertEqual(arcturus.name, 'Arcturus')
         self.assertEqual(arcturus.magnitude, -0.05)
 
-    def test_observation(self):
+    def test_observation_with_binocular(self):
+        binocular = get_binocular(name='Something', aperture=50, magnification=12)
+        horsens = get_location(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
+        september_13_1989 = datetime.datetime(1989, 9, 13).date()
+        session, _ = Session.get_or_create(date=september_13_1989, location=horsens)
+        betelgeuse = get_object(name='Betelgeuse', magnitude=0.45)
+        observation, _ = Observation.get_or_create(object=betelgeuse, session=session, binocular=binocular)
+
+        self.assertIsNone(observation.note)
+        self.assertEqual(observation.session, session)
+        self.assertEqual(observation.object, betelgeuse)
+        self.assertEqual(observation.binocular, binocular)
+
+    def test_observation_with_telescope(self):
         plossl = get_eyepiece(type='Plössl', focal_length=6, width=1.25)
         moon_filter = get_filter(name='Moon filter')
         telescope = get_telescope(name='Explorer 150P', aperture=150, focal_length=750)

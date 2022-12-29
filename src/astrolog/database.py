@@ -2,14 +2,14 @@ import os
 from typing import Iterable, Optional
 
 from peewee import (Check, DateField, FloatField, ForeignKeyField,
-                    IntegerField, Model, SqliteDatabase, TextField)
-from playhouse.sqlite_ext import SqliteExtDatabase
+                    IntegerField, Model, TextField)
+from playhouse.sqlite_ext import CSqliteExtDatabase
 
 ASTRO_LOG_DB = os.getenv('ASTRO_LOG_DB', 'AstroLog.db')
 
-db = (SqliteDatabase(ASTRO_LOG_DB)
+db = (CSqliteExtDatabase(ASTRO_LOG_DB)
       if os.getenv('ASTRO_LOG_PROD') == 'true' else
-      SqliteExtDatabase(':memory:'))
+      CSqliteExtDatabase(':memory:'))
 
 
 class AstroLogModel(Model):
@@ -42,6 +42,12 @@ class EyePiece(AstroLogModel):
         if 'optic_filter_' in self.__dict__.keys():
             return self.optic_filter_
         return None
+
+
+class Binocular(AstroLogModel):
+    name = TextField()
+    aperture = IntegerField()
+    magnification = IntegerField()
 
 
 class Telescope(AstroLogModel):
@@ -93,8 +99,9 @@ class Session(AstroLogModel):
 class Observation(AstroLogModel):
     object = ForeignKeyField(Object)
     session = ForeignKeyField(Session)
-    telescope = ForeignKeyField(Telescope)
-    eyepiece = ForeignKeyField(EyePiece)
+    binocular = ForeignKeyField(Binocular, null=True)
+    telescope = ForeignKeyField(Telescope, null=True)
+    eyepiece = ForeignKeyField(EyePiece, null=True)
     optic_filter = ForeignKeyField(Filter, null=True)
     note = TextField(null=True)
 
@@ -104,5 +111,5 @@ class Observation(AstroLogModel):
         return self.telescope.magnification
 
 
-MODELS = [Condition, Session, EyePiece, Filter, Location, Object, Observation, Telescope]
+MODELS = [Condition, Binocular, Session, EyePiece, Filter, Location, Object, Observation, Telescope]
 db.create_tables(MODELS)
