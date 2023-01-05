@@ -4,8 +4,9 @@ from typing import Tuple
 from flask_unittest import ClientTestCase
 from peewee import SqliteDatabase
 
-from astrolog.database import (MODELS, EyePiece, Filter, Location, Object,
-                               Observation, Session, Telescope, database_proxy)
+from astrolog.database import (MODELS, Binocular, EyePiece, Filter, Location,
+                               Object, Observation, Session, Telescope,
+                               database_proxy)
 from astrolog.web.app import app
 
 db = SqliteDatabase(':memory:')
@@ -293,6 +294,26 @@ class TestApp(ClientTestCase):
         self.assertInResponse(f'<td>{h_alpha.name}</td>'.encode(), response)
         # Try create the same filter again
         self.assertLocationHeader(client.post('/equipments/new/filter', data=data), '/equipments')
+
+    def test_add_binocular(self, client):
+        response = client.get('/equipments')
+
+        self.assertStatus(response, 200)
+        self.assertInResponse(b'<button type="submit" class="btn btn-primary">Add binocular</button>', response)
+        self.assertInResponse('<tbody>\n        \n      </tbody>'.encode(), response)
+        # Negative scenarios - Missing name
+        data = {}
+        self.assertLocationHeader(client.post('/equipments/new/binocular', data=data), '/equipments')
+        # Insert data
+        data = {'name': 'Vortex Diamondback HD', 'aperture': 50, 'magnification': 12}
+        response = client.post('/equipments/new/binocular', data=data)
+        vortex = Binocular.get(1)
+        response = client.get('/equipments')
+        self.assertInResponse(f'<td>{vortex.name}</td>'.encode(), response)
+        self.assertInResponse(f'<td>{vortex.aperture}mm</td>'.encode(), response)
+        self.assertInResponse(f'<td>{vortex.magnification}X</td>'.encode(), response)
+        # Try create the same filter again
+        self.assertLocationHeader(client.post('/equipments/new/binocular', data=data), '/equipments')
 
     def test_add_location(self, client):
         response = client.get('/locations')

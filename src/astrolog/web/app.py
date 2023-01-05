@@ -4,8 +4,9 @@ import os
 from flask import Flask, flash, redirect, render_template, request, url_for
 from peewee import SqliteDatabase
 
-from astrolog.database import (MODELS, EyePiece, Filter, Location, Object,
-                               Observation, Session, Telescope, database_proxy)
+from astrolog.database import (MODELS, Binocular, EyePiece, Filter, Location,
+                               Object, Observation, Session, Telescope,
+                               database_proxy)
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = os.urandom(24)
@@ -85,7 +86,7 @@ def session(session_id):
 @app.route('/equipments')
 def equipments():
     return render_template('equipments.html', telescopes=Telescope,
-                           eyepieces=EyePiece, filters=Filter)
+                           eyepieces=EyePiece, filters=Filter, binoculars=Binocular)
 
 
 @app.route('/equipments/new/telescope', methods=['POST'])
@@ -106,6 +107,27 @@ def new_telescope():
             flash(f'Telescope "{telescope.name}" was created', category='success')
         else:
             flash(f'Telescope "{telescope.name}" already exists', category='warning')
+    return redirect(url_for('equipments'))
+
+
+@app.route('/equipments/new/binocular', methods=['POST'])
+def new_binocular():
+    if request.method == 'POST':
+        form = request.form
+        if not (name := form.get('name', None)):
+            flash('Binocular name must be provided', category='danger')
+            return redirect(url_for('equipments'))
+        if not (aperture := form.get('aperture', None)):
+            flash('Binocular aperture must be provided', category='danger')
+            return redirect(url_for('equipments'))
+        if not (magnification := form.get('magnification', None)):
+            flash('Binocular magnification must be provided', category='danger')
+            return redirect(url_for('equipments'))
+        binocular, created = Binocular.get_or_create(name=name, aperture=aperture, magnification=magnification)
+        if created:
+            flash(f'Binocular "{binocular.name}" was created', category='success')
+        else:
+            flash(f'Binocular "{binocular.name}" already exists', category='warning')
     return redirect(url_for('equipments'))
 
 
