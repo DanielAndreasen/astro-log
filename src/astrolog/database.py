@@ -6,10 +6,8 @@ from peewee import (Check, DateField, FloatField, ForeignKeyField,
 
 DEFAULT_DB = os.path.join(os.path.abspath('.'), 'AstroLog.db')
 ASTRO_LOG_DB = os.getenv('ASTRO_LOG_DB', DEFAULT_DB)
-
-db = (SqliteDatabase(ASTRO_LOG_DB)
-      if os.getenv('ASTRO_LOG_PROD') == 'true' else
-      SqliteDatabase(':memory:'))
+PROD = os.getenv('ASTRO_LOG_PROD') == 'true'
+db = SqliteDatabase(ASTRO_LOG_DB) if PROD else SqliteDatabase(':memory:')
 
 
 class AstroLogModel(Model):
