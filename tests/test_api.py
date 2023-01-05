@@ -2,11 +2,8 @@ import datetime
 from unittest import TestCase
 
 from astrolog import api
-from astrolog.database import (Binocular, Condition, EyePiece, Filter,
-                               Location, Object, Observation, Session,
-                               Telescope, db)
-
-MODELS = [Condition, Session, EyePiece, Filter, Location, Object, Observation, Telescope]
+from astrolog.database import (MODELS, Binocular, EyePiece, Filter, Location,
+                               Object, Observation, Session, Telescope, db)
 
 
 def get_and_create_session_with_n_observations(date, object=None, n=1) -> Session:

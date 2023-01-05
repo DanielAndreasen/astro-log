@@ -2,14 +2,14 @@ import os
 from typing import Iterable, Optional
 
 from peewee import (Check, DateField, FloatField, ForeignKeyField,
-                    IntegerField, Model, TextField)
-from playhouse.sqlite_ext import CSqliteExtDatabase
+                    IntegerField, Model, SqliteDatabase, TextField)
 
-ASTRO_LOG_DB = os.getenv('ASTRO_LOG_DB', 'AstroLog.db')
+DEFAULT_DB = os.path.join(os.path.abspath('.'), 'AstroLog.db')
+ASTRO_LOG_DB = os.getenv('ASTRO_LOG_DB', DEFAULT_DB)
 
-db = (CSqliteExtDatabase(ASTRO_LOG_DB)
+db = (SqliteDatabase(ASTRO_LOG_DB)
       if os.getenv('ASTRO_LOG_PROD') == 'true' else
-      CSqliteExtDatabase(':memory:'))
+      SqliteDatabase(':memory:'))
 
 
 class AstroLogModel(Model):
