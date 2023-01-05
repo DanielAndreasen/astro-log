@@ -1,18 +1,15 @@
-import os
 from typing import Iterable, Optional
 
-from peewee import (Check, DateField, FloatField, ForeignKeyField,
-                    IntegerField, Model, SqliteDatabase, TextField)
+from peewee import (Check, DatabaseProxy, DateField, FloatField,
+                    ForeignKeyField, IntegerField, Model, TextField)
 
-DEFAULT_DB = os.path.join(os.path.abspath('.'), 'AstroLog.db')
-ASTRO_LOG_DB = os.getenv('ASTRO_LOG_DB', DEFAULT_DB)
-PROD = os.getenv('ASTRO_LOG_PROD') == 'true'
-db = SqliteDatabase(ASTRO_LOG_DB) if PROD else SqliteDatabase(':memory:')
+database_proxy = DatabaseProxy()
 
 
 class AstroLogModel(Model):
     class Meta:
-        database = db
+        # database = db
+        database = database_proxy
 
 
 class Location(AstroLogModel):
@@ -114,4 +111,3 @@ class Observation(AstroLogModel):
 
 
 MODELS = [Condition, Binocular, Session, EyePiece, Filter, Location, Object, Observation, Telescope]
-db.create_tables(MODELS)

@@ -2,12 +2,12 @@ import datetime
 import os
 
 from flask import Flask, flash, redirect, render_template, request, url_for
+from peewee import SqliteDatabase
 
-from astrolog.database import (EyePiece, Filter, Location, Object, Observation,
-                               Session, Telescope)
+from astrolog.database import (MODELS, EyePiece, Filter, Location, Object,
+                               Observation, Session, Telescope, database_proxy)
 
-app = Flask(__name__,
-            template_folder='templates')
+app = Flask(__name__, template_folder='templates')
 app.secret_key = os.urandom(24)
 
 
@@ -178,5 +178,12 @@ def new_location():
     return redirect(url_for('locations'))
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)  # pragma: no cover
+if __name__ == '__main__':  # pragma: no cover
+    # Setup DB
+    DEFAULT_DB = os.path.join(os.path.abspath('.'), 'AstroLog.db')
+    ASTRO_LOG_DB = os.getenv('ASTRO_LOG_DB', DEFAULT_DB)
+    db = SqliteDatabase(ASTRO_LOG_DB)
+    database_proxy.initialize(db)
+    db.create_tables(MODELS)
+
+    app.run(host='0.0.0.0', port=5000, debug=True)

@@ -1,11 +1,15 @@
 import datetime
 from unittest import TestCase
 
-from peewee import IntegrityError
+from peewee import IntegrityError, SqliteDatabase
 
 from astrolog.database import (MODELS, Binocular, Condition, EyePiece, Filter,
                                Location, Object, Observation, Session,
-                               Telescope, db)
+                               Telescope, database_proxy)
+
+db = SqliteDatabase(':memory:')
+database_proxy.initialize(db)
+db.create_tables(MODELS)
 
 
 def get_telescope(name, aperture, focal_length) -> Telescope:

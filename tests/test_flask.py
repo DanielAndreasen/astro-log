@@ -2,10 +2,15 @@ import datetime
 from typing import Tuple
 
 from flask_unittest import ClientTestCase
+from peewee import SqliteDatabase
 
 from astrolog.database import (MODELS, EyePiece, Filter, Location, Object,
-                               Observation, Session, Telescope, db)
+                               Observation, Session, Telescope, database_proxy)
 from astrolog.web.app import app
+
+db = SqliteDatabase(':memory:')
+database_proxy.initialize(db)
+db.create_tables(MODELS)
 
 
 def get_standard_session() -> Session:

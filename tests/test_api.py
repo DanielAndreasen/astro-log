@@ -1,9 +1,16 @@
 import datetime
 from unittest import TestCase
 
+from peewee import SqliteDatabase
+
 from astrolog import api
 from astrolog.database import (MODELS, Binocular, EyePiece, Filter, Location,
-                               Object, Observation, Session, Telescope, db)
+                               Object, Observation, Session, Telescope,
+                               database_proxy)
+
+db = SqliteDatabase(':memory:')
+database_proxy.initialize(db)
+db.create_tables(MODELS)
 
 
 def get_and_create_session_with_n_observations(date, object=None, n=1) -> Session:
