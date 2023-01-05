@@ -20,5 +20,4 @@ jobs:
       - name: Install package and run unit tests
         run: |
           pip install -e .
-          pip install pytest-cov flask-unittest
           pytest --cov=astrolog --cov-report term-missing
