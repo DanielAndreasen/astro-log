@@ -4,9 +4,9 @@ import os
 from flask import Flask, flash, redirect, render_template, request, url_for
 from peewee import SqliteDatabase
 
+from astrolog.api import create_observation
 from astrolog.database import (MODELS, Binocular, EyePiece, Filter, Location,
-                               Object, Observation, Session, Telescope,
-                               database_proxy)
+                               Object, Session, Telescope, database_proxy)
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = os.urandom(24)
@@ -25,9 +25,9 @@ def new_session():
         date = datetime.datetime.strptime(request.form.get('date'), '%Y-%m-%d')
         session, created = Session.get_or_create(location=location, date=date)
         if created:
-            flash(f'New session created! {session.id}', category='success')
+            flash('New session created!', category='success')
             return redirect(url_for('new_observation', session_id=session.id))
-        flash(f'This session already exists! {session.id}', category='warning')
+        flash('This session already exists!', category='warning')
         return redirect(url_for('new_observation', session_id=session.id))
     return render_template('session_new.html', locations=Location)
 
@@ -50,17 +50,16 @@ def new_observation(session_id):
         if new_object:
             flash(f'Congratulations! First time observing {obj.name}', category='success')
         telescope = Telescope.get_or_none(name=form.get('telescope'))
-        if telescope is None:
-            flash(f'Telescope {form.get("telescope")} was not found', category='danger')
-            return redirect(url_for('new_observation', session_id=session.id))
         eyepiece = EyePiece.get_or_none(type=form.get('eyepiece'))
-        if eyepiece is None:
-            flash(f'Eyepiece {form.get("eyepiece")} was not found', category='danger')
-            return redirect(url_for('new_observation', session_id=session.id))
         optical_filter = Filter.get_or_none(name=form.get('optic_filter'))
-        Observation.create(session=session, object=obj, telescope=telescope,
-                           eyepiece=eyepiece, optical_filter=optical_filter,
-                           note=form.get('note', None))
+        binocular = Binocular.get_or_none(name=form.get('binocular'))
+        try:
+            create_observation(session=session, object=obj,
+                               telescope=telescope, eyepiece=eyepiece, optical_filter=optical_filter,
+                               binocular=binocular, note=form.get('note', None))
+        except ValueError:
+            flash('Unable to create observation. Do not mix things that are not supposed to be mixed and try again')
+            return redirect(url_for('new_observation', session_id=session_id))
         flash('Observation created', category='success')
 
     return render_template('observation.html', session=session,

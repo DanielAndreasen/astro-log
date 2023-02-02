@@ -1,5 +1,4 @@
 import datetime
-from typing import Tuple
 
 from flask_unittest import ClientTestCase
 from peewee import SqliteDatabase
@@ -21,7 +20,7 @@ def get_standard_session() -> Session:
     return session
 
 
-def setup_and_get_equipment() -> Tuple[Telescope, EyePiece, EyePiece, Filter]:
+def setup_and_get_equipment() -> tuple[Telescope, EyePiece, EyePiece, Filter]:
     telescope, _ = Telescope.get_or_create(name='Explorer 150P', aperture=150, focal_length=750)
     plossl, _ = EyePiece.get_or_create(type='Plössl', focal_length=6, width=1.25)
     kellner, _ = EyePiece.get_or_create(type='Kellner', focal_length=15, width=1.25)
@@ -152,12 +151,7 @@ class TestApp(ClientTestCase):
                 'telescope': 'Explorer 150P', 'eyepiece': 'Kellner',
                 'optical_filter': 'Moon filter', 'note': 'Hold da op!'}
         self.assertLocationHeader(client.post('/observation/new/session/1', data=data), '/observation/new/session/1')
-        # Scenario 3: No telescope
-        data = {'object': 'M42', 'magnitude': 4.32,
-                'telescope': 'dummy', 'eyepiece': 'Kellner',
-                'optical_filter': 'Moon filter', 'note': 'Hold da op!'}
-        self.assertLocationHeader(client.post('/observation/new/session/1', data=data), '/observation/new/session/1')
-        # Scenario 4: No eyepiece
+        # Scenario 3: No eyepiece
         data = {'object': 'M42', 'magnitude': 4.32,
                 'telescope': 'Explorer 150P', 'eyepiece': 'dummy',
                 'optical_filter': 'Moon filter', 'note': 'Hold da op!'}
@@ -192,6 +186,20 @@ class TestApp(ClientTestCase):
         loc = session.location
         self.assertIsNotNone(observation)
         self.assertEqual(len(Observation), 1)
+        self.assertInResponse(b'Observation created', response)
+        self.assertInResponse(f'Session - <small>{session.date.strftime("%d/%m/%Y")}</small>'.encode(), response)
+        self.assertInResponse(f'Location - <small title="Lat.: {loc.latitude}, Lon.: {loc.longitude}, Alt.: {loc.altitude}m">{session.location.name}</small>'.encode(), response)
+
+        # Make observation with binocular
+        # Create the binocular
+        client.post('/equipments/new/binocular', data={'name': 'Vortex Diamondback HD', 'aperture': 50, 'magnification': 12})
+        data = {'object': 'M42', 'magnitude': 4.32,
+                'binocular': 'Vortex Diamondback HD', 'note': 'Hold da op!'}
+        response = client.post(f'/observation/new/session/{session.id}', data=data)
+        observation = Observation.get_or_none(2)
+        loc = session.location
+        self.assertIsNotNone(observation)
+        self.assertEqual(len(Observation), 2)
         self.assertInResponse(b'Observation created', response)
         self.assertInResponse(f'Session - <small>{session.date.strftime("%d/%m/%Y")}</small>'.encode(), response)
         self.assertInResponse(f'Location - <small title="Lat.: {loc.latitude}, Lon.: {loc.longitude}, Alt.: {loc.altitude}m">{session.location.name}</small>'.encode(), response)
