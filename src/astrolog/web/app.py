@@ -51,11 +51,11 @@ def new_observation(session_id):
             flash(f'Congratulations! First time observing {obj.name}', category='success')
         telescope = Telescope.get_or_none(name=form.get('telescope'))
         eyepiece = EyePiece.get_or_none(type=form.get('eyepiece'))
-        optical_filter = Filter.get_or_none(name=form.get('optic_filter'))
+        optic_filter = Filter.get_or_none(name=form.get('optic_filter'))
         binocular = Binocular.get_or_none(name=form.get('binocular'))
         try:
             create_observation(session=session, object=obj,
-                               telescope=telescope, eyepiece=eyepiece, optical_filter=optical_filter,
+                               telescope=telescope, eyepiece=eyepiece, optic_filter=optic_filter,
                                binocular=binocular, note=form.get('note', None))
         except ValueError:
             flash('Unable to create observation. Do not mix things that are not supposed to be mixed and try again')
