@@ -13,7 +13,7 @@ database_proxy.initialize(db)
 db.create_tables(MODELS)
 
 
-def get_and_create_session_with_n_observations(date, object=None, n=1) -> Session:
+def get_and_create_session_with_n_observations(date: datetime.date, object: Object | None = None, n: int = 1) -> Session:
     location = Location.create(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
     session = Session.create(date=date, location=location)
     if object is None:
@@ -36,14 +36,14 @@ class TestDB(TestCase):
     def tearDown(self) -> None:
         db.drop_tables(MODELS)
 
-    def test_get_empty_session(self):
+    def test_get_empty_session(self) -> None:
         date = datetime.datetime(2013, 9, 13).date()
         get_and_create_session_with_n_observations(date, n=1)
         res = api.get_session(date + datetime.timedelta(days=1))
         self.assertIsNone(res['session'])
         self.assertListEqual(res['observations'], [])
 
-    def test_get_session_with_1_observation(self):
+    def test_get_session_with_1_observation(self) -> None:
         date = datetime.datetime(2013, 9, 13).date()
         session = get_and_create_session_with_n_observations(date, n=1)
         res = api.get_session(date)
@@ -52,7 +52,7 @@ class TestDB(TestCase):
         for actual, expected in zip(session.observation_set, res['observations']):
             self.assertEqual(actual, expected)
 
-    def test_get_session_with_5_observation(self):
+    def test_get_session_with_5_observation(self) -> None:
         date = datetime.datetime(2013, 9, 13).date()
         session = get_and_create_session_with_n_observations(date, n=5)
         res = api.get_session(date)
@@ -61,7 +61,7 @@ class TestDB(TestCase):
         for actual, expected in zip(session.observation_set, res['observations']):
             self.assertEqual(actual, expected)
 
-    def test_get_empty_observation(self):
+    def test_get_empty_observation(self) -> None:
         betelgeuse = Object.create(name='Betelgeuse', magnitude=0.45)
         rigel = Object.create(name='Rigel', magnitude=-0.45)
         date = datetime.datetime(2013, 9, 13).date()
@@ -69,7 +69,7 @@ class TestDB(TestCase):
         res = api.get_observations_of_object(rigel)
         self.assertListEqual(res['observations'], [])
 
-    def test_get_observations_of_object(self):
+    def test_get_observations_of_object(self) -> None:
         betelgeuse = Object.create(name='Betelgeuse', magnitude=0.45)
         observations = []
         dates = [datetime.datetime(2013, 9, 13).date(), datetime.datetime(2013, 9, 14).date()]
@@ -81,13 +81,13 @@ class TestDB(TestCase):
         for actual, expected in zip(observations, res['observations']):
             self.assertEqual(actual, expected)
 
-    def test_get_empty_sessions(self):
+    def test_get_empty_sessions(self) -> None:
         date1 = datetime.datetime(2013, 9, 13).date()
         date2 = datetime.datetime(2014, 9, 13).date()
         res = api.get_sessions(date1=date1, date2=date2)
         self.assertListEqual(res['sessions'], [])
 
-    def test_get_sessions(self):
+    def test_get_sessions(self) -> None:
         date1 = datetime.datetime(2013, 12, 1).date()
         date2 = datetime.datetime(2013, 12, 24).date()
         sessions = []
@@ -99,7 +99,7 @@ class TestDB(TestCase):
         for actual, expected in zip(sessions, res['sessions']):
             self.assertEqual(actual, expected)
 
-    def test_create_observations(self):
+    def test_create_observations(self) -> None:
         date = datetime.datetime(2013, 12, 1).date()
         location = Location.create(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
         session = Session.create(date=date, location=location)
@@ -146,7 +146,7 @@ class TestDB(TestCase):
         self.assertIsNone(observation.telescope)
         self.assertTrue(observation.naked_eye)
 
-    def test_create_observations_nagetives(self):
+    def test_create_observations_nagetives(self) -> None:
         date = datetime.datetime(2013, 12, 1).date()
         location = Location.create(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
         session = Session.create(date=date, location=location)

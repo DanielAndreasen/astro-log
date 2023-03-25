@@ -87,7 +87,7 @@ class Session(AstroLogModel):
             yield observation
 
     @property
-    def number_of_observations(self):
+    def number_of_observations(self) -> int:
         return len(self.observation_set)
 
 

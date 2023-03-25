@@ -1,24 +1,24 @@
-from typing import Dict, Optional
+from datetime import date
 
 from astrolog.database import (Binocular, EyePiece, Filter, Object,
                                Observation, Session, Telescope)
 
 
-def get_session(date) -> Dict[str, list[Observation] | Session]:
+def get_session(date: date) -> dict[str, list[Observation] | Session]:
     session = Session.get_or_none(date=date)
     if not session:
         return {'session': session, 'observations': []}
     return {'session': session, 'observations': list(session.observation_set)}
 
 
-def get_sessions(date1, date2) -> dict[str, list[Session]]:
+def get_sessions(date1: date, date2: date) -> dict[str, list[Session]]:
     sessions = Session.select().where((Session.date >= date1) & (Session.date <= date2))
     if not len(sessions):
         return {'sessions': []}
     return {'sessions': [session for session in sessions]}
 
 
-def get_observations_of_object(object) -> dict[str, list[Observation]]:
+def get_observations_of_object(object: Object) -> dict[str, list[Observation]]:
     observations = Observation.select().where(Observation.object == object)
     if not len(observations):
         return {'observations': []}
@@ -26,9 +26,9 @@ def get_observations_of_object(object) -> dict[str, list[Observation]]:
 
 
 def create_observation(session: Session, object: Object,
-                       binocular: Optional[Binocular] = None, telescope: Optional[Telescope] = None,
-                       eyepiece: Optional[EyePiece] = None, optic_filter: Optional[Filter] = None,
-                       note: Optional[str] = None) -> tuple[Observation, bool]:
+                       binocular: Binocular | None = None, telescope: Telescope | None = None,
+                       eyepiece: EyePiece | None = None, optic_filter: Filter | None = None,
+                       note: str | None = None) -> tuple[Observation, bool]:
 
     if binocular and telescope:
         raise ValueError('Not possible to make observation with both telescope and binoculars')
