@@ -14,8 +14,7 @@ setup(
     install_requires=[
         'Flask >= 2.2',
         'peewee >= 3.15',
-        'pytest-cov',
-        'flask_unittest'
+        'pytest-cov'
     ],
 
     author='Daniel Thaagaard Andreasen',

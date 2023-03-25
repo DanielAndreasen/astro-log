@@ -3,7 +3,16 @@
 {% block body %}
 {% set loc = session.location %}
 
-<h2>Session - <small>{{session.date.strftime('%d/%m/%Y')}}</small>; Location - <small title="Lat.: {{loc.latitude}}, Lon.: {{loc.longitude}}, Alt.: {{loc.altitude}}m">{{session.location.name}}</small></h2>
+<h2>
+  Session - 
+  <small>
+    {{session.date.strftime('%d/%m/%Y')}}
+  </small>
+  ; Location - 
+  <small title="Lat.: {{loc.latitude}}, Lon.: {{loc.longitude}}, Alt.: {{loc.altitude}}m">
+    {{session.location.name}}
+  </small>
+</h2>
 
 
 <table class="table table-hover">
@@ -32,6 +41,8 @@
     {% endfor %}
   </tbody>
 </table>
+
+<a class="btn btn-success" href="{{url_for('new_observation', session_id=session.id)}}">Add observation</a>
 
 <script type="text/javascript">
 $(document).ready(function($) {

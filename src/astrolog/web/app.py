@@ -13,13 +13,13 @@ app.secret_key = os.urandom(24)
 
 
 @app.route('/')
-def main():
+def main() -> str:
     return render_template('main.html')
 
 
 # Sessions
 @app.route('/session/new', methods=['GET', 'POST'])
-def new_session():
+def new_session() -> str:
     if request.method == 'POST':
         location = Location.get_or_none(name=request.form.get('location'))
         date = datetime.datetime.strptime(request.form.get('date'), '%Y-%m-%d')
@@ -33,7 +33,7 @@ def new_session():
 
 
 @app.route('/observation/new/session/<int:session_id>', methods=['GET', 'POST'])
-def new_observation(session_id):
+def new_observation(session_id: int) -> str:
     session = Session.get_or_none(session_id)
     if not session:
         flash(f'Session with id {session_id} was not found', category='warning')
@@ -68,12 +68,12 @@ def new_observation(session_id):
 
 
 @app.route('/session/all')
-def all_sessions():
+def all_sessions() -> str:
     return render_template('sessions.html', sessions=Session)
 
 
 @app.route('/session/<int:session_id>')
-def session(session_id):
+def session(session_id: int) -> str:
     session = Session.get_or_none(session_id)
     if not session:
         flash(f'Session with id {session_id} was not found', category='warning')
@@ -83,13 +83,13 @@ def session(session_id):
 
 # Equipments
 @app.route('/equipments')
-def equipments():
+def equipments() -> str:
     return render_template('equipments.html', telescopes=Telescope,
                            eyepieces=EyePiece, filters=Filter, binoculars=Binocular)
 
 
 @app.route('/equipments/new/telescope', methods=['POST'])
-def new_telescope():
+def new_telescope() -> str:
     if request.method == 'POST':
         form = request.form
         if not (name := form.get('name', None)):
@@ -110,7 +110,7 @@ def new_telescope():
 
 
 @app.route('/equipments/new/binocular', methods=['POST'])
-def new_binocular():
+def new_binocular() -> str:
     if request.method == 'POST':
         form = request.form
         if not (name := form.get('name', None)):
@@ -131,7 +131,7 @@ def new_binocular():
 
 
 @app.route('/equipments/new/eyepiece', methods=['POST'])
-def new_eyepiece():
+def new_eyepiece() -> str:
     if request.method == 'POST':
         form = request.form
         if not (type_ := form.get('type', None)):
@@ -152,7 +152,7 @@ def new_eyepiece():
 
 
 @app.route('/equipments/new/filter', methods=['POST'])
-def new_filter():
+def new_filter() -> str:
     if request.method == 'POST':
         form = request.form
         if not (name := form.get('name', None)):
@@ -168,12 +168,12 @@ def new_filter():
 
 # Locations
 @app.route('/locations')
-def locations():
+def locations() -> str:
     return render_template('locations.html', locations=Location)
 
 
 @app.route('/locations/new', methods=['POST'])
-def new_location():
+def new_location() -> str:
     form = request.form
     if not (name := form.get('name', None)):
         flash('Name must be provided', category='danger')
