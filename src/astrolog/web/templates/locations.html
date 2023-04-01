@@ -4,60 +4,55 @@
 
 <h2>Locations</h2>
 
-<table class="table table-hover">
-  <thead>
-  <tr>
-  </tr>
-    <th>Name</th>
-    <th>Country</th>
-    <th>Latitude</th>
-    <th>Longitude</th>
-    <th>Altitude</th>
-  </thead>
-  <tbody>
-    {% for location in locations %}
-      <tr>
-        <td>{{location.name}}</td>
-        <td>{{location.country}}</td>
-        <td>{{location.latitude}}</td>
-        <td>{{location.longitude}}</td>
-        <td>{{location.altitude}}</td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<form action="{{url_for('alter_location')}}" method="POST">
+  <table class="table table-hover">
+    <thead>
+    <tr>
+    </tr>
+      <th>Name</th>
+      <th>Country</th>
+      <th>Latitude</th>
+      <th>Longitude</th>
+      <th>Altitude</th>
+      <th>Delete</th>
+    </thead>
+    <tbody>
+      {% for location in locations %}
+        <tr>
+          <td>{{location.name}}</td>
+          <td>{{location.country}}</td>
+          <td>{{location.latitude}}</td>
+          <td>{{location.longitude}}</td>
+          <td>{{location.altitude}}</td>
+          <td>
+            <button class="btn btn-danger" name="delete" value="{{location.id}}" type="submit">Delete</button></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</form>
 
 <form action="{{url_for('new_location')}}" method="POST">
-  <div class="mb-1 row">
-    <label for="name" class="col-sm-1 col-form-label">Name</label>
-    <div class="col-sm-5">
-      <input name="name" type="text" class="form-control-plaintext" id="name">
+    <div class="input-group">
+      <span id="name" class="input-group-text">Name</span>
+      <input name="name" type="text" class="form-control">
     </div>
-  </div>
-  <div class="mb-1 row">
-    <label for="country" class="col-sm-1 col-form-label">Country</label>
-    <div class="col-sm-5">
-      <input name="country" type="text" class="form-control-plaintext" id="country">
+    <div class="input-group">
+      <span id="country" class="input-group-text">Country</span>
+      <input name="country" type="text" class="form-control">
     </div>
-  </div>
-  <div class="mb-1 row">
-    <label for="latitude" class="col-sm-1 col-form-label">Latitude</label>
-    <div class="col-sm-5">
-      <input name="latitude" type="text" class="form-control-plaintext" id="latitude">
+    <div class="input-group">
+      <span id="latitude" class="input-group-text">Latitude</span>
+      <input name="latitude" type="text" class="form-control">
     </div>
-  </div>
-  <div class="mb-1 row">
-    <label for="longitude" class="col-sm-1 col-form-label">Longitude</label>
-    <div class="col-sm-5">
-      <input name="longitude" type="text" class="form-control-plaintext" id="longitude">
+    <div class="input-group">
+      <span id="longitude" class="input-group-text">Longitude</span>
+      <input name="longitude" type="text" class="form-control">
     </div>
-  </div>
-  <div class="mb-1 row">
-    <label for="altitude" class="col-sm-1 col-form-label">Altitude</label>
-    <div class="col-sm-5">
-      <input name="altitude" type="text" class="form-control-plaintext" id="altitude">
+    <div class="input-group">
+      <span id="altitude" class="input-group-text">Altitude</span>
+      <input name="altitude" type="text" class="form-control">
     </div>
-  </div>
   <button type="submit" class="btn btn-primary">Add location</button>
 </form>
 

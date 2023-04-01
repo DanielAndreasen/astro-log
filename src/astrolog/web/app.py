@@ -4,7 +4,7 @@ import os
 from flask import Flask, flash, redirect, render_template, request, url_for
 from peewee import SqliteDatabase
 
-from astrolog.api import create_observation
+from astrolog.api import create_observation, delete_location
 from astrolog.database import (MODELS, Binocular, EyePiece, Filter, Location,
                                Object, Session, Telescope, database_proxy)
 
@@ -170,6 +170,20 @@ def new_filter() -> str:
 @app.route('/locations')
 def locations() -> str:
     return render_template('locations.html', locations=Location)
+
+
+@app.route('/locations/alter', methods=['POST'])
+def alter_location() -> str:
+    form = request.form
+    for action, location_id in form.items():
+        location = Location.get(int(location_id))
+        match action:
+            case 'delete':
+                if delete_location(location):
+                    flash(f'Successfully deleted: {location.name} ({location.country})', category='success')
+                else:
+                    flash(f'Could not delete because of observation there: {location.name} ({location.country})', category='warning')
+    return redirect(url_for('locations'))
 
 
 @app.route('/locations/new', methods=['POST'])
