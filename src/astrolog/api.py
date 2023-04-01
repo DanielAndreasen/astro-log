@@ -1,6 +1,6 @@
 from datetime import date
 
-from astrolog.database import (Binocular, EyePiece, Filter, Object,
+from astrolog.database import (Binocular, EyePiece, Filter, Location, Object,
                                Observation, Session, Telescope)
 
 
@@ -42,3 +42,12 @@ def create_observation(session: Session, object: Object,
     return Observation.get_or_create(session=session, object=object, binocular=binocular,
                                      telescope=telescope, eyepiece=eyepiece, optic_filter=optic_filter,
                                      note=note)
+
+
+def delete_location(location: Location) -> bool:
+    match len(location.session_set):
+        case 0:
+            location.delete_instance()
+            return True
+        case _:
+            return False

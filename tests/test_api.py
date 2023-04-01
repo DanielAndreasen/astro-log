@@ -171,3 +171,18 @@ class TestDB(TestCase):
         # Telescope and not eyepiece
         with self.assertRaises(ValueError):
             api.create_observation(session, betelgeuse, telescope=telescope)
+
+    def test_delete_location_without_session(self) -> None:
+        location = Location.create(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
+        deleted = api.delete_location(location)
+        self.assertTrue(deleted)
+        self.assertIsNone(Location.get_or_none(1))
+
+    def test_delete_location_with_session(self) -> None:
+        date = datetime.datetime(2013, 12, 1).date()
+        location = Location.create(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
+        Session.create(date=date, location=location)
+        deleted = api.delete_location(location)
+        self.assertFalse(deleted)
+        self.assertIsNotNone(Location.get_or_none(1))
+        self.assertIsNotNone(Session.get_or_none(1))
