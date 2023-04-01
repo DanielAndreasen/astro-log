@@ -64,7 +64,7 @@ def new_observation(session_id: int) -> str:
 
     return render_template('observation.html', session=session,
                            telescopes=Telescope, eyepieces=EyePiece,
-                           optical_filters=Filter)
+                           optical_filters=Filter, binoculars=Binocular)
 
 
 @app.route('/session/all')

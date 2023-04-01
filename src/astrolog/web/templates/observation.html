@@ -7,62 +7,104 @@
 
 <form method="POST">
 
-  <div class="mb-1 row">
-    <label for="object" class="col-sm-1 col-form-label">Object*</label>
-    <div class="col-sm-2">
-      <input name="object" type="text" class="form-control-plaintext" id="object" placeholder="M42">
-    </div>
+  <div class="input-group">
+    <label for="object" class="input-group-text">Object*</label>
+    <input name="object" type="text" class="form-control" id="object" placeholder="M42">
   </div>
 
-  <div class="mb-1 row">
-    <label for="magnitude" class="col-sm-1 col-form-label">Magnitude*</label>
-    <div class="col-sm-2">
-      <input name="magnitude" type="text" class="form-control-plaintext" id="magnitude" placeholder="1.23">
-    </div>
+  <div class="input-group">
+    <label for="magnitude" class="input-group-text">Magnitude*</label>
+    <input name="magnitude" type="text" class="form-control" id="magnitude" placeholder="1.23">
   </div>
 
-  <div class="mb-3 row">
-    <label for="telescope" class="col-sm-1 col-form-label">Telescope*</label>
-    <div class="col-sm-2">
-      <select name="telescope" class="form-select form-control-plaintext" id="telescope">
-        {% for telescope in telescopes %}
-          <option value="{{telescope.name}}">{{telescope.name}}</option>
-        {% endfor %}
-      </select>
-    </div>
+  <div class="input-group">
+    <label for="observation-type" class="input-group-text">Observation type</label>
+    <select
+      name="observation-type"
+      class="form-select form-control"
+      id="observation-type"
+      onchange="toggle_groups(this);">
+      <option value="naked_eye">Naked eye</option>
+      <option value="binocular">Binocular</option>
+      <option value="telescope">Telescope</option>
+    </select>
   </div>
 
-  <div class="mb-3 row">
-    <label for="eyepiece" class="col-sm-1 col-form-label">Eyepiece*</label>
-    <div class="col-sm-2">
-      <select name="eyepiece" class="form-select form-control-plaintext" id="eyepiece">
-        {% for eyepiece in eyepieces %}
-          <option value="{{eyepiece.type}}">{{eyepiece.type}} ({{eyepiece.focal_length}}mm)</option>
-        {% endfor %}
-      </select>
-    </div>
+  <div id="telescope-group" class="input-group" hidden>
+    <label for="telescope" class="input-group-text">Telescope</label>
+    <select name="telescope" class="form-select form-control" id="telescope">
+      <option value=""></option>
+      {% for telescope in telescopes %}
+        <option value="{{telescope.name}}">{{telescope.name}}</option>
+      {% endfor %}
+    </select>
   </div>
 
-  <div class="mb-3 row">
-    <label for="optical_filter" class="col-sm-1 col-form-label">Filter (optional)</label>
-    <div class="col-sm-2">
-      <select name="optical_filter" class="form-select form-control-plaintext" id="optical_filter">
-        <option value=""></option>
-        {% for optical_filter in optical_filters %}
-          <option value="{{optical_filter.name}}">{{optical_filter.name}}</option>
-        {% endfor %}
-      </select>
-    </div>
+  <div id="eyepiece-group" class="input-group" hidden>
+    <label for="eyepiece" class="input-group-text">Eyepiece</label>
+    <select name="eyepiece" class="form-select form-control" id="eyepiece">
+      <option value=""></option>
+      {% for eyepiece in eyepieces %}
+        <option value="{{eyepiece.type}}">{{eyepiece.type}} ({{eyepiece.focal_length}}mm)</option>
+      {% endfor %}
+    </select>
   </div>
 
-  <div class="mb-1 row">
-    <label for="note" class="col-sm-1 col-form-label">Note (optional)</label>
-    <div class="col-sm-2">
-      <input name="note" type="text" class="form-control-plaintext" id="note" placeholder="This is a note">
-    </div>
+  <div id="optical-filter-group" class="input-group" hidden>
+    <label for="optical_filter" class="input-group-text">Filter (optional)</label>
+    <select name="optical_filter" class="form-select form-control" id="optical_filter">
+      <option value=""></option>
+      {% for optical_filter in optical_filters %}
+        <option value="{{optical_filter.name}}">{{optical_filter.name}}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div id="binocular-group" class="input-group" hidden>
+    <label for="binocular" class="input-group-text">Binocular</label>
+    <select name="binocular" class="form-select form-control" id="binocular">
+      <option value=""></option>
+      {% for binocular in binoculars %}
+      <option value="{{binocular.name}}">{{binocular.name}} ({{binocular.aperture}}X{{binocular.magnification}})</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="input-group">
+    <label for="note" class="input-group-text">Note (optional)</label>
+    <input name="note" type="text" class="form-control" id="note" placeholder="This is a note">
   </div>
 
   <button type="submit" class="btn btn-primary">Add observation</button>
 </form>
+
+<script>
+  function toggle_groups(selector){
+    var binocular_group = document.getElementById('binocular-group');
+    var telescope_group = document.getElementById('telescope-group');
+    var eyepiece_group = document.getElementById('eyepiece-group');
+    var optical_filter_group = document.getElementById('optical-filter-group');
+    switch (selector.value) {
+      case 'binocular':
+        binocular_group.hidden = false;
+        telescope_group.hidden = true;
+        eyepiece_group.hidden = true;
+        optical_filter_group.hidden = true;
+        break;
+      case 'telescope':
+        binocular_group.hidden = true;
+        telescope_group.hidden = false;
+        eyepiece_group.hidden = false;
+        optical_filter_group.hidden = false;
+        break;
+      case 'naked_eye':
+        binocular_group.hidden = true;
+        telescope_group.hidden = true;
+        eyepiece_group.hidden = true;
+        optical_filter_group.hidden = true;
+        break;
+    }
+  }
+</script>
 
 {% endblock %}

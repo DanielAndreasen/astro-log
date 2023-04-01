@@ -102,8 +102,12 @@ class Observation(AstroLogModel):
 
     @property
     def magnification(self) -> Optional[int]:
-        self.telescope.use_eyepiece(self.eyepiece)
-        return self.telescope.magnification
+        if self.telescope:
+            self.telescope.use_eyepiece(self.eyepiece)
+            return self.telescope.magnification
+        elif self.binocular:
+            return self.binocular.magnification
+        return None
 
     @property
     def naked_eye(self) -> bool:
