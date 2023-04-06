@@ -46,7 +46,8 @@ def new_observation(session_id: int) -> str:
         if not (magnitude := form.get('magnitude', None)):
             flash('Object magnitude must be provided', category='danger')
             return redirect(url_for('new_observation', session_id=session.id))
-        obj, new_object = Object.get_or_create(name=obj, magnitude=magnitude)
+        favourite = form.get('favourite') == ''
+        obj, new_object = Object.get_or_create(name=obj, magnitude=magnitude, favourite=favourite)
         if new_object:
             flash(f'Congratulations! First time observing {obj.name}', category='success')
         telescope = Telescope.get_or_none(name=form.get('telescope'))
@@ -86,6 +87,28 @@ def session(session_id: int) -> str:
 def equipments() -> str:
     return render_template('equipments.html', telescopes=Telescope,
                            eyepieces=EyePiece, filters=Filter, binoculars=Binocular)
+
+
+# Objects
+@app.route('/objects', methods=['GET', 'POST'])
+def objects() -> str:
+    if request.method == 'POST':
+        form = request.form
+        match len(form):
+            case 1:
+                # Toggle favourite
+                object = Object.get(int(form.get('toggle_favourite')))
+                object.toggle_favourite()
+            case _:
+                # Adding a new object
+                name = form.get('object')
+                magnitude = form.get('magnitude')
+                favourite = form.get('favourite') == ''
+                if Object.get_or_none(name=name):
+                    flash('Object has already been observed', category='warning')
+                else:
+                    Object.get_or_create(name=name, magnitude=magnitude, favourite=favourite, to_be_watched=True)
+    return render_template('objects.html', objects=Object)
 
 
 @app.route('/equipments/new/telescope', methods=['POST'])
