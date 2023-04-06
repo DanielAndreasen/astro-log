@@ -39,6 +39,10 @@ def create_observation(session: Session, object: Object,
     if telescope and not eyepiece:
         raise ValueError('Telescope require an eyepiece to function')
 
+    # This object has now been observed
+    object.to_be_watched = False
+    object.save()
+
     return Observation.get_or_create(session=session, object=object, binocular=binocular,
                                      telescope=telescope, eyepiece=eyepiece, optic_filter=optic_filter,
                                      note=note)
