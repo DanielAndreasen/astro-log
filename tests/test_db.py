@@ -37,8 +37,8 @@ def get_eyepiece(type: str, focal_length: int, width: float) -> EyePiece:
     return eyepiece
 
 
-def get_object(name: str, magnitude: float, favourite: bool = False) -> Object:
-    object, _ = Object.get_or_create(name=name, magnitude=magnitude, favourite=favourite)
+def get_object(name: str, magnitude: float, favourite: bool = False, to_be_watched: bool = False) -> Object:
+    object, _ = Object.get_or_create(name=name, magnitude=magnitude, favourite=favourite, to_be_watched=to_be_watched)
     return object
 
 
@@ -157,10 +157,12 @@ class TestDB(TestCase):
         self.assertEqual(arcturus.name, 'Arcturus')
         self.assertEqual(arcturus.magnitude, -0.05)
         self.assertFalse(arcturus.favourite)
-        betelgeuse = get_object(name='Betelgeuse', magnitude=0.45, favourite=True)
+        self.assertFalse(arcturus.to_be_watched)
+        betelgeuse = get_object(name='Betelgeuse', magnitude=0.45, favourite=True, to_be_watched=True)
         self.assertEqual(betelgeuse.name, 'Betelgeuse')
         self.assertEqual(betelgeuse.magnitude, 0.45)
         self.assertTrue(betelgeuse.favourite)
+        self.assertTrue(betelgeuse.to_be_watched)
         arcturus.toggle_favourite()
         arcturus = Object.get(name='Arcturus')
         self.assertTrue(arcturus.favourite)

@@ -68,6 +68,7 @@ class Object(AstroLogModel):
     name = TextField()
     magnitude = FloatField()
     favourite = BooleanField(default=False)
+    to_be_watched = BooleanField(default=False)
 
     def toggle_favourite(self) -> None:
         self.favourite = not self.favourite
