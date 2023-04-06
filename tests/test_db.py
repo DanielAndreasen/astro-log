@@ -22,7 +22,7 @@ def get_binocular(name: str, aperture: int, magnification: int) -> Binocular:
     return binocular
 
 
-def get_condition(temperature: int, humidity: int, seeing: int | None = None) -> Condition:
+def get_condition(temperature: int, humidity: int, seeing: float | None = None) -> Condition:
     condition = Condition.create(temperature=temperature, humidity=humidity, seeing=seeing)
     return condition
 
@@ -37,8 +37,8 @@ def get_eyepiece(type: str, focal_length: int, width: float) -> EyePiece:
     return eyepiece
 
 
-def get_object(name: str, magnitude: float) -> Object:
-    object, _ = Object.get_or_create(name=name, magnitude=magnitude)
+def get_object(name: str, magnitude: float, favourite: bool = False) -> Object:
+    object, _ = Object.get_or_create(name=name, magnitude=magnitude, favourite=favourite)
     return object
 
 
@@ -156,6 +156,14 @@ class TestDB(TestCase):
         arcturus = get_object(name='Arcturus', magnitude=-0.05)
         self.assertEqual(arcturus.name, 'Arcturus')
         self.assertEqual(arcturus.magnitude, -0.05)
+        self.assertFalse(arcturus.favourite)
+        betelgeuse = get_object(name='Betelgeuse', magnitude=0.45, favourite=True)
+        self.assertEqual(betelgeuse.name, 'Betelgeuse')
+        self.assertEqual(betelgeuse.magnitude, 0.45)
+        self.assertTrue(betelgeuse.favourite)
+        arcturus.toggle_favourite()
+        arcturus = Object.get(name='Arcturus')
+        self.assertTrue(arcturus.favourite)
 
     def test_observation_with_binocular(self) -> None:
         binocular = get_binocular(name='Something', aperture=50, magnification=12)

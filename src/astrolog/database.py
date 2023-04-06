@@ -1,6 +1,6 @@
 from typing import Iterable, Optional
 
-from peewee import (Check, DatabaseProxy, DateField, FloatField,
+from peewee import (BooleanField, Check, DatabaseProxy, DateField, FloatField,
                     ForeignKeyField, IntegerField, Model, TextField)
 
 database_proxy = DatabaseProxy()
@@ -67,6 +67,11 @@ class Telescope(AstroLogModel):
 class Object(AstroLogModel):
     name = TextField()
     magnitude = FloatField()
+    favourite = BooleanField(default=False)
+
+    def toggle_favourite(self) -> None:
+        self.favourite = not self.favourite
+        self.save()
 
 
 class Condition(AstroLogModel):
