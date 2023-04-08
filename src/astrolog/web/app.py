@@ -302,4 +302,4 @@ if __name__ == '__main__':  # pragma: no cover
     database_proxy.initialize(db)
     db.create_tables(MODELS)
 
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5065, debug=True)

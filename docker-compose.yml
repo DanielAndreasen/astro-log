@@ -1,0 +1,9 @@
+version: '3'
+services:
+  web:
+    container_name: astrolog
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - 5065:5065
