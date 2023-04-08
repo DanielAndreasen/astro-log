@@ -20,4 +20,4 @@ jobs:
       - name: Install package and run unit tests
         run: |
           pip install -e .
-          pytest --cov=astrolog --cov-report term-missing
+          pytest
