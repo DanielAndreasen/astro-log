@@ -14,6 +14,7 @@ setup(
     install_requires=[
         'Flask >= 2.2',
         'peewee >= 3.15',
+        'pytest',
         'bcrypt'
     ],
 
