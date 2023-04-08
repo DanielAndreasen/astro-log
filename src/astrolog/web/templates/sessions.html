@@ -13,7 +13,7 @@
   <tbody>
     {% for session in sessions %}
       <tr>
-        <td><a class="btn btn-primary" href="{{url_for('session', session_id=session.id)}}">{{session.date}}</a></td>
+        <td><a class="btn btn-primary" href="{{url_for('session_page', session_id=session.id)}}">{{session.date}}</a></td>
         <td>{{session.location.name}}</td>
         <td>{{session.number_of_observations}}</td>
       </tr>

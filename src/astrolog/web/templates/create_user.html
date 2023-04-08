@@ -1,0 +1,29 @@
+{% extends "template.html" %}
+
+{% block body %} 
+
+<form method="POST">
+  <div class="input-group mb-3">
+    <span class="input-group-text" id="username">Username</span>
+    <input
+      name="username"
+      type="text"
+      class="form-control"
+      aria-describedby="username"
+    />
+  </div>
+
+  <div class="input-group mb-3">
+    <span class="input-group-text" id="password">Password</span>
+    <input
+      name="password"
+      type="password"
+      class="form-control"
+      aria-describedby="password"
+    />
+  </div>
+
+  <button name="login" class="btn btn-success" type="submit">Create user</button>
+</form>
+
+{% endblock %}

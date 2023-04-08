@@ -1,7 +1,8 @@
 from typing import Iterable, Optional
 
-from peewee import (BooleanField, Check, DatabaseProxy, DateField, FloatField,
-                    ForeignKeyField, IntegerField, Model, TextField)
+from peewee import (BlobField, BooleanField, Check, DatabaseProxy, DateField,
+                    FloatField, ForeignKeyField, IntegerField, Model,
+                    TextField)
 
 database_proxy = DatabaseProxy()
 
@@ -120,4 +121,11 @@ class Observation(AstroLogModel):
         return not self.telescope and not self.binocular
 
 
-MODELS = [Condition, Binocular, Session, EyePiece, Filter, Location, Object, Observation, Telescope]
+class User(AstroLogModel):
+    username = TextField()
+    hashed_password = BlobField()
+
+
+MODELS = [Condition, Binocular, Session, EyePiece,
+          Filter, Location, Object, Observation,
+          Telescope, User]

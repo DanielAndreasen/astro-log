@@ -1,7 +1,9 @@
 from datetime import date
 
+import bcrypt
+
 from astrolog.database import (Binocular, EyePiece, Filter, Location, Object,
-                               Observation, Session, Telescope)
+                               Observation, Session, Telescope, User)
 
 
 def get_session(date: date) -> dict[str, list[Observation] | Session]:
@@ -55,3 +57,20 @@ def delete_location(location: Location) -> bool:
             return True
         case _:
             return False
+
+
+def create_user(username: str, password: str) -> User:
+    if not username or not password:
+        raise ValueError('Username and password are both required')
+    if len(password) < 8:
+        raise ValueError('Too short password, minimum of 8 characters are required')
+    hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+    return User.create(username=username, hashed_password=hashed_password)
+
+
+def valid_login(username: str, password: str) -> bool:
+    if (not username) or (not password):
+        return False
+    if (user := User.get_or_none(username=username)) is None:
+        return False
+    return bcrypt.checkpw(password.encode(), user.hashed_password)

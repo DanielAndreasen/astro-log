@@ -1,24 +1,73 @@
 import datetime
 import os
+from functools import wraps
+from typing import Any
 
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import (Flask, flash, redirect, render_template, request, session,
+                   url_for)
 from peewee import SqliteDatabase
 
-from astrolog.api import create_observation, delete_location
+from astrolog.api import (create_observation, create_user, delete_location,
+                          valid_login)
 from astrolog.database import (MODELS, Binocular, EyePiece, Filter, Location,
-                               Object, Session, Telescope, database_proxy)
+                               Object, Session, Telescope, User,
+                               database_proxy)
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = os.urandom(24)
 
 
+def login_required(f: Any) -> Any:
+    @wraps(f)
+    def wrap(*args: Any, **kwargs: Any) -> Any:
+        if 'logged_in' in session:
+            return f(*args, **kwargs)
+        else:
+            flash("You need to login first", category='danger')
+            return redirect(url_for('login'))
+    return wrap
+
+
 @app.route('/')
 def main() -> str:
+    if not User.select().count():
+        return redirect(url_for('create_user_page'))
     return render_template('main.html')
+
+
+@app.route('/create_user', methods=['GET', 'POST'])
+def create_user_page() -> str:
+    if request.method == 'POST':
+        try:
+            create_user(username=request.form.get('username'),
+                        password=request.form.get('password'))
+            return redirect(url_for('login'))
+        except ValueError:
+            flash('Both username and password are required. Password should be minimum 8 characters long', category='danger')
+            return redirect(url_for('create_user_page'))
+    return render_template('create_user.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login() -> str:
+    if request.method == 'POST':
+        form = request.form
+        if 'logout' in form.keys():
+            del session['logged_in']
+            flash('You are now logged out', category='success')
+            return redirect(url_for('main'))
+        if valid_login(username=form.get('username'), password=form.get('password')):
+            session['logged_in'] = True
+            flash('You are now logged in', category='success')
+            return redirect(url_for('main'))
+        else:
+            flash('Wrong username and/or password', category='danger')
+    return render_template('login.html', logged_in=session.get('logged_in'))
 
 
 # Sessions
 @app.route('/session/new', methods=['GET', 'POST'])
+@login_required
 def new_session() -> str:
     if request.method == 'POST':
         location = Location.get_or_none(name=request.form.get('location'))
@@ -33,6 +82,7 @@ def new_session() -> str:
 
 
 @app.route('/observation/new/session/<int:session_id>', methods=['GET', 'POST'])
+@login_required
 def new_observation(session_id: int) -> str:
     session = Session.get_or_none(session_id)
     if not session:
@@ -69,12 +119,14 @@ def new_observation(session_id: int) -> str:
 
 
 @app.route('/session/all')
+@login_required
 def all_sessions() -> str:
     return render_template('sessions.html', sessions=Session)
 
 
 @app.route('/session/<int:session_id>')
-def session(session_id: int) -> str:
+@login_required
+def session_page(session_id: int) -> str:
     session = Session.get_or_none(session_id)
     if not session:
         flash(f'Session with id {session_id} was not found', category='warning')
@@ -84,6 +136,7 @@ def session(session_id: int) -> str:
 
 # Equipments
 @app.route('/equipments')
+@login_required
 def equipments() -> str:
     return render_template('equipments.html', telescopes=Telescope,
                            eyepieces=EyePiece, filters=Filter, binoculars=Binocular)
@@ -91,6 +144,7 @@ def equipments() -> str:
 
 # Objects
 @app.route('/objects', methods=['GET', 'POST'])
+@login_required
 def objects() -> str:
     if request.method == 'POST':
         form = request.form
@@ -112,6 +166,7 @@ def objects() -> str:
 
 
 @app.route('/equipments/new/telescope', methods=['POST'])
+@login_required
 def new_telescope() -> str:
     if request.method == 'POST':
         form = request.form
@@ -133,6 +188,7 @@ def new_telescope() -> str:
 
 
 @app.route('/equipments/new/binocular', methods=['POST'])
+@login_required
 def new_binocular() -> str:
     if request.method == 'POST':
         form = request.form
@@ -154,6 +210,7 @@ def new_binocular() -> str:
 
 
 @app.route('/equipments/new/eyepiece', methods=['POST'])
+@login_required
 def new_eyepiece() -> str:
     if request.method == 'POST':
         form = request.form
@@ -175,6 +232,7 @@ def new_eyepiece() -> str:
 
 
 @app.route('/equipments/new/filter', methods=['POST'])
+@login_required
 def new_filter() -> str:
     if request.method == 'POST':
         form = request.form
@@ -191,11 +249,13 @@ def new_filter() -> str:
 
 # Locations
 @app.route('/locations')
+@login_required
 def locations() -> str:
     return render_template('locations.html', locations=Location)
 
 
 @app.route('/locations/alter', methods=['POST'])
+@login_required
 def alter_location() -> str:
     form = request.form
     for action, location_id in form.items():
@@ -210,6 +270,7 @@ def alter_location() -> str:
 
 
 @app.route('/locations/new', methods=['POST'])
+@login_required
 def new_location() -> str:
     form = request.form
     if not (name := form.get('name', None)):
