@@ -37,8 +37,8 @@ def get_eyepiece(type: str, focal_length: int, width: float) -> EyePiece:
     return eyepiece
 
 
-def get_object(name: str, magnitude: float, favourite: bool = False, to_be_watched: bool = False) -> Object:
-    object, _ = Object.get_or_create(name=name, magnitude=magnitude, favourite=favourite, to_be_watched=to_be_watched)
+def get_object(name: str, favourite: bool = False, to_be_watched: bool = False) -> Object:
+    object, _ = Object.get_or_create(name=name, favourite=favourite, to_be_watched=to_be_watched)
     return object
 
 
@@ -153,14 +153,12 @@ class TestDB(TestCase):
             session, _ = Session.get_or_create(date=september_13_1989, location=horsens, moon_phase=-1)
 
     def test_object(self) -> None:
-        arcturus = get_object(name='Arcturus', magnitude=-0.05)
+        arcturus = get_object(name='Arcturus')
         self.assertEqual(arcturus.name, 'Arcturus')
-        self.assertEqual(arcturus.magnitude, -0.05)
         self.assertFalse(arcturus.favourite)
         self.assertFalse(arcturus.to_be_watched)
-        betelgeuse = get_object(name='Betelgeuse', magnitude=0.45, favourite=True, to_be_watched=True)
+        betelgeuse = get_object(name='Betelgeuse', favourite=True, to_be_watched=True)
         self.assertEqual(betelgeuse.name, 'Betelgeuse')
-        self.assertEqual(betelgeuse.magnitude, 0.45)
         self.assertTrue(betelgeuse.favourite)
         self.assertTrue(betelgeuse.to_be_watched)
         arcturus.toggle_favourite()
@@ -172,7 +170,7 @@ class TestDB(TestCase):
         horsens = get_location(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
         session, _ = Session.get_or_create(date=september_13_1989, location=horsens)
-        betelgeuse = get_object(name='Betelgeuse', magnitude=0.45)
+        betelgeuse = get_object(name='Betelgeuse')
         observation, _ = Observation.get_or_create(object=betelgeuse, session=session, binocular=binocular)
 
         self.assertIsNone(observation.note)
@@ -191,7 +189,7 @@ class TestDB(TestCase):
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
         session, _ = Session.get_or_create(date=september_13_1989, location=horsens)
 
-        betelgeuse = get_object(name='Betelgeuse', magnitude=0.45)
+        betelgeuse = get_object(name='Betelgeuse')
 
         observation = Observation(object=betelgeuse, session=session, telescope=telescope, eyepiece=plossl, optic_filter=moon_filter)
         observation.save()
@@ -218,8 +216,8 @@ class TestDB(TestCase):
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
         session, _ = Session.get_or_create(date=september_13_1989, location=horsens)
 
-        arcturus = get_object(name='Arcturus', magnitude=-0.05)
-        betelgeuse = get_object(name='Betelgeuse', magnitude=0.45)
+        arcturus = get_object(name='Arcturus')
+        betelgeuse = get_object(name='Betelgeuse')
 
         Observation.get_or_create(object=betelgeuse, session=session, telescope=telescope, eyepiece=plossl)
         Observation.get_or_create(object=arcturus, session=session, telescope=telescope, eyepiece=kellner)

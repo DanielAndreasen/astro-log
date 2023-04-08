@@ -20,7 +20,6 @@
   <tr>
   </tr>
     <th>Object</th>
-    <th>Magnitude</th>
     <th>Observation type</th>
     <th>Eyepiece</th>
     <th>Magnification</th>
@@ -31,7 +30,6 @@
     {% for observation in session.observations %}
       <tr class="clickable-row" data-href="observation/{{observation.id}}">
         <td>{{observation.object.name}}</td>
-        <td>{{observation.object.magnitude}}</td>
         {% if observation.telescope is not none %}
           <td>{{observation.telescope.name}} (f{{observation.telescope.f_ratio}})</td>
         {% elif observation.binocular is not none %}

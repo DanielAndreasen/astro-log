@@ -93,11 +93,9 @@ def new_observation(session_id: int) -> str:
         if not (obj := form.get('object', None)):
             flash('Object name must be provided', category='danger')
             return redirect(url_for('new_observation', session_id=session.id))
-        if not (magnitude := form.get('magnitude', None)):
-            flash('Object magnitude must be provided', category='danger')
             return redirect(url_for('new_observation', session_id=session.id))
         favourite = form.get('favourite') == ''
-        obj, new_object = Object.get_or_create(name=obj, magnitude=magnitude, favourite=favourite)
+        obj, new_object = Object.get_or_create(name=obj, favourite=favourite)
         if new_object:
             flash(f'Congratulations! First time observing {obj.name}', category='success')
         telescope = Telescope.get_or_none(name=form.get('telescope'))
@@ -156,12 +154,11 @@ def objects() -> str:
             case _:
                 # Adding a new object
                 name = form.get('object')
-                magnitude = form.get('magnitude')
                 favourite = form.get('favourite') == ''
                 if Object.get_or_none(name=name):
                     flash('Object has already been observed', category='warning')
                 else:
-                    Object.get_or_create(name=name, magnitude=magnitude, favourite=favourite, to_be_watched=True)
+                    Object.get_or_create(name=name, favourite=favourite, to_be_watched=True)
     return render_template('objects.html', objects=Object)
 
 

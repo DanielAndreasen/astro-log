@@ -67,7 +67,6 @@ class Telescope(AstroLogModel):
 
 class Object(AstroLogModel):
     name = TextField()
-    magnitude = FloatField()
     favourite = BooleanField(default=False)
     to_be_watched = BooleanField(default=False)
 

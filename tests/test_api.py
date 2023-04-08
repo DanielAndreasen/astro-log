@@ -17,7 +17,7 @@ def get_and_create_session_with_n_observations(date: datetime.date, object: Obje
     location = Location.create(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
     session = Session.create(date=date, location=location)
     if object is None:
-        object = Object.create(name='Betelgeuse', magnitude=0.45)
+        object = Object.create(name='Betelgeuse')
     telescope = Telescope.create(name='Explorer 150P', aperture=150, focal_length=750)
     plossl = EyePiece.create(type='Plössl', focal_length=6, width=1.25)
     for _ in range(n):
@@ -62,15 +62,15 @@ class TestDB(TestCase):
             self.assertEqual(actual, expected)
 
     def test_get_empty_observation(self) -> None:
-        betelgeuse = Object.create(name='Betelgeuse', magnitude=0.45)
-        rigel = Object.create(name='Rigel', magnitude=-0.45)
+        betelgeuse = Object.create(name='Betelgeuse')
+        rigel = Object.create(name='Rigel')
         date = datetime.datetime(2013, 9, 13).date()
         get_and_create_session_with_n_observations(date, betelgeuse, n=1)
         res = api.get_observations_of_object(rigel)
         self.assertListEqual(res['observations'], [])
 
     def test_get_observations_of_object(self) -> None:
-        betelgeuse = Object.create(name='Betelgeuse', magnitude=0.45)
+        betelgeuse = Object.create(name='Betelgeuse')
         observations = []
         dates = [datetime.datetime(2013, 9, 13).date(), datetime.datetime(2013, 9, 14).date()]
         for date in dates:
@@ -103,7 +103,7 @@ class TestDB(TestCase):
         date = datetime.datetime(2013, 12, 1).date()
         location = Location.create(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
         session = Session.create(date=date, location=location)
-        betelgeuse = Object.create(name='Betelgeuse', magnitude=0.45, to_be_watched=True)
+        betelgeuse = Object.create(name='Betelgeuse', to_be_watched=True)
         telescope = Telescope.create(name='Explorer 150P', aperture=150, focal_length=750)
         eyepiece = EyePiece.create(type='Plössl', focal_length=6, width=1.25)
         optic_filter = Filter.create(name='Moon filter')
@@ -152,7 +152,7 @@ class TestDB(TestCase):
         date = datetime.datetime(2013, 12, 1).date()
         location = Location.create(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
         session = Session.create(date=date, location=location)
-        betelgeuse = Object.create(name='Betelgeuse', magnitude=0.45)
+        betelgeuse = Object.create(name='Betelgeuse')
         telescope = Telescope.create(name='Explorer 150P', aperture=150, focal_length=750)
         eyepiece = EyePiece.create(type='Plössl', focal_length=6, width=1.25)
         optic_filter = Filter.create(name='Moon filter')
