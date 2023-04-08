@@ -29,23 +29,32 @@
     </table>
 
     <form action="{{url_for('new_telescope')}}" method="POST">
-      <div class="mb-1 row">
-        <label for="name" class="col-sm-1 col-form-label">Name</label>
-        <div class="col-sm-5">
-          <input name="name" type="text" class="form-control-plaintext" id="name">
-        </div>
+      <div class="input-group">
+        <span class="input-group-text" id="name">Name</span>
+        <input
+          name="name"
+          type="text"
+          class="form-control"
+          aria-describedby="name"
+        />
       </div>
-      <div class="mb-1 row">
-        <label for="aperture" class="col-sm-1 col-form-label">Aperture</label>
-        <div class="col-sm-5">
-          <input name="aperture" type="text" class="form-control-plaintext" id="aperture">
-        </div>
+      <div class="input-group">
+        <span class="input-group-text" id="aperture">Aperture</span>
+        <input
+          name="aperture"
+          type="text"
+          class="form-control"
+          aria-describedby="aperture"
+        />
       </div>
-      <div class="mb-1 row">
-        <label for="focal_length" class="col-sm-1 col-form-label">Focal length</label>
-        <div class="col-sm-5">
-          <input name="focal_length" type="text" class="form-control-plaintext" id="focal_length">
-        </div>
+      <div class="input-group">
+        <span class="input-group-text" id="focal_length">Focal length</span>
+        <input
+          name="focal_length"
+          type="text"
+          class="form-control"
+          aria-describedby="focal_length"
+        />
       </div>
       <button type="submit" class="btn btn-primary">Add telescope</button>
     </form>
@@ -75,23 +84,32 @@
     </table>
 
     <form action="{{url_for('new_eyepiece')}}" method="POST">
-      <div class="mb-1 row">
-        <label for="type" class="col-sm-1 col-form-label">Type</label>
-        <div class="col-sm-5">
-          <input name="type" type="text" class="form-control-plaintext" id="type">
-        </div>
+      <div class="input-group">
+        <span class="input-group-text" id="type">Type</span>
+        <input
+          name="type"
+          type="text"
+          class="form-control"
+          aria-describedby="type"
+        />
       </div>
-      <div class="mb-1 row">
-        <label for="focal_length" class="col-sm-1 col-form-label">Focal length</label>
-        <div class="col-sm-5">
-          <input name="focal_length" type="text" class="form-control-plaintext" id="focal_length">
-        </div>
+      <div class="input-group">
+        <span class="input-group-text" id="focal_length">Focal length</span>
+        <input
+          name="focal_length"
+          type="text"
+          class="form-control"
+          aria-describedby="focal_length"
+        />
       </div>
-      <div class="mb-1 row">
-        <label for="width" class="col-sm-1 col-form-label">Width</label>
-        <div class="col-sm-5">
-          <input name="width" type="text" class="form-control-plaintext" id="width">
-        </div>
+      <div class="input-group">
+        <span class="input-group-text" id="width">Width</span>
+        <input
+          name="width"
+          type="text"
+          class="form-control"
+          aria-describedby="width"
+        />
       </div>
       <button type="submit" class="btn btn-primary">Add eyepiece</button>
     </form>
@@ -123,23 +141,32 @@
     </table>
 
     <form action="{{url_for('new_binocular')}}" method="POST">
-      <div class="mb-1 row">
-        <label for="name" class="col-sm-1 col-form-label">Name</label>
-        <div class="col-sm-5">
-          <input name="name" type="text" class="form-control-plaintext" id="name">
-        </div>
+      <div class="input-group">
+        <span class="input-group-text" id="name">Name</span>
+        <input
+          name="name"
+          type="text"
+          class="form-control"
+          aria-describedby="name"
+        />
       </div>
-      <div class="mb-1 row">
-        <label for="aperture" class="col-sm-1 col-form-label">Aperture</label>
-        <div class="col-sm-5">
-          <input name="aperture" type="text" class="form-control-plaintext" id="aperture">
-        </div>
+      <div class="input-group">
+        <span class="input-group-text" id="aperture">Aperture</span>
+        <input
+          name="aperture"
+          type="text"
+          class="form-control"
+          aria-describedby="aperture"
+        />
       </div>
-      <div class="mb-1 row">
-        <label for="magnification" class="col-sm-1 col-form-label">Magnification</label>
-        <div class="col-sm-5">
-          <input name="magnification" type="text" class="form-control-plaintext" id="magnification">
-        </div>
+      <div class="input-group">
+        <span class="input-group-text" id="magnification">Magnification</span>
+        <input
+          name="magnification"
+          type="text"
+          class="form-control"
+          aria-describedby="magnification"
+        />
       </div>
       <button type="submit" class="btn btn-primary">Add binocular</button>
     </form>
@@ -165,11 +192,14 @@
     </table>
 
     <form action="{{url_for('new_filter')}}" method="POST">
-      <div class="mb-1 row">
-        <label for="name" class="col-sm-1 col-form-label">Filter</label>
-        <div class="col-sm-5">
-          <input name="name" type="text" class="form-control-plaintext" id="name">
-        </div>
+      <div class="input-group">
+        <span class="input-group-text" id="name">Filter</span>
+        <input
+          name="name"
+          type="text"
+          class="form-control"
+          aria-describedby="name"
+        />
       </div>
       <button type="submit" class="btn btn-primary">Add filter</button>
     </form>
