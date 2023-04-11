@@ -165,7 +165,6 @@ def objects() -> str:
 @login_required
 def add_alt_name() -> str:
     form = request.form
-    print(form)
     object = Object.get(name=form.get('object'))
     if alt_name := form.get('alt-name'):
         try:
