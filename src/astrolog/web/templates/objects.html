@@ -1,96 +1,106 @@
 {% extends "template.html" %} {% block body %}
 
-<div class="row">
-  <div class="col-6">
-    <h2>All objects</h2>
-    <form method="POST">
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Favourite</th>
-            <th>Observed</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for object in objects %}
-            <tr>
-              <td>{{object.name}}</td>
-              <td>
-                {% if object.favourite %}
-                  <button
-                    name="toggle_favourite"
-                    value="{{object.id}}"
-                    type="submit"
-                    class="btn btn-primary">
-                    <i class="fa fa-star" aria-hidden="true"></i>
-                  </button>
-                {% else %}
-                <button
-                  name="toggle_favourite"
-                  value="{{object.id}}"
-                  type="submit"
-                  class="btn btn-outline-primary">
-                  <i class="fa fa-star-o" aria-hidden="true"></i>
-                </button>
-                {% endif %}
-              </td>
-              <td>
-                {% if object.to_be_watched %}
-                  <i class="fa fa-minus" aria-hidden="true"></i>
-                {% else %}
-                  <i class="fa fa-check" aria-hidden="true"></i>
-                {% endif %}
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </form>
+<h2>Add new object <small>(to be watched)</small></h2>
+<form class="mb-5" method="POST">
+  <div class="input-group">
+    <label for="object" class="input-group-text">Object*</label>
+    <input name="object" type="text" class="form-control" id="object" placeholder="M42">
+    <div class="input-group-text">
+      <input name="favourite" class="form-check-input mt-0" type="checkbox" value="">
+    </div>
+    <label type="text" class="input-group-text">Favourite</label>
   </div>
+  <button name="add_object" value="add_object2" class="btn btn-primary" type="submit">Add object</button>
+</form>
 
-  <div class="col-6">
-    <h2>Add new object <small>(to be watched)</small></h2>
-    <form class="mb-5" method="POST">
-      <div class="input-group">
-        <label for="object" class="input-group-text">Object*</label>
-        <input name="object" type="text" class="form-control" id="object" placeholder="M42">
-        <div class="input-group-text">
-          <input name="favourite" class="form-check-input mt-0" type="checkbox" value="">
-        </div>
-        <label type="text" class="input-group-text">Favourite</label>
-      </div>
-      <button name="add_object" value="add_object2" class="btn btn-primary" type="submit">Add object</button>
-    </form>
-
-    <h2>To be watched</h2>
-    <table class="table table-hover">
-      <thead>
+<h2>To be watched</h2>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Favourite</th>
+      <th>Alt. name(s)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for object in objects %}
+      {% if object.to_be_watched %}
         <tr>
-          <th>Name</th>
-          <th>Favourite</th>
+          <td>{{object.name}}</td>
+          <td>
+            {% if object.favourite %}
+              <i class="fa fa-star" aria-hidden="true"></i>
+            {% else %}
+              <i class="fa fa-star-o" aria-hidden="true"></i>
+            {% endif %}
+          </td>
+          <td>{{', '.join(object.alt_names)}}</td>
         </tr>
-      </thead>
-      <tbody>
-        {% for object in objects %}
-          {% if object.to_be_watched %}
-            <tr>
-              <td>{{object.name}}</td>
-              <td>
-                {% if object.favourite %}
-                  <i class="fa fa-star" aria-hidden="true"></i>
-                {% else %}
-                  <i class="fa fa-star-o" aria-hidden="true"></i>
-                {% endif %}
-              </td>
-            </tr>
-          {% endif %}
-        {% endfor %}
-      </tbody>
-    </table>
+      {% endif %}
+    {% endfor %}
+  </tbody>
+</table>
 
+<h2>All objects</h2>
+<form method="POST">
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Alt. name(s)</th>
+        <th>Favourite</th>
+        <th>Observed</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for object in objects %}
+        <tr>
+          <td>{{object.name}}</td>
+          <td>{{', '.join(object.alt_names)}}</td>
+          <td>
+            {% if object.favourite %}
+              <button
+                name="toggle_favourite"
+                value="{{object.id}}"
+                type="submit"
+                class="btn btn-primary">
+                <i class="fa fa-star" aria-hidden="true"></i>
+              </button>
+            {% else %}
+            <button
+              name="toggle_favourite"
+              value="{{object.id}}"
+              type="submit"
+              class="btn btn-outline-primary">
+              <i class="fa fa-star-o" aria-hidden="true"></i>
+            </button>
+            {% endif %}
+          </td>
+          <td>
+            {% if object.to_be_watched %}
+              <i class="fa fa-minus" aria-hidden="true"></i>
+            {% else %}
+              <i class="fa fa-check" aria-hidden="true"></i>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</form>
+
+<form action="{{url_for('add_alt_name')}}" method="POST">
+  <label for="object" class="col-sm-1 col-form-label">Object</label>
+  <div class="col-sm-2">
+    <select name="object" class="form-select form-control-plaintext" id="object">
+      {% for object in objects %}
+        <option value="{{object.name}}">{{object.name}}</option>
+      {% endfor %}
+    </select>
   </div>
-
-</div>
+  <label for="alt-name" class="input-group-text">Alt. name</label>
+  <input name="alt-name" type="text" class="form-control" id="object">
+  <button class="btn btn-success" type="submit">Add</button></td>
+</form>
 
 {% endblock %}

@@ -3,8 +3,8 @@ from unittest import TestCase
 
 from peewee import IntegrityError, SqliteDatabase
 
-from astrolog.database import (MODELS, Binocular, Condition, EyePiece, Filter,
-                               Location, Object, Observation, Session,
+from astrolog.database import (MODELS, AltName, Binocular, Condition, EyePiece,
+                               Filter, Location, Object, Observation, Session,
                                Telescope, database_proxy)
 
 db = SqliteDatabase(':memory:')
@@ -45,6 +45,10 @@ def get_object(name: str, favourite: bool = False, to_be_watched: bool = False) 
 def get_location(name: str, country: str, latitude: str, longitude: str, altitude: int) -> Location:
     location, _ = Location.get_or_create(name=name, country=country, latitude=latitude, longitude=longitude, altitude=altitude)
     return location
+
+
+def set_alt_name(object: Object, name: str) -> None:
+    AltName.create(object=object, name=name)
 
 
 class TestDB(TestCase):
@@ -164,6 +168,16 @@ class TestDB(TestCase):
         arcturus.toggle_favourite()
         arcturus = Object.get(name='Arcturus')
         self.assertTrue(arcturus.favourite)
+
+    def test_object_alt_names(self) -> None:
+        arcturus = get_object(name='Arcturus')
+        self.assertListEqual(arcturus.alt_names, [])
+        set_alt_name(arcturus, 'HD 124897')
+        set_alt_name(arcturus, 'HIP 69673')
+        self.assertIsInstance(arcturus.alt_names, list)
+        self.assertEqual(len(arcturus.alt_names), 2)
+        self.assertIn('HD 124897', arcturus.alt_names)
+        self.assertIn('HIP 69673', arcturus.alt_names)
 
     def test_observation_with_binocular(self) -> None:
         binocular = get_binocular(name='Something', aperture=50, magnification=12)
