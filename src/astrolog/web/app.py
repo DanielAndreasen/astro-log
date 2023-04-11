@@ -5,12 +5,12 @@ from typing import Any
 
 from flask import (Flask, flash, redirect, render_template, request, session,
                    url_for)
-from peewee import SqliteDatabase
+from peewee import IntegrityError, SqliteDatabase
 
 from astrolog.api import (create_observation, create_user, delete_location,
                           valid_login)
-from astrolog.database import (MODELS, Binocular, EyePiece, Filter, Location,
-                               Object, Session, Telescope, User,
+from astrolog.database import (MODELS, AltName, Binocular, EyePiece, Filter,
+                               Location, Object, Session, Telescope, User,
                                database_proxy)
 
 app = Flask(__name__, template_folder='templates')
@@ -93,7 +93,6 @@ def new_observation(session_id: int) -> str:
         if not (obj := form.get('object', None)):
             flash('Object name must be provided', category='danger')
             return redirect(url_for('new_observation', session_id=session.id))
-            return redirect(url_for('new_observation', session_id=session.id))
         favourite = form.get('favourite') == ''
         obj, new_object = Object.get_or_create(name=obj, favourite=favourite)
         if new_object:
@@ -160,6 +159,25 @@ def objects() -> str:
                 else:
                     Object.get_or_create(name=name, favourite=favourite, to_be_watched=True)
     return render_template('objects.html', objects=Object)
+
+
+@app.route('/objects/alt_name', methods=['POST'])
+@login_required
+def add_alt_name() -> str:
+    form = request.form
+    print(form)
+    object = Object.get(name=form.get('object'))
+    if alt_name := form.get('alt-name'):
+        try:
+            AltName.create(object=object, name=alt_name)
+        except IntegrityError:
+            alt = AltName.get(name=alt_name)
+            flash(f'"{alt.object.name}" already has this as an alternative name', category='danger')
+            return redirect(url_for('objects'))
+        flash(f'Successfully added alternative name: {alt_name} to {object.name}', category='success')
+    else:
+        flash('Cannot add empty alternative name', category='warning')
+    return redirect(url_for('objects'))
 
 
 @app.route('/equipments/new/telescope', methods=['POST'])

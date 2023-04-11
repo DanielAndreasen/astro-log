@@ -75,8 +75,8 @@ class Object(AstroLogModel):
         self.save()
 
     @property
-    def alt_names(self) -> None | list[str]:
-        return [alt.name for alt in self.altname_set] or None
+    def alt_names(self) -> list[str | None]:
+        return [alt.name for alt in self.altname_set]
 
 
 class AltName(AstroLogModel):

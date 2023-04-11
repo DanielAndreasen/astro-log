@@ -171,7 +171,7 @@ class TestDB(TestCase):
 
     def test_object_alt_names(self) -> None:
         arcturus = get_object(name='Arcturus')
-        self.assertIsNone(arcturus.alt_names)
+        self.assertListEqual(arcturus.alt_names, [])
         set_alt_name(arcturus, 'HD 124897')
         set_alt_name(arcturus, 'HIP 69673')
         self.assertIsInstance(arcturus.alt_names, list)
