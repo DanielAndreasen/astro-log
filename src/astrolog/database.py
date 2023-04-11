@@ -74,6 +74,15 @@ class Object(AstroLogModel):
         self.favourite = not self.favourite
         self.save()
 
+    @property
+    def alt_names(self) -> None | list[str]:
+        return [alt.name for alt in self.altname_set] or None
+
+
+class AltName(AstroLogModel):
+    object = ForeignKeyField(Object)
+    name = TextField(unique=True)
+
 
 class Condition(AstroLogModel):
     temperature = IntegerField()
@@ -127,4 +136,4 @@ class User(AstroLogModel):
 
 MODELS = [Condition, Binocular, Session, EyePiece,
           Filter, Location, Object, Observation,
-          Telescope, User]
+          Telescope, User, AltName]
