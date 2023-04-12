@@ -10,8 +10,8 @@ from peewee import IntegrityError, SqliteDatabase
 from astrolog.api import (create_observation, create_user, delete_location,
                           valid_login)
 from astrolog.database import (MODELS, AltName, Binocular, EyePiece, Filter,
-                               Location, Object, Session, Telescope, User,
-                               database_proxy)
+                               Location, Object, Session, Structure, Telescope,
+                               User, database_proxy)
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = os.urandom(24)
@@ -134,6 +134,35 @@ def session_page(session_id: int) -> str:
 
 
 # Objects
+@app.route('/structures', methods=['GET'])
+@login_required
+def structures() -> str:
+    return render_template('structures.html', structures=Structure, objects=Object)
+
+
+@app.route('/structures/add', methods=['POST'])
+@login_required
+def add_structure() -> str:
+    form = request.form
+    if (name := form.get('structure', None)) is None:
+        flash('Need to add a name before adding', category='danger')
+    Structure.get_or_create(name=name)
+    flash(f'Added the structure "{name}". Now it is time to add objects', category='success')
+    return redirect(url_for('structures'))
+
+
+@app.route('/structures/add_object', methods=['POST'])
+@login_required
+def add_object_to_structure() -> str:
+    form = request.form
+    structure = Structure.get(int(form.get('structure')))
+    if (object := Object.get_or_none(name=form.get('object'))) is None:
+        flash('Please select an object before submitting', category='warning')
+        return redirect(url_for('structures'))
+    structure.add_object(object)
+    return redirect(url_for('structures'))
+
+
 @app.route('/objects', methods=['GET', 'POST'])
 @login_required
 def objects() -> str:
@@ -148,11 +177,13 @@ def objects() -> str:
                 # Adding a new object
                 name = form.get('object')
                 favourite = form.get('favourite') == ''
-                if Object.get_or_none(name=name):
+                if object := Object.get_or_none(name=name):
                     flash('Object has already been observed', category='warning')
                 else:
-                    Object.get_or_create(name=name, favourite=favourite, to_be_watched=True)
-    return render_template('objects.html', objects=Object)
+                    object, _ = Object.get_or_create(name=name, favourite=favourite, to_be_watched=True)
+                if structure := Structure.get_or_none(name=form.get('structure')):
+                    structure.add_object(object)
+    return render_template('objects.html', objects=Object, structures=Structure)
 
 
 @app.route('/objects/alt_name', methods=['POST'])

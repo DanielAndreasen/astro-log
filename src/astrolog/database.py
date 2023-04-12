@@ -78,6 +78,10 @@ class Structure(AstroLogModel):
     def objects(self) -> list['Object']:
         return list(self.object_set)
 
+    @property
+    def objects_str(self) -> str:
+        return ', '.join([obj.name for obj in self.objects])
+
 
 class Object(AstroLogModel):
     name = TextField()
