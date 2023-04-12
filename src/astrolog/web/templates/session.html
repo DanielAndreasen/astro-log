@@ -28,7 +28,7 @@
   </thead>
   <tbody>
     {% for observation in session.observations %}
-      <tr class="clickable-row" data-href="observation/{{observation.id}}">
+      <tr>
         <td>{{observation.object.name}}</td>
         {% if observation.telescope is not none %}
           <td>{{observation.telescope.name}} (f{{observation.telescope.f_ratio}})</td>

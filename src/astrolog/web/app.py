@@ -133,14 +133,6 @@ def session_page(session_id: int) -> str:
     return render_template('session.html', session=session)
 
 
-# Equipments
-@app.route('/equipments')
-@login_required
-def equipments() -> str:
-    return render_template('equipments.html', telescopes=Telescope,
-                           eyepieces=EyePiece, filters=Filter, binoculars=Binocular)
-
-
 # Objects
 @app.route('/objects', methods=['GET', 'POST'])
 @login_required
@@ -179,6 +171,14 @@ def add_alt_name() -> str:
     else:
         flash('Cannot add empty alternative name', category='warning')
     return redirect(url_for('objects'))
+
+
+# Equipments
+@app.route('/equipments')
+@login_required
+def equipments() -> str:
+    return render_template('equipments.html', telescopes=Telescope,
+                           eyepieces=EyePiece, filters=Filter, binoculars=Binocular)
 
 
 @app.route('/equipments/new/telescope', methods=['POST'])

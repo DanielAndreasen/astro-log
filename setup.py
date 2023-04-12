@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='astrolog',
-    version='1.1.1',
+    version='1.1.2',
 
     packages=find_packages('src'),
     package_dir={'': 'src'},
