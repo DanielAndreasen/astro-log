@@ -5,7 +5,7 @@ from peewee import IntegrityError, SqliteDatabase
 
 from astrolog.database import (MODELS, AltName, Binocular, Condition, EyePiece,
                                Filter, Location, Object, Observation, Session,
-                               Telescope, database_proxy)
+                               Structure, Telescope, database_proxy)
 
 db = SqliteDatabase(':memory:')
 database_proxy.initialize(db)
@@ -49,6 +49,11 @@ def get_location(name: str, country: str, latitude: str, longitude: str, altitud
 
 def set_alt_name(object: Object, name: str) -> None:
     AltName.create(object=object, name=name)
+
+
+def get_structure(name: str) -> Structure:
+    structure, _ = Structure.get_or_create(name=name)
+    return structure
 
 
 class TestDB(TestCase):
@@ -178,6 +183,24 @@ class TestDB(TestCase):
         self.assertEqual(len(arcturus.alt_names), 2)
         self.assertIn('HD 124897', arcturus.alt_names)
         self.assertIn('HIP 69673', arcturus.alt_names)
+
+    def test_structures_of_objects(self) -> None:
+        alnitak = get_object(name='Alnitak')
+        alnilam = get_object(name='Alnilam')
+        mintaka = get_object(name='Mintaka')
+        belt = get_structure(name="Orion's belt")
+        self.assertIsInstance(belt, Structure)
+        self.assertListEqual(belt.objects, [])
+        belt.add_object(alnitak)
+        self.assertListEqual(belt.objects, [alnitak])
+        belt.add_object(alnilam)
+        belt.add_object(mintaka)
+        self.assertIn(alnitak, belt.objects)
+        self.assertIn(alnilam, belt.objects)
+        self.assertIn(mintaka, belt.objects)
+        orion = get_structure(name="Orion")
+        with self.assertRaises(ValueError):
+            orion.add_object(alnilam)
 
     def test_observation_with_binocular(self) -> None:
         binocular = get_binocular(name='Something', aperture=50, magnification=12)
