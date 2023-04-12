@@ -1,5 +1,7 @@
+import os
 from typing import Iterable, Optional
 
+from flask import Markup
 from peewee import (BlobField, BooleanField, Check, DatabaseProxy, DateField,
                     FloatField, ForeignKeyField, IntegerField, Model,
                     TextField)
@@ -125,6 +127,14 @@ class Session(AstroLogModel):
         return len(self.observation_set)
 
 
+class Image(AstroLogModel):
+    fname = TextField()
+
+    @property
+    def thumbnail(self) -> Markup:
+        return Markup(f'<img src="{self.fname}" style="height: 80px;" />')
+
+
 class Observation(AstroLogModel):
     object = ForeignKeyField(Object)
     session = ForeignKeyField(Session)
@@ -133,6 +143,7 @@ class Observation(AstroLogModel):
     eyepiece = ForeignKeyField(EyePiece, null=True)
     optic_filter = ForeignKeyField(Filter, null=True)
     note = TextField(null=True)
+    image = ForeignKeyField(Image, null=True)
 
     @property
     def magnification(self) -> Optional[int]:
@@ -147,6 +158,12 @@ class Observation(AstroLogModel):
     def naked_eye(self) -> bool:
         return not self.telescope and not self.binocular
 
+    def add_image(self, path: str) -> None:
+        fname = os.path.abspath(path)
+        image = Image.create(fname=fname)
+        self.image = image
+        self.save()
+
 
 class User(AstroLogModel):
     username = TextField()
@@ -155,4 +172,5 @@ class User(AstroLogModel):
 
 MODELS = [Condition, Binocular, Session, EyePiece,
           Filter, Location, Object, Observation,
-          Telescope, User, AltName, Structure]
+          Telescope, User, AltName, Structure,
+          Image]
