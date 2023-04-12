@@ -94,8 +94,10 @@ def new_observation(session_id: int) -> str:
             flash('Object name must be provided', category='danger')
             return redirect(url_for('new_observation', session_id=session.id))
         favourite = form.get('favourite') == ''
-        obj, new_object = Object.get_or_create(name=obj, favourite=favourite)
-        if new_object:
+        obj, _ = Object.get_or_create(name=obj)
+        obj.favourite = favourite
+        obj.save()
+        if obj.to_be_watched:
             flash(f'Congratulations! First time observing {obj.name}', category='success')
         telescope = Telescope.get_or_none(name=form.get('telescope'))
         eyepiece = EyePiece.get_or_none(type=form.get('eyepiece'))
