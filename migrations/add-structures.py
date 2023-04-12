@@ -15,5 +15,5 @@ structure = ForeignKeyField(Structure, field=Structure.id, null=True)
 
 with db.transaction():
     migrate(
-        migrator.add_column('object', 'structure', structure),
+        migrator.add_column('object', 'structure_id', structure),
     )
