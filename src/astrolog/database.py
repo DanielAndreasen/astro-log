@@ -65,10 +65,29 @@ class Telescope(AstroLogModel):
         self.eyepiece = eyepiece
 
 
+class Structure(AstroLogModel):
+    name = TextField()
+
+    def add_object(self, object: 'Object') -> None:
+        if structure := object.structure:
+            raise ValueError(f'Already part of "{structure.name}"')
+        object.structure = self
+        object.save()
+
+    @property
+    def objects(self) -> list['Object']:
+        return list(self.object_set)
+
+    @property
+    def objects_str(self) -> str:
+        return ', '.join([obj.name for obj in self.objects])
+
+
 class Object(AstroLogModel):
     name = TextField()
     favourite = BooleanField(default=False)
     to_be_watched = BooleanField(default=False)
+    structure = ForeignKeyField(Structure, null=True)
 
     def toggle_favourite(self) -> None:
         self.favourite = not self.favourite
@@ -136,4 +155,4 @@ class User(AstroLogModel):
 
 MODELS = [Condition, Binocular, Session, EyePiece,
           Filter, Location, Object, Observation,
-          Telescope, User, AltName]
+          Telescope, User, AltName, Structure]
