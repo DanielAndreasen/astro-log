@@ -3,7 +3,7 @@
 <h2>Add new object <small>(to be watched)</small></h2>
 <form class="mb-5" method="POST">
   <div class="input-group">
-    <label for="object" class="input-group-text">Object*</label>
+    <label for="object" class="input-group-text">Object</label>
     <input name="object" type="text" class="form-control" id="object" placeholder="M42">
     <div class="input-group-text">
       <input name="favourite" class="form-check-input mt-0" type="checkbox" value="">
@@ -90,17 +90,17 @@
 </form>
 
 <form action="{{url_for('add_alt_name')}}" method="POST">
-  <label for="object" class="col-sm-1 col-form-label">Object</label>
-  <div class="col-sm-2">
+  <div class="input-group">
+    <label for="object" class="input-group-text">Object</label>
     <select name="object" class="form-select form-control-plaintext" id="object">
       {% for object in objects %}
         <option value="{{object.name}}">{{object.name}}</option>
       {% endfor %}
     </select>
+    <label for="alt-name" class="input-group-text">Alt. name</label>
+    <input name="alt-name" type="text" class="form-control" id="object">
+    <button class="btn btn-success" type="submit">Add</button></td>
   </div>
-  <label for="alt-name" class="input-group-text">Alt. name</label>
-  <input name="alt-name" type="text" class="form-control" id="object">
-  <button class="btn btn-success" type="submit">Add</button></td>
 </form>
 
 {% endblock %}
