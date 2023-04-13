@@ -10,8 +10,8 @@ from peewee import IntegrityError, SqliteDatabase
 from astrolog.api import (create_observation, create_user, delete_location,
                           valid_login)
 from astrolog.database import (MODELS, AltName, Binocular, EyePiece, Filter,
-                               Location, Object, Session, Structure, Telescope,
-                               User, database_proxy)
+                               Location, Object, Observation, Session,
+                               Structure, Telescope, User, database_proxy)
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = os.urandom(24)
@@ -115,6 +115,15 @@ def new_observation(session_id: int) -> str:
     return render_template('observation.html', session=session,
                            telescopes=Telescope, eyepieces=EyePiece,
                            optical_filters=Filter, binoculars=Binocular)
+
+
+@app.route('/observation/new/image/<int:observation_id>', methods=['POST'])
+@login_required
+def upload_image(observation_id: int) -> str:
+    observation: Observation = Observation.get(observation_id)
+    print(request.form)
+    observation.add_image(request.form.get('image'))
+    return redirect(url_for('session_page', session_id=observation.session.id))
 
 
 @app.route('/session/all')
