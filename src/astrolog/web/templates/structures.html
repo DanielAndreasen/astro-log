@@ -1,43 +1,43 @@
 {% extends "template.html" %} {% block body %}
 
 <h2>Structures</h2>
-<form action="{{url_for('add_object_to_structure')}}" method="POST">
-  <table class="table table-hover">
-    <thead>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Objects</th>
+      <th>New object</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for structure in structures %}
       <tr>
-        <th>Name</th>
-        <th>Objects</th>
-        <th>New object</th>
-        <th></th>
+        <form action="{{url_for('add_object_to_structure')}}" method="POST">
+        <td>{{structure.name}}</td>
+        <td>{{structure.objects_str}}</td>
+        <td>
+          <div class="col-sm-6">
+            <select name="object" class="form-select form-control-plaintext" id="object">
+              <option value=""></option>
+              {% for object in objects %}
+                <option value="{{object.name}}">{{object.name}}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </td>
+        <td>
+          <button
+            name="structure"
+            value="{{structure.id}}"
+            class="btn btn-success"
+            type="submit">Add object</button>
+        </td>
+        </form>
       </tr>
-    </thead>
-    <tbody>
-      {% for structure in structures %}
-        <tr>
-          <td>{{structure.name}}</td>
-          <td>{{structure.objects_str}}</td>
-          <td>
-            <div class="col-sm-6">
-              <select name="object" class="form-select form-control-plaintext" id="object">
-                <option value=""></option>
-                {% for object in objects %}
-                  <option value="{{object.name}}">{{object.name}}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </td>
-          <td>
-            <button
-              name="structure"
-              value="{{structure.id}}"
-              class="btn btn-success"
-              type="submit">Add object</button>
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</form>
+    {% endfor %}
+  </tbody>
+</table>
 
 <form action="{{url_for('add_structure')}}" method="POST">
   <div class="input-group">
