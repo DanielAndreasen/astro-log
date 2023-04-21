@@ -101,7 +101,7 @@ def new_observation(session_id: int) -> str:
             flash(f'Congratulations! First time observing {obj.name}', category='success')
         telescope = Telescope.get_or_none(name=form.get('telescope'))
         eyepiece = EyePiece.get_or_none(type=form.get('eyepiece'))
-        optic_filter = Filter.get_or_none(name=form.get('optic_filter'))
+        optic_filter = Filter.get_or_none(name=form.get('optical_filter'))
         binocular = Binocular.get_or_none(name=form.get('binocular'))
         try:
             create_observation(session=session, object=obj,
