@@ -1,6 +1,19 @@
 {% extends "template.html" %}
 
 {% block body %}
+
+<!-- Modal for showing photos -->
+<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <img class="img-fluid">
+      </div>
+    </div>
+  </div>
+</div>
+
+
 {% set loc = session.location %}
 
 <h2>
@@ -25,11 +38,18 @@
     <th>Magnification</th>
     <th>Filter</th>
     <th>Note</th>
+    <th></th>
   </thead>
   <tbody>
     {% for observation in session.observations %}
-      <tr>
-        <td>{{observation.object.name}}</td>
+      {% set image = observation.image %}
+      <tr {% if image is not none %}data-image-name="{{image.image_loc}}" title="Click to see image"{% endif %}>
+        <td>
+          {{observation.object.name}}
+          {% if image is not none %}
+            <i class="fa fa-image" aria-hidden="true"></i>
+          {% endif %}
+        </td>
         {% if observation.telescope is not none %}
           <td>{{observation.telescope.name}} (f{{observation.telescope.f_ratio}})</td>
         {% elif observation.binocular is not none %}
@@ -45,6 +65,17 @@
         {% endif %}
         <td>{{observation.optic_filter.name}}</td>
         <td>{{observation.note or ''}}</td>
+        <td>
+          <div class="input-group">
+            <form
+              action="{{url_for('upload_image', observation_id=observation.id)}}"
+              method="POST"
+              enctype="multipart/form-data">
+              <input name="file" type="file" style="width: 16em;" class="form-control form-control-sm">
+              <button class="btn btn-sm btn-success" type="submit">Upload image</button>
+            </form>
+          </div>
+        </td>
       </tr>
     {% endfor %}
   </tbody>
@@ -52,13 +83,16 @@
 
 <a class="btn btn-success" href="{{url_for('new_observation', session_id=session.id)}}">Add observation</a>
 
-<script type="text/javascript">
-$(document).ready(function($) {
-    $(".clickable-row").click(function() {
-        window.location = $(this).data("href");
-    });
-});
+<script>
+  $('.table > tbody > tr').click(function() {
+    var src = $(this).data('image-name');
+    if (src != undefined) {
+      var img = document.getElementsByClassName('img-fluid')[0];
+      img.src = src;
+      const myModal = new bootstrap.Modal(document.getElementById('myModal'));
+      myModal.toggle();
+    };
+  });
 </script>
-
 
 {% endblock %}

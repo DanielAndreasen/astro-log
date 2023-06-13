@@ -1,11 +1,13 @@
 import datetime
+import os
 from unittest import TestCase
 
+from flask import Markup
 from peewee import IntegrityError, SqliteDatabase
 
 from astrolog.database import (MODELS, AltName, Binocular, Condition, EyePiece,
-                               Filter, Location, Object, Observation, Session,
-                               Structure, Telescope, database_proxy)
+                               Filter, Image, Location, Object, Observation,
+                               Session, Structure, Telescope, database_proxy)
 
 db = SqliteDatabase(':memory:')
 database_proxy.initialize(db)
@@ -243,6 +245,21 @@ class TestDB(TestCase):
         self.assertEqual(observation.optic_filter, None)
         self.assertEqual(observation.note, 'Wow, what a view tonight!')
         self.assertEqual(session.number_of_observations, 2)
+
+    def test_observation_add_image(self) -> None:
+        horsens = get_location(name='Horsens', country='Denmark', latitude='55:51:38', longitude='-9:51:1', altitude=0)
+        september_13_1989 = datetime.datetime(1989, 9, 13).date()
+        session, _ = Session.get_or_create(date=september_13_1989, location=horsens)
+        betelgeuse = get_object(name='Betelgeuse')
+        observation = Observation(object=betelgeuse, session=session)
+        observation.save()
+        self.assertIsNone(observation.image)
+        observation.add_image('resources/test/M42.png')
+        image = observation.image
+        self.assertIsNotNone(image)
+        self.assertIsInstance(image, Image)
+        self.assertEqual(image.fname, 'M42.png')
+        self.assertEqual(image.image_loc, '/static/uploads/M42.png')
 
     def test_session_with_observations(self) -> None:
         plossl = get_eyepiece(type='Plössl', focal_length=6, width=1.25)
