@@ -134,10 +134,6 @@ class Image(AstroLogModel):
     def image_loc(self) -> str:
         return os.path.join("/static/uploads", self.fname)
 
-    @property
-    def thumbnail(self) -> Markup:
-        return Markup(f'<img src="/{os.path.join("static/uploads", self.fname)}" style="height: 80px;" />')
-
 
 class Observation(AstroLogModel):
     object = ForeignKeyField(Object)

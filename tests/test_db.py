@@ -258,8 +258,8 @@ class TestDB(TestCase):
         image = observation.image
         self.assertIsNotNone(image)
         self.assertIsInstance(image, Image)
-        self.assertEqual(image.fname, os.path.abspath('resources/test/M42.png'))
-        self.assertEqual(image.thumbnail, Markup(f'<img src="{image.fname}" style="height: 80px;" />'))
+        self.assertEqual(image.fname, 'M42.png')
+        self.assertEqual(image.image_loc, '/static/uploads/M42.png')
 
     def test_session_with_observations(self) -> None:
         plossl = get_eyepiece(type='Plössl', focal_length=6, width=1.25)
