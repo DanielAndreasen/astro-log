@@ -6,15 +6,18 @@ from typing import Any
 from flask import (Flask, flash, redirect, render_template, request, session,
                    url_for)
 from peewee import IntegrityError, SqliteDatabase
+from werkzeug.utils import secure_filename
 
 from astrolog.api import (create_observation, create_user, delete_location,
                           valid_login)
 from astrolog.database import (MODELS, AltName, Binocular, EyePiece, Filter,
-                               Location, Object, Observation, Session,
+                               Image, Location, Object, Observation, Session,
                                Structure, Telescope, User, database_proxy)
 
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg'}
 app = Flask(__name__, template_folder='templates')
 app.secret_key = os.urandom(24)
+app.config['UPLOAD_FOLDER'] = os.path.join(app.static_folder, 'uploads')
 
 
 def login_required(f: Any) -> Any:
@@ -26,6 +29,11 @@ def login_required(f: Any) -> Any:
             flash("You need to login first", category='danger')
             return redirect(url_for('login'))
     return wrap
+
+
+def allowed_file(fname: str) -> bool:
+    return '.' in fname and \
+        fname.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/')
@@ -121,8 +129,16 @@ def new_observation(session_id: int) -> str:
 @login_required
 def upload_image(observation_id: int) -> str:
     observation: Observation = Observation.get(observation_id)
-    print(request.form)
-    observation.add_image(request.form.get('image'))
+    if (file := request.files.get('file', None)) is None:
+        flash('No image selected', category='warning')
+        return redirect(url_for('session_page', session_id=observation.session.id))
+    if not allowed_file(file.filename):
+        flash('Image extension not allowed', category='warning')
+        return redirect(url_for('session_page', session_id=observation.session.id))
+    fname_path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(file.filename))
+    file.save(fname_path)
+    observation.add_image(fname_path)
+    flash('Image successfully saved', category='success')
     return redirect(url_for('session_page', session_id=observation.session.id))
 
 

@@ -131,8 +131,12 @@ class Image(AstroLogModel):
     fname = TextField()
 
     @property
+    def image_loc(self) -> str:
+        return os.path.join("/static/uploads", self.fname)
+
+    @property
     def thumbnail(self) -> Markup:
-        return Markup(f'<img src="{self.fname}" style="height: 80px;" />')
+        return Markup(f'<img src="/{os.path.join("static/uploads", self.fname)}" style="height: 80px;" />')
 
 
 class Observation(AstroLogModel):
@@ -159,7 +163,7 @@ class Observation(AstroLogModel):
         return not self.telescope and not self.binocular
 
     def add_image(self, path: str) -> None:
-        fname = os.path.abspath(path)
+        fname = os.path.basename(path)
         image = Image.create(fname=fname)
         self.image = image
         self.save()
