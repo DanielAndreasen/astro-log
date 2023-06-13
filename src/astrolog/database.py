@@ -1,7 +1,6 @@
 import os
 from typing import Iterable, Optional
 
-from flask import Markup
 from peewee import (BlobField, BooleanField, Check, DatabaseProxy, DateField,
                     FloatField, ForeignKeyField, IntegerField, Model,
                     TextField)
