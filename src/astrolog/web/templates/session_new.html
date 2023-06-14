@@ -6,14 +6,14 @@
 
   <div class="mb-1 row">
     <label for="date" class="col-sm-1 col-form-label">Date</label>
-    <div class="col-sm-2">
+    <div class="col-sm-4">
       <input name="date" type="date" class="form-control-plaintext" id="date">
     </div>
   </div>
 
   <div class="mb-3 row">
     <label for="location" class="col-sm-1 col-form-label">Location</label>
-    <div class="col-sm-2">
+    <div class="col-sm-4">
       <select name="location" class="form-select form-control-plaintext" id="location">
         {% for location in locations %}
           <option value="{{location.name}}">{{location.name}}</option>
@@ -21,6 +21,14 @@
       </select>
     </div>
   </div>
+
+  <div class="mb-3 row">
+    <label for="note" class="col-sm-1 col-form-label">Note</label>
+    <div class="col-sm-4">
+      <input name="note" type="text" class="form-control" id="note">
+    </div>
+  </div>
+
   <button type="submit" class="btn btn-primary">Create new session</button>
 </form>
 

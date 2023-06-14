@@ -85,7 +85,10 @@ def new_session() -> str:
     if request.method == "POST":
         location = Location.get_or_none(name=request.form.get("location"))
         date = datetime.datetime.strptime(request.form.get("date"), "%Y-%m-%d")
-        session, created = Session.get_or_create(location=location, date=date)
+        note = request.form.get("note", None)
+        session, created = Session.get_or_create(
+            location=location, date=date, note=note
+        )
         if created:
             flash("New session created!", category="success")
             return redirect(url_for("new_observation", session_id=session.id))

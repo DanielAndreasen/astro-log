@@ -174,6 +174,7 @@ class TestDB(TestCase):
         self.assertEqual(session.moon_phase, None)
         self.assertEqual(session.condition, None)
         self.assertEqual(session.number_of_observations, 0)
+        self.assertEqual(session.note, None)
 
     def test_session_with_moon_phases(self) -> None:
         horsens = get_location(
@@ -213,6 +214,20 @@ class TestDB(TestCase):
             session, _ = Session.get_or_create(
                 date=september_13_1989, location=horsens, moon_phase=-1
             )
+
+    def test_session_with_note(self) -> None:
+        horsens = get_location(
+            name="Horsens",
+            country="Denmark",
+            latitude="55:51:38",
+            longitude="-9:51:1",
+            altitude=0,
+        )
+        september_13_1989 = datetime.datetime(1989, 9, 13).date()
+        session, _ = Session.get_or_create(
+            date=september_13_1989, location=horsens, note="this is a note"
+        )
+        self.assertEqual(session.note, "this is a note")
 
     def test_object(self) -> None:
         arcturus = get_object(name="Arcturus")
