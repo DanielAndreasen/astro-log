@@ -165,13 +165,11 @@ def upload_image(observation_id: int) -> str:
 
 
 @app.route("/session/all")
-@login_required
 def all_sessions() -> str:
     return render_template("sessions.html", sessions=Session)
 
 
 @app.route("/session/<int:session_id>")
-@login_required
 def session_page(session_id: int) -> str:
     session = Session.get_or_none(session_id)
     if not session:
@@ -182,7 +180,6 @@ def session_page(session_id: int) -> str:
 
 # Objects
 @app.route("/structures", methods=["GET"])
-@login_required
 def structures() -> str:
     return render_template("structures.html", structures=Structure, objects=Object)
 
@@ -264,7 +261,6 @@ def add_alt_name() -> str:
 
 # Equipments
 @app.route("/equipments")
-@login_required
 def equipments() -> str:
     return render_template(
         "equipments.html",
