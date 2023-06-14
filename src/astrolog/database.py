@@ -119,6 +119,7 @@ class Session(AstroLogModel):
         null=True, constraints=[Check("moon_phase >= 0"), Check("moon_phase <= 100")]
     )
     condition = ForeignKeyField(Condition, null=True)
+    note = TextField(null=True)
 
     @property
     def observations(self) -> Iterable["Observation"]:
