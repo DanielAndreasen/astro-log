@@ -5,6 +5,10 @@
 
 <h2>Session - <small>{{session.date.strftime('%d/%m/%Y')}}</small>; Location - <small title="Lat.: {{loc.latitude}}, Lon.: {{loc.longitude}}, Alt.: {{loc.altitude}}m">{{session.location.name}}</small></h2>
 
+{% if session.note is not none %}
+  <p><b>Note: </b>{{session.note}}</p>
+{% endif %}
+
 <form method="POST">
 
   <div class="input-group">

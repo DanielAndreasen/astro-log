@@ -27,6 +27,10 @@
   </small>
 </h2>
 
+{% if session.note is not none %}
+  <p><b>Note: </b>{{session.note}}</p>
+{% endif %}
+
 
 <table class="table table-hover">
   <thead>
