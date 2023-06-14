@@ -3,5 +3,6 @@ __pycache__
 astrolog.egg-info
 .coverage
 build/
+uploads/
 *.db
 *.py,cover

@@ -36,7 +36,7 @@ class EyePiece(AstroLogModel):
 
     @property
     def optic_filter(self) -> Optional[Filter]:
-        if 'optic_filter_' in self.__dict__.keys():
+        if "optic_filter_" in self.__dict__.keys():
             return self.optic_filter_
         return None
 
@@ -58,7 +58,7 @@ class Telescope(AstroLogModel):
 
     @property
     def magnification(self) -> Optional[int]:
-        if 'eyepiece' in self.__dict__.keys():
+        if "eyepiece" in self.__dict__.keys():
             return int(self.focal_length / self.eyepiece.focal_length)
         return None
 
@@ -69,19 +69,19 @@ class Telescope(AstroLogModel):
 class Structure(AstroLogModel):
     name = TextField()
 
-    def add_object(self, object: 'Object') -> None:
+    def add_object(self, object: "Object") -> None:
         if structure := object.structure:
             raise ValueError(f'Already part of "{structure.name}"')
         object.structure = self
         object.save()
 
     @property
-    def objects(self) -> list['Object']:
+    def objects(self) -> list["Object"]:
         return list(self.object_set)
 
     @property
     def objects_str(self) -> str:
-        return ', '.join([obj.name for obj in self.objects])
+        return ", ".join([obj.name for obj in self.objects])
 
 
 class Object(AstroLogModel):
@@ -106,18 +106,22 @@ class AltName(AstroLogModel):
 
 class Condition(AstroLogModel):
     temperature = IntegerField()
-    humidity = IntegerField(null=True, constraints=[Check('humidity >= 0'), Check('humidity <= 100')])
+    humidity = IntegerField(
+        null=True, constraints=[Check("humidity >= 0"), Check("humidity <= 100")]
+    )
     seeing = FloatField(null=True)
 
 
 class Session(AstroLogModel):
     date = DateField()
     location = ForeignKeyField(Location)
-    moon_phase = IntegerField(null=True, constraints=[Check('moon_phase >= 0'), Check('moon_phase <= 100')])
+    moon_phase = IntegerField(
+        null=True, constraints=[Check("moon_phase >= 0"), Check("moon_phase <= 100")]
+    )
     condition = ForeignKeyField(Condition, null=True)
 
     @property
-    def observations(self) -> Iterable['Observation']:
+    def observations(self) -> Iterable["Observation"]:
         for observation in self.observation_set:
             yield observation
 
@@ -169,7 +173,18 @@ class User(AstroLogModel):
     hashed_password = BlobField()
 
 
-MODELS = [Condition, Binocular, Session, EyePiece,
-          Filter, Location, Object, Observation,
-          Telescope, User, AltName, Structure,
-          Image]
+MODELS = [
+    AltName,
+    Binocular,
+    Condition,
+    EyePiece,
+    Filter,
+    Image,
+    Location,
+    Object,
+    Observation,
+    Session,
+    Structure,
+    Telescope,
+    User,
+]

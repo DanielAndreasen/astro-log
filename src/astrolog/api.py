@@ -9,45 +9,61 @@ from astrolog.database import (Binocular, EyePiece, Filter, Location, Object,
 def get_session(date: date) -> dict[str, list[Observation] | Session]:
     session = Session.get_or_none(date=date)
     if not session:
-        return {'session': session, 'observations': []}
-    return {'session': session, 'observations': list(session.observation_set)}
+        return {"session": session, "observations": []}
+    return {"session": session, "observations": list(session.observation_set)}
 
 
 def get_sessions(date1: date, date2: date) -> dict[str, list[Session]]:
     sessions = Session.select().where((Session.date >= date1) & (Session.date <= date2))
     if not len(sessions):
-        return {'sessions': []}
-    return {'sessions': [session for session in sessions]}
+        return {"sessions": []}
+    return {"sessions": [session for session in sessions]}
 
 
 def get_observations_of_object(object: Object) -> dict[str, list[Observation]]:
     observations = Observation.select().where(Observation.object == object)
     if not len(observations):
-        return {'observations': []}
-    return {'observations': list(observations)}
+        return {"observations": []}
+    return {"observations": list(observations)}
 
 
-def create_observation(session: Session, object: Object,
-                       binocular: Binocular | None = None, telescope: Telescope | None = None,
-                       eyepiece: EyePiece | None = None, optic_filter: Filter | None = None,
-                       note: str | None = None) -> tuple[Observation, bool]:
-
+def create_observation(
+    session: Session,
+    object: Object,
+    binocular: Binocular | None = None,
+    telescope: Telescope | None = None,
+    eyepiece: EyePiece | None = None,
+    optic_filter: Filter | None = None,
+    note: str | None = None,
+) -> tuple[Observation, bool]:
     if binocular and telescope:
-        raise ValueError('Not possible to make observation with both telescope and binoculars')
+        raise ValueError(
+            "Not possible to make observation with both telescope and binoculars"
+        )
     if binocular and eyepiece:
-        raise ValueError('Not possible to make observation with an eyepiece in binoculars')
+        raise ValueError(
+            "Not possible to make observation with an eyepiece in binoculars"
+        )
     if binocular and optic_filter:
-        raise ValueError('Not possible to make observation with an optical filter in binoculars')
+        raise ValueError(
+            "Not possible to make observation with an optical filter in binoculars"
+        )
     if telescope and not eyepiece:
-        raise ValueError('Telescope require an eyepiece to function')
+        raise ValueError("Telescope require an eyepiece to function")
 
     # This object has now been observed
     object.to_be_watched = False
     object.save()
 
-    return Observation.get_or_create(session=session, object=object, binocular=binocular,
-                                     telescope=telescope, eyepiece=eyepiece, optic_filter=optic_filter,
-                                     note=note)
+    return Observation.get_or_create(
+        session=session,
+        object=object,
+        binocular=binocular,
+        telescope=telescope,
+        eyepiece=eyepiece,
+        optic_filter=optic_filter,
+        note=note,
+    )
 
 
 def delete_location(location: Location) -> bool:
@@ -61,9 +77,9 @@ def delete_location(location: Location) -> bool:
 
 def create_user(username: str, password: str) -> User:
     if not username or not password:
-        raise ValueError('Username and password are both required')
+        raise ValueError("Username and password are both required")
     if len(password) < 8:
-        raise ValueError('Too short password, minimum of 8 characters are required')
+        raise ValueError("Too short password, minimum of 8 characters are required")
     hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
     return User.create(username=username, hashed_password=hashed_password)
 
