@@ -2,7 +2,6 @@
 
 {% block body %}
 
-
 <h2>
   Result for <b>{{text}}</b>
 </h2>
@@ -67,13 +66,9 @@
   </thead>
   <tbody>
     {% for observation in observations %}
-      {% set image = observation.image %}
-      <tr {% if image is not none %}data-image-name="{{image.image_loc}}" title="Click to see image"{% endif %}>
+      <tr>
         <td>
           {{observation.object.name}}
-          {% if image is not none %}
-            <i class="fa fa-image" aria-hidden="true"></i>
-          {% endif %}
         </td>
         {% if observation.telescope is not none %}
           <td>{{observation.telescope.name}} (f{{observation.telescope.f_ratio}})</td>
