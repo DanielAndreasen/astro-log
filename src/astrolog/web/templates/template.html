@@ -68,6 +68,10 @@
             </ul>
           </div>
         </div>
+      <form action="{{url_for('search')}}" method="GET" class="d-flex">
+        <input class="form-control" type="search" name="search" placeholder="Search object/notes">
+        <button class="btn btn-secondary" type="submit">Search</button>
+      </form>
       </nav>
         <i class="bi bi-code"></i>
       </button>

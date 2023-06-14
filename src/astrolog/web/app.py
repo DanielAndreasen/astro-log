@@ -78,6 +78,28 @@ def login() -> str:
     return render_template("login.html", logged_in=session.get("logged_in"))
 
 
+@app.route("/search")
+def search() -> str:
+    text = request.values.get("search")
+    expr = f"%{text}%"
+    objects = (
+        Object.select()
+        .join(AltName)
+        .where((Object.name**expr) | (AltName.name**expr))
+    )
+    observations = Observation.select().where(
+        (Observation.note**expr) | (Observation.object.in_(objects))
+    )
+    sessions = Session.select().where(Session.note**expr)
+    return render_template(
+        "search.html",
+        text=text,
+        objects=objects,
+        observations=observations,
+        sessions=sessions,
+    )
+
+
 # Sessions
 @app.route("/session/new", methods=["GET", "POST"])
 @login_required
