@@ -4,9 +4,19 @@ from unittest import TestCase
 from peewee import SqliteDatabase
 
 from astrolog import api
-from astrolog.database import (MODELS, Binocular, EyePiece, Filter, Location,
-                               Object, Observation, Session, Telescope,
-                               database_proxy)
+from astrolog.database import (
+    MODELS,
+    Binocular,
+    EyePiece,
+    Filter,
+    FrontFilter,
+    Location,
+    Object,
+    Observation,
+    Session,
+    Telescope,
+    database_proxy,
+)
 
 db = SqliteDatabase(":memory:")
 database_proxy.initialize(db)
@@ -124,6 +134,7 @@ class TestDB(TestCase):
         )
         eyepiece = EyePiece.create(type="Plössl", focal_length=6, width=1.25)
         optic_filter = Filter.create(name="Moon filter")
+        solar_filter = FrontFilter.create(name="Moon filter")
 
         # First observe with telescope
         self.assertTrue(betelgeuse.to_be_watched)
@@ -133,6 +144,7 @@ class TestDB(TestCase):
             telescope=telescope,
             eyepiece=eyepiece,
             optic_filter=optic_filter,
+            front_filter=solar_filter,
         )
         self.assertTrue(created)
         self.assertIsInstance(observation, Observation)
@@ -153,6 +165,7 @@ class TestDB(TestCase):
             telescope=telescope,
             eyepiece=eyepiece,
             optic_filter=optic_filter,
+            front_filter=solar_filter,
         )
         self.assertFalse(created)
 

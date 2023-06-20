@@ -3,9 +3,23 @@ from unittest import TestCase
 
 from peewee import IntegrityError, SqliteDatabase
 
-from astrolog.database import (MODELS, AltName, Binocular, Condition, EyePiece,
-                               Filter, Image, Location, Object, Observation,
-                               Session, Structure, Telescope, database_proxy)
+from astrolog.database import (
+    MODELS,
+    AltName,
+    Binocular,
+    Condition,
+    EyePiece,
+    Filter,
+    FrontFilter,
+    Image,
+    Location,
+    Object,
+    Observation,
+    Session,
+    Structure,
+    Telescope,
+    database_proxy,
+)
 
 db = SqliteDatabase(":memory:")
 database_proxy.initialize(db)
@@ -37,6 +51,11 @@ def get_condition(
 
 def get_filter(name: str) -> Filter:
     filter, _ = Filter.get_or_create(name=name)
+    return filter
+
+
+def get_front_filter(name: str) -> FrontFilter:
+    filter, _ = FrontFilter.get_or_create(name=name)
     return filter
 
 
@@ -118,6 +137,7 @@ class TestDB(TestCase):
         self.assertEqual(telescope.focal_length, 750)
         self.assertEqual(telescope.f_ratio, 750 / 150)
         self.assertEqual(telescope.magnification, None)
+        self.assertEqual(telescope.front_filter, None)
         # Use one eyepiece
         plossl = get_eyepiece(type="Plössl", focal_length=6, width=1.25)
         magnification1 = telescope.focal_length / plossl.focal_length
@@ -129,6 +149,10 @@ class TestDB(TestCase):
         telescope = get_telescope(name="Explorer 150P", aperture=150, focal_length=750)
         telescope.use_eyepiece(kellner)
         self.assertEqual(telescope.magnification, magnification2)
+        # Use a filter in front (solar white filter)
+        solar_filter = get_front_filter(name="Solar front filter")
+        telescope.attach_front_filter(solar_filter)
+        self.assertEqual(telescope.front_filter, solar_filter)
 
     def test_location(self) -> None:
         horsens = get_location(
@@ -294,8 +318,10 @@ class TestDB(TestCase):
     def test_observation_with_telescope(self) -> None:
         plossl = get_eyepiece(type="Plössl", focal_length=6, width=1.25)
         moon_filter = get_filter(name="Moon filter")
+        solar_filter = get_front_filter(name="Solar filter")
         telescope = get_telescope(name="Explorer 150P", aperture=150, focal_length=750)
         telescope.use_eyepiece(plossl)
+        telescope.attach_front_filter(solar_filter)
         magnification = telescope.magnification
 
         horsens = get_location(
@@ -316,6 +342,7 @@ class TestDB(TestCase):
             telescope=telescope,
             eyepiece=plossl,
             optic_filter=moon_filter,
+            front_filter=solar_filter,
         )
         observation.save()
         self.assertEqual(observation.note, None)
@@ -323,6 +350,7 @@ class TestDB(TestCase):
         self.assertEqual(observation.object, betelgeuse)
         self.assertEqual(observation.eyepiece, plossl)
         self.assertEqual(observation.optic_filter, moon_filter)
+        self.assertEqual(observation.front_filter, solar_filter)
         self.assertEqual(observation.telescope, telescope)
         self.assertEqual(observation.magnification, magnification)
 

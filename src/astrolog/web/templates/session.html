@@ -31,7 +31,6 @@
   <p><b>Note: </b>{{session.note}}</p>
 {% endif %}
 
-
 <table class="table table-hover">
   <thead>
   <tr>
@@ -67,7 +66,15 @@
         {% else %}
           <td>{{observation.magnification}}X</td>
         {% endif %}
-        <td>{{observation.optic_filter.name}}</td>
+        <td>
+          {% if observation.front_filter is not none and observation.optic_filter is none %}
+            {{observation.front_filter.name}}
+          {% elif observation.front_filter is none and observation.optic_filter is not none %}
+            {{observation.optic_filter.name}}
+          {% elif observation.front_filter is not none and observation.optic_filter is not none %}
+            {{observation.front_filter.name}} + {{observation.optic_filter.name}}
+          {% endif %}
+        </td>
         <td>{{observation.note or ''}}</td>
         <td>
           <div class="input-group">

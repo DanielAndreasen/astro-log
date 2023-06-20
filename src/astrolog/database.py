@@ -1,9 +1,18 @@
 import os
 from typing import Iterable, Optional
 
-from peewee import (BlobField, BooleanField, Check, DatabaseProxy, DateField,
-                    FloatField, ForeignKeyField, IntegerField, Model,
-                    TextField)
+from peewee import (
+    BlobField,
+    BooleanField,
+    Check,
+    DatabaseProxy,
+    DateField,
+    FloatField,
+    ForeignKeyField,
+    IntegerField,
+    Model,
+    TextField,
+)
 
 database_proxy = DatabaseProxy()
 
@@ -23,6 +32,10 @@ class Location(AstroLogModel):
 
 
 class Filter(AstroLogModel):
+    name = TextField()
+
+
+class FrontFilter(AstroLogModel):
     name = TextField()
 
 
@@ -62,8 +75,17 @@ class Telescope(AstroLogModel):
             return int(self.focal_length / self.eyepiece.focal_length)
         return None
 
+    @property
+    def front_filter(self) -> Optional[FrontFilter]:
+        if "_front_filter" in self.__dict__.keys():
+            return self._front_filter
+        return None
+
     def use_eyepiece(self, eyepiece: EyePiece) -> None:
         self.eyepiece = eyepiece
+
+    def attach_front_filter(self, front_filter: FrontFilter) -> None:
+        self._front_filter = front_filter
 
 
 class Structure(AstroLogModel):
@@ -145,6 +167,7 @@ class Observation(AstroLogModel):
     binocular = ForeignKeyField(Binocular, null=True)
     telescope = ForeignKeyField(Telescope, null=True)
     eyepiece = ForeignKeyField(EyePiece, null=True)
+    front_filter = ForeignKeyField(FrontFilter, null=True)
     optic_filter = ForeignKeyField(Filter, null=True)
     note = TextField(null=True)
     image = ForeignKeyField(Image, null=True)
@@ -180,6 +203,7 @@ MODELS = [
     Condition,
     EyePiece,
     Filter,
+    FrontFilter,
     Image,
     Location,
     Object,

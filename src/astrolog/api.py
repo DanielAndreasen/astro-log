@@ -2,8 +2,18 @@ from datetime import date
 
 import bcrypt
 
-from astrolog.database import (Binocular, EyePiece, Filter, Location, Object,
-                               Observation, Session, Telescope, User)
+from astrolog.database import (
+    Binocular,
+    EyePiece,
+    Filter,
+    FrontFilter,
+    Location,
+    Object,
+    Observation,
+    Session,
+    Telescope,
+    User,
+)
 
 
 def get_session(date: date) -> dict[str, list[Observation] | Session]:
@@ -34,6 +44,7 @@ def create_observation(
     telescope: Telescope | None = None,
     eyepiece: EyePiece | None = None,
     optic_filter: Filter | None = None,
+    front_filter: FrontFilter | None = None,
     note: str | None = None,
 ) -> tuple[Observation, bool]:
     if binocular and telescope:
@@ -62,6 +73,7 @@ def create_observation(
         telescope=telescope,
         eyepiece=eyepiece,
         optic_filter=optic_filter,
+        front_filter=front_filter,
         note=note,
     )
 
