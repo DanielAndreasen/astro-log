@@ -3,16 +3,26 @@ import os
 from functools import wraps
 from typing import Any
 
-from flask import (Flask, flash, redirect, render_template, request, session,
-                   url_for)
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from peewee import IntegrityError, SqliteDatabase
 from werkzeug.utils import secure_filename
 
-from astrolog.api import (create_observation, create_user, delete_location,
-                          valid_login)
-from astrolog.database import (MODELS, AltName, Binocular, EyePiece, Filter,
-                               Location, Object, Observation, Session,
-                               Structure, Telescope, User, database_proxy)
+from astrolog.api import create_observation, create_user, delete_location, valid_login
+from astrolog.database import (
+    MODELS,
+    AltName,
+    Binocular,
+    EyePiece,
+    Filter,
+    Location,
+    Object,
+    Observation,
+    Session,
+    Structure,
+    Telescope,
+    User,
+    database_proxy,
+)
 
 ALLOWED_EXTENSIONS = {"pdf", "png", "jpg", "jpeg"}
 app = Flask(__name__, template_folder="templates")
@@ -139,10 +149,16 @@ def new_observation(session_id: int) -> str:
             flash(
                 f"Congratulations! First time observing {obj.name}", category="success"
             )
-        telescope = Telescope.get_or_none(name=form.get("telescope"))
-        eyepiece = EyePiece.get_or_none(type=form.get("eyepiece"))
-        optic_filter = Filter.get_or_none(name=form.get("optical_filter"))
-        binocular = Binocular.get_or_none(name=form.get("binocular"))
+        telescope = eyepiece = optic_filter = binocular = None
+        match form.get("observation-type"):
+            case "telescope":
+                telescope = Telescope.get_or_none(name=form.get("telescope"))
+                eyepiece = EyePiece.get_or_none(type=form.get("eyepiece"))
+                optic_filter = Filter.get_or_none(name=form.get("optical_filter"))
+            case "binocular":
+                binocular = Binocular.get_or_none(name=form.get("binocular"))
+            case "naked_eye":
+                pass
         try:
             create_observation(
                 session=session,
