@@ -60,7 +60,13 @@
         {% else %}
           <td>Naked eye</td>
         {% endif %}
-        <td>{{observation.eyepiece.type}}</td>
+        <td>
+          {% if observation.eyepiece is not none and observation.barlow is not none %}
+            {{observation.eyepiece.type}} + {{observation.barlow.name}} {{observation.barlow.multiplier}}X
+          {% elif observation.eyepiece is not none and observation.barlow is none %}
+            {{observation.eyepiece.type}}
+          {% endif %}
+        </td>
         {% if observation.naked_eye %}
           <td></td>
         {% else %}

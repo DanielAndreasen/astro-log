@@ -175,6 +175,52 @@
   <div class="col-2"></div>
 
   <div class="col-4">
+    <h2>Barlow</h2>
+    <table class="table table-hover">
+      <thead>
+      <tr>
+      </tr>
+        <th>Name</th>
+        <th>Multiplier</th>
+      </thead>
+      <tbody>
+        {% for barlow in barlows %}
+          <tr>
+            <td>{{barlow.name}}</td>
+            <td>{{barlow.multiplier}}X</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <form action="{{url_for('new_barlow')}}" method="POST">
+      <div class="input-group">
+        <span class="input-group-text" id="name">Name</span>
+        <input
+          name="name"
+          type="text"
+          class="form-control"
+          aria-describedby="name"
+        />
+      </div>
+      <div class="input-group">
+        <span class="input-group-text" id="multiplier">Multiplier</span>
+        <input
+          name="multiplier"
+          type="text"
+          class="form-control"
+          aria-describedby="multiplier"
+        />
+      </div>
+      <button type="submit" class="btn btn-primary">Add barlow</button>
+    </form>
+  </div>
+
+</div>
+
+<div class="row">
+
+  <div class="col-4">
     <h2>Filters</h2>
     <table class="table table-hover">
       <thead>
@@ -205,9 +251,8 @@
     </form>
   </div>
 
-</div>
+  <div class="col-2"></div>
 
-<div class="row">
   <div class="col-4">
     <h2>Front filters</h2>
     <table class="table table-hover">

@@ -11,6 +11,7 @@ from astrolog.api import create_observation, create_user, delete_location, valid
 from astrolog.database import (
     MODELS,
     AltName,
+    Barlow,
     Binocular,
     EyePiece,
     Filter,
@@ -155,6 +156,7 @@ def new_observation(session_id: int) -> str:
             case "telescope":
                 telescope = Telescope.get_or_none(name=form.get("telescope"))
                 eyepiece = EyePiece.get_or_none(type=form.get("eyepiece"))
+                barlow = Barlow.get_or_none(name=form.get("barlow"))
                 optic_filter = Filter.get_or_none(name=form.get("optical_filter"))
                 front_filter = FrontFilter.get_or_none(name=form.get("front_filter"))
             case "binocular":
@@ -167,6 +169,7 @@ def new_observation(session_id: int) -> str:
                 object=obj,
                 telescope=telescope,
                 eyepiece=eyepiece,
+                barlow=barlow,
                 optic_filter=optic_filter,
                 front_filter=front_filter,
                 binocular=binocular,
@@ -184,6 +187,7 @@ def new_observation(session_id: int) -> str:
         session=session,
         telescopes=Telescope,
         eyepieces=EyePiece,
+        barlows=Barlow,
         optical_filters=Filter,
         front_filters=FrontFilter,
         binoculars=Binocular,
@@ -311,6 +315,7 @@ def equipments() -> str:
         "equipments.html",
         telescopes=Telescope,
         eyepieces=EyePiece,
+        barlows=Barlow,
         filters=Filter,
         front_filters=FrontFilter,
         binoculars=Binocular,
@@ -383,6 +388,30 @@ def new_eyepiece() -> str:
         flash(f'Eyepiece "{eyepiece.type}" was created', category="success")
     else:
         flash(f'Eyepiece "{eyepiece.type}" already exists', category="warning")
+    return redirect(url_for("equipments"))
+
+
+@app.route("/equipments/new/barlow", methods=["POST"])
+@login_required
+def new_barlow() -> str:
+    form = request.form
+    if not (name := form.get("name", None)):
+        flash("Barlow name must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    if not (multiplier := form.get("multiplier", None)):
+        flash("Barlow multiplier must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    barlow, created = Barlow.get_or_create(name=name, multiplier=multiplier)
+    if created:
+        flash(
+            f'Barlow "{barlow.name} ({barlow.multiplier})" was created',
+            category="success",
+        )
+    else:
+        flash(
+            f'Barlow "{barlow.name} ({barlow.multiplier})" already exists',
+            category="success",
+        )
     return redirect(url_for("equipments"))
 
 
