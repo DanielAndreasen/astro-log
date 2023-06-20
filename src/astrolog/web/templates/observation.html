@@ -36,7 +36,6 @@
   <div id="telescope-group" class="input-group" hidden>
     <label for="telescope" class="input-group-text">Telescope</label>
     <select name="telescope" class="form-select form-control" id="telescope">
-      <option value=""></option>
       {% for telescope in telescopes %}
         <option value="{{telescope.name}}">{{telescope.name}}</option>
       {% endfor %}
@@ -46,7 +45,6 @@
   <div id="eyepiece-group" class="input-group" hidden>
     <label for="eyepiece" class="input-group-text">Eyepiece</label>
     <select name="eyepiece" class="form-select form-control" id="eyepiece">
-      <option value=""></option>
       {% for eyepiece in eyepieces %}
         <option value="{{eyepiece.type}}">{{eyepiece.type}} ({{eyepiece.focal_length}}mm)</option>
       {% endfor %}
@@ -66,7 +64,6 @@
   <div id="binocular-group" class="input-group" hidden>
     <label for="binocular" class="input-group-text">Binocular</label>
     <select name="binocular" class="form-select form-control" id="binocular">
-      <option value=""></option>
       {% for binocular in binoculars %}
       <option value="{{binocular.name}}">{{binocular.name}} ({{binocular.aperture}}X{{binocular.magnification}})</option>
       {% endfor %}
