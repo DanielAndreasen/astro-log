@@ -6,6 +6,7 @@ from peewee import IntegrityError, SqliteDatabase
 from astrolog.database import (
     MODELS,
     AltName,
+    Barlow,
     Binocular,
     Condition,
     EyePiece,
@@ -64,6 +65,11 @@ def get_eyepiece(type: str, focal_length: int, width: float) -> EyePiece:
         type=type, focal_length=focal_length, width=width
     )
     return eyepiece
+
+
+def get_barlow(name: str, multiplier: int) -> Barlow:
+    barlow, _ = Barlow.get_or_create(name=name, multiplier=multiplier)
+    return barlow
 
 
 def get_object(
@@ -138,17 +144,26 @@ class TestDB(TestCase):
         self.assertEqual(telescope.f_ratio, 750 / 150)
         self.assertEqual(telescope.magnification, None)
         self.assertEqual(telescope.front_filter, None)
+        self.assertEqual(telescope.barlow, None)
         # Use one eyepiece
         plossl = get_eyepiece(type="Plössl", focal_length=6, width=1.25)
         magnification1 = telescope.focal_length / plossl.focal_length
         telescope.use_eyepiece(plossl)
         self.assertEqual(telescope.magnification, magnification1)
+        # Use barlow
+        barlow = get_barlow(name="barlow", multiplier=2)
+        telescope.use_barlow(barlow)
+        magnification2 = (
+            telescope.focal_length / plossl.focal_length * barlow.multiplier
+        )
+        self.assertEqual(telescope.barlow, barlow)
+        self.assertEqual(telescope.magnification, magnification2)
         # Change eyepiece
         kellner = get_eyepiece(type="Kellner", focal_length=15, width=1.25)
-        magnification2 = telescope.focal_length / kellner.focal_length
+        magnification3 = telescope.focal_length / kellner.focal_length
         telescope = get_telescope(name="Explorer 150P", aperture=150, focal_length=750)
         telescope.use_eyepiece(kellner)
-        self.assertEqual(telescope.magnification, magnification2)
+        self.assertEqual(telescope.magnification, magnification3)
         # Use a filter in front (solar white filter)
         solar_filter = get_front_filter(name="Solar front filter")
         telescope.attach_front_filter(solar_filter)
@@ -319,8 +334,10 @@ class TestDB(TestCase):
         plossl = get_eyepiece(type="Plössl", focal_length=6, width=1.25)
         moon_filter = get_filter(name="Moon filter")
         solar_filter = get_front_filter(name="Solar filter")
+        barlow = get_barlow(name="Barlow", multiplier=2)
         telescope = get_telescope(name="Explorer 150P", aperture=150, focal_length=750)
         telescope.use_eyepiece(plossl)
+        telescope.use_barlow(barlow)
         telescope.attach_front_filter(solar_filter)
         magnification = telescope.magnification
 
@@ -341,6 +358,7 @@ class TestDB(TestCase):
             session=session,
             telescope=telescope,
             eyepiece=plossl,
+            barlow=barlow,
             optic_filter=moon_filter,
             front_filter=solar_filter,
         )
@@ -349,6 +367,7 @@ class TestDB(TestCase):
         self.assertEqual(observation.session, session)
         self.assertEqual(observation.object, betelgeuse)
         self.assertEqual(observation.eyepiece, plossl)
+        self.assertEqual(observation.barlow, barlow)
         self.assertEqual(observation.optic_filter, moon_filter)
         self.assertEqual(observation.front_filter, solar_filter)
         self.assertEqual(observation.telescope, telescope)
