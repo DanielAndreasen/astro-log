@@ -51,6 +51,16 @@
     </select>
   </div>
 
+  <div id="barlow-group" class="input-group" hidden>
+    <label for="barlow" class="input-group-text">Barlow (optional)</label>
+    <select name="barlow" class="form-select form-control" id="barlow">
+      <option value=""></option>
+      {% for barlow in barlows %}
+        <option value="{{barlow.name}}">{{barlow.name}} {{barlow.multiplier}}X</option>
+      {% endfor %}
+    </select>
+  </div>
+
   <div id="optical-filter-group" class="input-group" hidden>
     <label for="optical_filter" class="input-group-text">Filter (optional)</label>
     <select name="optical_filter" class="form-select form-control" id="optical_filter">
@@ -93,6 +103,7 @@
     var binocular_group = document.getElementById('binocular-group');
     var telescope_group = document.getElementById('telescope-group');
     var eyepiece_group = document.getElementById('eyepiece-group');
+    var barlow_group = document.getElementById('barlow-group');
     var optical_filter_group = document.getElementById('optical-filter-group');
     var front_filter_group = document.getElementById('front-filter-group');
     switch (selector.value) {
@@ -100,12 +111,15 @@
         binocular_group.hidden = false;
         telescope_group.hidden = true;
         eyepiece_group.hidden = true;
+        barlow_group.hidden = true;
         optical_filter_group.hidden = true;
+        front_filter_group.hidden = true;
         break;
       case 'telescope':
         binocular_group.hidden = true;
         telescope_group.hidden = false;
         eyepiece_group.hidden = false;
+        barlow_group.hidden = false;
         optical_filter_group.hidden = false;
         front_filter_group.hidden = false;
         break;
@@ -113,7 +127,9 @@
         binocular_group.hidden = true;
         telescope_group.hidden = true;
         eyepiece_group.hidden = true;
+        barlow_group.hidden = true;
         optical_filter_group.hidden = true;
+        front_filter_group.hidden = true;
         break;
     }
   }

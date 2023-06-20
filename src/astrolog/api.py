@@ -3,6 +3,7 @@ from datetime import date
 import bcrypt
 
 from astrolog.database import (
+    Barlow,
     Binocular,
     EyePiece,
     Filter,
@@ -43,6 +44,7 @@ def create_observation(
     binocular: Binocular | None = None,
     telescope: Telescope | None = None,
     eyepiece: EyePiece | None = None,
+    barlow: Barlow | None = None,
     optic_filter: Filter | None = None,
     front_filter: FrontFilter | None = None,
     note: str | None = None,
@@ -72,6 +74,7 @@ def create_observation(
         binocular=binocular,
         telescope=telescope,
         eyepiece=eyepiece,
+        barlow=barlow,
         optic_filter=optic_filter,
         front_filter=front_filter,
         note=note,

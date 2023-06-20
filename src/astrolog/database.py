@@ -54,6 +54,11 @@ class EyePiece(AstroLogModel):
         return None
 
 
+class Barlow(AstroLogModel):
+    name = TextField()
+    multiplier = IntegerField()
+
+
 class Binocular(AstroLogModel):
     name = TextField()
     aperture = IntegerField()
@@ -61,6 +66,8 @@ class Binocular(AstroLogModel):
 
 
 class Telescope(AstroLogModel):
+    _eyepiece = _front_filter = _barlow = None
+
     name = TextField()
     aperture = IntegerField()
     focal_length = IntegerField()
@@ -71,18 +78,31 @@ class Telescope(AstroLogModel):
 
     @property
     def magnification(self) -> Optional[int]:
-        if "eyepiece" in self.__dict__.keys():
-            return int(self.focal_length / self.eyepiece.focal_length)
+        if eyepiece := self.eyepiece:
+            if barlow := self.barlow:
+                return int(
+                    self.focal_length / eyepiece.focal_length * barlow.multiplier
+                )
+            return int(self.focal_length / eyepiece.focal_length)
         return None
 
     @property
+    def eyepiece(self) -> Optional[EyePiece]:
+        return self._eyepiece
+
+    @property
     def front_filter(self) -> Optional[FrontFilter]:
-        if "_front_filter" in self.__dict__.keys():
-            return self._front_filter
-        return None
+        return self._front_filter
+
+    @property
+    def barlow(self) -> Optional[Barlow]:
+        return self._barlow
 
     def use_eyepiece(self, eyepiece: EyePiece) -> None:
-        self.eyepiece = eyepiece
+        self._eyepiece = eyepiece
+
+    def use_barlow(self, barlow: Barlow) -> None:
+        self._barlow = barlow
 
     def attach_front_filter(self, front_filter: FrontFilter) -> None:
         self._front_filter = front_filter
@@ -167,6 +187,7 @@ class Observation(AstroLogModel):
     binocular = ForeignKeyField(Binocular, null=True)
     telescope = ForeignKeyField(Telescope, null=True)
     eyepiece = ForeignKeyField(EyePiece, null=True)
+    barlow = ForeignKeyField(Barlow, null=True)
     front_filter = ForeignKeyField(FrontFilter, null=True)
     optic_filter = ForeignKeyField(Filter, null=True)
     note = TextField(null=True)
@@ -176,6 +197,8 @@ class Observation(AstroLogModel):
     def magnification(self) -> Optional[int]:
         if self.telescope:
             self.telescope.use_eyepiece(self.eyepiece)
+            if self.barlow:
+                self.telescope.use_barlow(self.barlow)
             return self.telescope.magnification
         elif self.binocular:
             return self.binocular.magnification
@@ -199,6 +222,7 @@ class User(AstroLogModel):
 
 MODELS = [
     AltName,
+    Barlow,
     Binocular,
     Condition,
     EyePiece,

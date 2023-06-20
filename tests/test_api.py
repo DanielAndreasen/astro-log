@@ -6,6 +6,7 @@ from peewee import SqliteDatabase
 from astrolog import api
 from astrolog.database import (
     MODELS,
+    Barlow,
     Binocular,
     EyePiece,
     Filter,
@@ -133,6 +134,7 @@ class TestDB(TestCase):
             name="Explorer 150P", aperture=150, focal_length=750
         )
         eyepiece = EyePiece.create(type="Plössl", focal_length=6, width=1.25)
+        barlow = Barlow.create(name="Barlow", multiplier=2)
         optic_filter = Filter.create(name="Moon filter")
         solar_filter = FrontFilter.create(name="Moon filter")
 
@@ -143,6 +145,7 @@ class TestDB(TestCase):
             betelgeuse,
             telescope=telescope,
             eyepiece=eyepiece,
+            barlow=barlow,
             optic_filter=optic_filter,
             front_filter=solar_filter,
         )
@@ -164,6 +167,7 @@ class TestDB(TestCase):
             betelgeuse,
             telescope=telescope,
             eyepiece=eyepiece,
+            barlow=barlow,
             optic_filter=optic_filter,
             front_filter=solar_filter,
         )
