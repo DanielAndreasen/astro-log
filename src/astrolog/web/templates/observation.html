@@ -61,6 +61,16 @@
     </select>
   </div>
 
+  <div id="front-filter-group" class="input-group" hidden>
+    <label for="front_filter" class="input-group-text">Front filter (optional)</label>
+    <select name="front_filter" class="form-select form-control" id="front_filter">
+      <option value=""></option>
+      {% for front_filter in front_filters %}
+        <option value="{{front_filter.name}}">{{front_filter.name}}</option>
+      {% endfor %}
+    </select>
+  </div>
+
   <div id="binocular-group" class="input-group" hidden>
     <label for="binocular" class="input-group-text">Binocular</label>
     <select name="binocular" class="form-select form-control" id="binocular">
@@ -84,6 +94,7 @@
     var telescope_group = document.getElementById('telescope-group');
     var eyepiece_group = document.getElementById('eyepiece-group');
     var optical_filter_group = document.getElementById('optical-filter-group');
+    var front_filter_group = document.getElementById('front-filter-group');
     switch (selector.value) {
       case 'binocular':
         binocular_group.hidden = false;
@@ -96,6 +107,7 @@
         telescope_group.hidden = false;
         eyepiece_group.hidden = false;
         optical_filter_group.hidden = false;
+        front_filter_group.hidden = false;
         break;
       case 'naked_eye':
         binocular_group.hidden = true;

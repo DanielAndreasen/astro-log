@@ -14,6 +14,7 @@ from astrolog.database import (
     Binocular,
     EyePiece,
     Filter,
+    FrontFilter,
     Location,
     Object,
     Observation,
@@ -149,12 +150,13 @@ def new_observation(session_id: int) -> str:
             flash(
                 f"Congratulations! First time observing {obj.name}", category="success"
             )
-        telescope = eyepiece = optic_filter = binocular = None
+        telescope = eyepiece = optic_filter = front_filter = binocular = None
         match form.get("observation-type"):
             case "telescope":
                 telescope = Telescope.get_or_none(name=form.get("telescope"))
                 eyepiece = EyePiece.get_or_none(type=form.get("eyepiece"))
                 optic_filter = Filter.get_or_none(name=form.get("optical_filter"))
+                front_filter = FrontFilter.get_or_none(name=form.get("front_filter"))
             case "binocular":
                 binocular = Binocular.get_or_none(name=form.get("binocular"))
             case "naked_eye":
@@ -166,6 +168,7 @@ def new_observation(session_id: int) -> str:
                 telescope=telescope,
                 eyepiece=eyepiece,
                 optic_filter=optic_filter,
+                front_filter=front_filter,
                 binocular=binocular,
                 note=form.get("note", None),
             )
@@ -182,6 +185,7 @@ def new_observation(session_id: int) -> str:
         telescopes=Telescope,
         eyepieces=EyePiece,
         optical_filters=Filter,
+        front_filters=FrontFilter,
         binoculars=Binocular,
     )
 
@@ -308,6 +312,7 @@ def equipments() -> str:
         telescopes=Telescope,
         eyepieces=EyePiece,
         filters=Filter,
+        front_filters=FrontFilter,
         binoculars=Binocular,
     )
 
@@ -315,88 +320,99 @@ def equipments() -> str:
 @app.route("/equipments/new/telescope", methods=["POST"])
 @login_required
 def new_telescope() -> str:
-    if request.method == "POST":
-        form = request.form
-        if not (name := form.get("name", None)):
-            flash("Telescope name must be provided", category="danger")
-            return redirect(url_for("equipments"))
-        if not (aperture := form.get("aperture", None)):
-            flash("Telescope aperture must be provided", category="danger")
-            return redirect(url_for("equipments"))
-        if not (focal_length := form.get("focal_length", None)):
-            flash("Telescope focal length must be provided", category="danger")
-            return redirect(url_for("equipments"))
-        telescope, created = Telescope.get_or_create(
-            name=name, aperture=aperture, focal_length=focal_length
-        )
-        if created:
-            flash(f'Telescope "{telescope.name}" was created', category="success")
-        else:
-            flash(f'Telescope "{telescope.name}" already exists', category="warning")
+    form = request.form
+    if not (name := form.get("name", None)):
+        flash("Telescope name must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    if not (aperture := form.get("aperture", None)):
+        flash("Telescope aperture must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    if not (focal_length := form.get("focal_length", None)):
+        flash("Telescope focal length must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    telescope, created = Telescope.get_or_create(
+        name=name, aperture=aperture, focal_length=focal_length
+    )
+    if created:
+        flash(f'Telescope "{telescope.name}" was created', category="success")
+    else:
+        flash(f'Telescope "{telescope.name}" already exists', category="warning")
     return redirect(url_for("equipments"))
 
 
 @app.route("/equipments/new/binocular", methods=["POST"])
 @login_required
 def new_binocular() -> str:
-    if request.method == "POST":
-        form = request.form
-        if not (name := form.get("name", None)):
-            flash("Binocular name must be provided", category="danger")
-            return redirect(url_for("equipments"))
-        if not (aperture := form.get("aperture", None)):
-            flash("Binocular aperture must be provided", category="danger")
-            return redirect(url_for("equipments"))
-        if not (magnification := form.get("magnification", None)):
-            flash("Binocular magnification must be provided", category="danger")
-            return redirect(url_for("equipments"))
-        binocular, created = Binocular.get_or_create(
-            name=name, aperture=aperture, magnification=magnification
-        )
-        if created:
-            flash(f'Binocular "{binocular.name}" was created', category="success")
-        else:
-            flash(f'Binocular "{binocular.name}" already exists', category="warning")
+    form = request.form
+    if not (name := form.get("name", None)):
+        flash("Binocular name must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    if not (aperture := form.get("aperture", None)):
+        flash("Binocular aperture must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    if not (magnification := form.get("magnification", None)):
+        flash("Binocular magnification must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    binocular, created = Binocular.get_or_create(
+        name=name, aperture=aperture, magnification=magnification
+    )
+    if created:
+        flash(f'Binocular "{binocular.name}" was created', category="success")
+    else:
+        flash(f'Binocular "{binocular.name}" already exists', category="warning")
     return redirect(url_for("equipments"))
 
 
 @app.route("/equipments/new/eyepiece", methods=["POST"])
 @login_required
 def new_eyepiece() -> str:
-    if request.method == "POST":
-        form = request.form
-        if not (type_ := form.get("type", None)):
-            flash("Eyepiece type must be provided", category="danger")
-            return redirect(url_for("equipments"))
-        if not (focal_length := form.get("focal_length", None)):
-            flash("Eyepiece focal length must be provided", category="danger")
-            return redirect(url_for("equipments"))
-        if not (width := form.get("width", None)):
-            flash("Eyepiece width must be provided", category="danger")
-            return redirect(url_for("equipments"))
-        eyepiece, created = EyePiece.get_or_create(
-            type=type_, focal_length=focal_length, width=width
-        )
-        if created:
-            flash(f'Eyepiece "{eyepiece.type}" was created', category="success")
-        else:
-            flash(f'Eyepiece "{eyepiece.type}" already exists', category="warning")
+    form = request.form
+    if not (type_ := form.get("type", None)):
+        flash("Eyepiece type must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    if not (focal_length := form.get("focal_length", None)):
+        flash("Eyepiece focal length must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    if not (width := form.get("width", None)):
+        flash("Eyepiece width must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    eyepiece, created = EyePiece.get_or_create(
+        type=type_, focal_length=focal_length, width=width
+    )
+    if created:
+        flash(f'Eyepiece "{eyepiece.type}" was created', category="success")
+    else:
+        flash(f'Eyepiece "{eyepiece.type}" already exists', category="warning")
     return redirect(url_for("equipments"))
 
 
 @app.route("/equipments/new/filter", methods=["POST"])
 @login_required
 def new_filter() -> str:
-    if request.method == "POST":
-        form = request.form
-        if not (name := form.get("name", None)):
-            flash("Filter name must be provided", category="danger")
-            return redirect(url_for("equipments"))
-        filter_, created = Filter.get_or_create(name=name)
-        if created:
-            flash(f'Eyepiece "{filter_.name}" was created', category="success")
-        else:
-            flash(f'Eyepiece "{filter_.name}" already exists', category="warning")
+    form = request.form
+    if not (name := form.get("name", None)):
+        flash("Filter name must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    filter_, created = Filter.get_or_create(name=name)
+    if created:
+        flash(f'Filter "{filter_.name}" was created', category="success")
+    else:
+        flash(f'Filter "{filter_.name}" already exists', category="warning")
+    return redirect(url_for("equipments"))
+
+
+@app.route("/equipments/new/front_filter", methods=["POST"])
+@login_required
+def new_front_filter() -> str:
+    form = request.form
+    if not (name := form.get("name", None)):
+        flash("Filter name must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    filter_, created = FrontFilter.get_or_create(name=name)
+    if created:
+        flash(f'Front filter "{filter_.name}" was created', category="success")
+    else:
+        flash(f'Front filter "{filter_.name}" already exists', category="warning")
     return redirect(url_for("equipments"))
 
 

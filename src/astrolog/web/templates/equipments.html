@@ -207,5 +207,37 @@
 
 </div>
 
+<div class="row">
+  <div class="col-4">
+    <h2>Front filters</h2>
+    <table class="table table-hover">
+      <thead>
+      <tr>
+      </tr>
+        <th>Name</th>
+      </thead>
+      <tbody>
+        {% for filter in front_filters %}
+          <tr>
+            <td>{{filter.name}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <form action="{{url_for('new_front_filter')}}" method="POST">
+      <div class="input-group">
+        <span class="input-group-text" id="name">Filter</span>
+        <input
+          name="name"
+          type="text"
+          class="form-control"
+          aria-describedby="name"
+        />
+      </div>
+      <button type="submit" class="btn btn-primary">Add front filter</button>
+    </form>
+  </div>
+</div>
 
 {% endblock %}
