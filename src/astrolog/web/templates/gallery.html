@@ -123,7 +123,13 @@ img {
   <div class="row">
     {% for image in images %}
       <div class="column">
-        <img class="demo cursor" src="{{image.image_loc}}" style="width:100%" onclick="currentSlide(1)" alt="{{image.observation.object.name}}">
+        {% set obs = image.observation %}
+        <img
+          class="demo cursor"
+          src="{{image.image_loc}}"
+          style="width:100%"
+          onclick="currentSlide(1)"
+          alt="{{obs.session.date}}: {{obs.object.name}}">
       </div>
     {% endfor %}
   </div>
