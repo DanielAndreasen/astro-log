@@ -16,6 +16,7 @@ from astrolog.database import (
     EyePiece,
     Filter,
     FrontFilter,
+    Image,
     Location,
     Object,
     Observation,
@@ -504,6 +505,11 @@ def new_location() -> str:
     else:
         flash(f'Location "{location.name}" already exists', category="warning")
     return redirect(url_for("locations"))
+
+
+@app.route("/gallery", methods=["GET"])
+def gallery() -> str:
+    return render_template("gallery.html", images=Image, enumerate=enumerate)
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -180,6 +180,10 @@ class Image(AstroLogModel):
     def image_loc(self) -> str:
         return os.path.join("/static/uploads", self.fname)
 
+    @property
+    def observation(self) -> "Observation":
+        return Observation.get(image=self)
+
 
 class Observation(AstroLogModel):
     object = ForeignKeyField(Object)
