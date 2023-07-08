@@ -57,6 +57,7 @@
   <thead>
   <tr>
   </tr>
+    <th>Session</th>
     <th>Object</th>
     <th>Observation type</th>
     <th>Eyepiece</th>
@@ -66,7 +67,9 @@
   </thead>
   <tbody>
     {% for observation in observations %}
+      {% set session = observation.session %}
       <tr>
+        <td><a class="btn btn-primary" href="{{url_for('session_page', session_id=session.id)}}">{{session.date}}</a></td>
         <td>
           {{observation.object.name}}
         </td>

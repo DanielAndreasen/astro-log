@@ -4,7 +4,7 @@ from functools import wraps
 from typing import Any
 
 from flask import Flask, flash, redirect, render_template, request, session, url_for
-from peewee import IntegrityError, SqliteDatabase
+from peewee import JOIN, IntegrityError, SqliteDatabase
 from werkzeug.utils import secure_filename
 
 from astrolog.api import create_observation, create_user, delete_location, valid_login
@@ -97,7 +97,7 @@ def search() -> str:
     expr = f"%{text}%"
     objects = (
         Object.select()
-        .join(AltName)
+        .join(AltName, JOIN.LEFT_OUTER)
         .where((Object.name**expr) | (AltName.name**expr))
     )
     observations = Observation.select().where(
