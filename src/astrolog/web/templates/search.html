@@ -58,6 +58,7 @@
   <tr>
   </tr>
     <th>Object</th>
+    <th>Date</th>
     <th>Observation type</th>
     <th>Eyepiece</th>
     <th>Magnification</th>
@@ -69,6 +70,9 @@
       <tr>
         <td>
           {{observation.object.name}}
+        </td>
+        <td>
+          {{observation.session.date}}
         </td>
         {% if observation.telescope is not none %}
           <td>{{observation.telescope.name}} (f{{observation.telescope.f_ratio}})</td>
