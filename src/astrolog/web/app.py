@@ -98,7 +98,11 @@ def search() -> str:
     objects = (
         Object.select()
         .join(AltName, JOIN.LEFT_OUTER)
-        .where((Object.name**expr) | (AltName.name**expr))
+        .switch(Object)
+        .join(Structure)
+        .where(
+            (Object.name**expr) | (AltName.name**expr) | (Structure.name**expr)
+        )
     )
     observations = Observation.select().where(
         (Observation.note**expr) | (Observation.object.in_(objects))
