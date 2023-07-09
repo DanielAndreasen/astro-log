@@ -99,7 +99,7 @@ def search() -> str:
         Object.select()
         .join(AltName, JOIN.LEFT_OUTER)
         .switch(Object)
-        .join(Structure)
+        .join(Structure, JOIN.LEFT_OUTER)
         .where(
             (Object.name**expr) | (AltName.name**expr) | (Structure.name**expr)
         )
