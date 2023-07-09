@@ -98,7 +98,11 @@ def search() -> str:
     objects = (
         Object.select()
         .join(AltName, JOIN.LEFT_OUTER)
-        .where((Object.name**expr) | (AltName.name**expr))
+        .switch(Object)
+        .join(Structure, JOIN.LEFT_OUTER)
+        .where(
+            (Object.name**expr) | (AltName.name**expr) | (Structure.name**expr)
+        )
     )
     observations = Observation.select().where(
         (Observation.note**expr) | (Observation.object.in_(objects))
@@ -216,7 +220,9 @@ def upload_image(observation_id: int) -> str:
 
 @app.route("/session/all")
 def all_sessions() -> str:
-    return render_template("sessions.html", sessions=Session)
+    return render_template(
+        "sessions.html", sessions=Session.select().order_by(Session.date.desc())
+    )
 
 
 @app.route("/session/<int:session_id>")
