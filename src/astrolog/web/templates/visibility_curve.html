@@ -1,0 +1,49 @@
+{% extends "template.html" %}
+
+{% block body %}
+
+<h2>Visibility curve</h2>
+
+
+<form action="{{url_for('visibility')}}" method="POST">
+
+  <div class="input-group">
+    <label for="location" class="input-group-text">Location</label>
+    <select name="location" class="form-select form-control">
+      {% for location in locations %}
+        <option value="{{location.id}}">
+          {{location.name}}, {{location.country}} (lat: {{location.latitude}}; long: {{location.longitude}})
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+  
+  <div class="input-group">
+    <span class="input-group-text" id="name">Date</span>
+    <input name="date" type="date" class="form-control" id="date" value="{{date}}">
+  </div>
+
+  <div class="input-group">
+    <span class="input-group-text" id="name">Object</span>
+    <input
+      name="name"
+      type="text"
+      class="form-control"
+      aria-describedby="name"
+      placeholder="For example: M42"
+      value="{{name or ''}}"
+    />
+  </div>
+
+  <button type="submit" class="btn btn-primary">Get visibility plot</button>
+</form>
+
+{% if fig is not none %}
+  <div style="text-align:center;">
+    <div style="background-color: white;width: 640px;margin: 0 auto;">
+      {{fig|safe}}
+    </div>
+  </div>
+{% endif %}
+
+{% endblock %}

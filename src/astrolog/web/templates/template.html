@@ -45,10 +45,19 @@
           <div class="collapse navbar-collapse" id="navbarColor02">
             <ul class="navbar-nav me-auto">
               <li class="nav-item">
-                <a class="nav-link" href="{{url_for('new_session')}}">New session</a>
+                <a class="nav-link" href="{{url_for('all_sessions')}}">All sessions</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{{url_for('all_sessions')}}">All sessions</a>
+                <a class="nav-link" href="{{url_for('new_session')}}">New session</a>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Planning
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="{{url_for('visibility')}}">Visibility curve</a></li>
+                  <li><a class="dropdown-item" href="#">Finding chart</a></li>
+                </ul>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('gallery')}}">Gallery</a>

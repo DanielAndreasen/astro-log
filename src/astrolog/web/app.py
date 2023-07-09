@@ -3,8 +3,17 @@ import os
 from functools import wraps
 from typing import Any
 
+import astropy.units as u
+import matplotlib.pyplot as plt
+import mpld3
+import numpy as np
+from astropy.coordinates import AltAz, SkyCoord, get_body, get_sun
+from astropy.coordinates.name_resolve import NameResolveError
+from astropy.time import Time
+from astropy.visualization import quantity_support
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from peewee import JOIN, IntegrityError, SqliteDatabase
+from werkzeug.datastructures import ImmutableMultiDict
 from werkzeug.utils import secure_filename
 
 from astrolog.api import create_observation, create_user, delete_location, valid_login
@@ -53,7 +62,7 @@ def allowed_file(fname: str) -> bool:
 def main() -> str:
     if not User.select().count():
         return redirect(url_for("create_user_page"))
-    return render_template("main.html")
+    return redirect(url_for("all_sessions"))
 
 
 @app.route("/create_user", methods=["GET", "POST"])
@@ -511,6 +520,79 @@ def new_location() -> str:
     else:
         flash(f'Location "{location.name}" already exists', category="warning")
     return redirect(url_for("locations"))
+
+
+# Planning
+@app.route("/visibility", methods=["GET", "POST"])
+def visibility() -> str:
+    if request.method == "POST":
+        fig = visibility_plot(request.form)
+        return render_template(
+            "visibility_curve.html",
+            locations=Location,
+            fig=fig,
+            date=request.form.get("date"),
+            name=request.form.get("name"),
+        )
+    today = datetime.datetime.today().date()
+    return render_template(
+        "visibility_curve.html", locations=Location, fig=None, date=today, name=None
+    )
+
+
+def visibility_plot(form: ImmutableMultiDict[str, str]) -> str | None:
+    quantity_support()
+    location = Location.get_by_id(int(form.get("location")))
+    midnight = Time(form.get("date"))
+    delta_midnight = np.linspace(-12, 12, 1000) * u.hour
+    times = midnight + delta_midnight
+    frames = AltAz(obstime=times, location=location.earth_location)
+    sun_pos = get_sun(times).transform_to(frames)
+    moon_pos = get_body("moon", times).transform_to(frames)
+    try:
+        obj = SkyCoord.from_name(form.get("name"))
+    except NameResolveError:
+        flash(f"Could not find object: {form.get('name')}", category="danger")
+        return None
+    obj_pos = obj.transform_to(frames)
+
+    fig = plt.figure()
+    plt.plot(delta_midnight, sun_pos.alt, color="y", label="Sun")
+    plt.plot(delta_midnight, moon_pos.alt, color="r", label="Moon")
+    plt.scatter(
+        delta_midnight,
+        obj_pos.alt,
+        c=obj_pos.alt,
+        label=form.get("name"),
+        lw=0,
+        s=8,
+        cmap="inferno",
+    )
+    plt.fill_between(
+        delta_midnight,
+        0 * u.deg,
+        90 * u.deg,
+        where=sun_pos.alt < -0 * u.deg,
+        color="0.5",
+        zorder=0,
+    )
+    plt.fill_between(
+        delta_midnight,
+        0 * u.deg,
+        90 * u.deg,
+        where=sun_pos.alt < -18 * u.deg,
+        color="k",
+        zorder=0,
+    )
+
+    plt.colorbar().set_label("Azimuth [deg]")
+    plt.legend(loc="upper left")
+    plt.xlim(-12, 12)
+    plt.xticks((np.arange(13) * 2 - 12))
+    plt.ylim(0, 90)
+    plt.xlabel("Hours from midnight")
+    plt.ylabel("Altitude [deg]")
+    return mpld3.fig_to_html(fig)
 
 
 @app.route("/gallery", methods=["GET"])

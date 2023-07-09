@@ -1,5 +1,7 @@
 import os
 from typing import Iterable, Optional
+from astropy.coordinates import EarthLocation
+import astropy.units as u
 
 from peewee import (
     BlobField,
@@ -29,6 +31,22 @@ class Location(AstroLogModel):
     latitude = TextField()
     longitude = TextField()
     altitude = IntegerField()
+
+    @property
+    def earth_location(self) -> EarthLocation:
+        def coordinate_to_decimal(coordinate: str) -> float:
+            parts = [int(part) for part in coordinate.split(":")]
+            if parts[0] < 0:
+                return parts[0] - parts[1] / 60 - parts[2] / 3600
+            return parts[0] + parts[1] / 60 + parts[2] / 3600
+
+        latitude_decimal = coordinate_to_decimal(self.latitude)
+        longitude_decimal = coordinate_to_decimal(self.longitude)
+        return EarthLocation(
+            lat=latitude_decimal * u.deg,
+            lon=longitude_decimal * u.deg,
+            height=self.altitude * u.m,
+        )
 
 
 class Filter(AstroLogModel):

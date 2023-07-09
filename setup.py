@@ -7,7 +7,16 @@ setup(
     package_dir={"": "src"},
     test_suite="tests",
     python_requires=">=3.10",
-    install_requires=["Flask >= 2.2", "peewee >= 3.15", "pytest", "bcrypt"],
+    install_requires=[
+        "astropy",
+        "bcrypt",
+        "Flask >= 2.2",
+        "matplotlib",
+        "mpld3",
+        "numpy",
+        "peewee >= 3.15",
+        "pytest",
+    ],
     author="Daniel Thaagaard Andreasen",
     license="MIT",
 )
