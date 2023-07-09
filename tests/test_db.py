@@ -1,5 +1,6 @@
 import datetime
 from unittest import TestCase
+from astropy.coordinates import EarthLocation
 
 from peewee import IntegrityError, SqliteDatabase
 
@@ -434,3 +435,14 @@ class TestDB(TestCase):
         self.assertEqual(len(session.observation_set), 2)
         for observation in session.observations:
             self.assertIsNotNone(observation.object)
+
+    def test_location_EarthLocation(self) -> None:
+        horsens = get_location(
+            name="Horsens",
+            country="Denmark",
+            latitude="55:51:38",
+            longitude="-9:51:1",
+            altitude=0,
+        )
+        earth_location = horsens.earth_location
+        self.assertIsInstance(earth_location, EarthLocation)
