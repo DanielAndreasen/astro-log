@@ -220,7 +220,9 @@ def upload_image(observation_id: int) -> str:
 
 @app.route("/session/all")
 def all_sessions() -> str:
-    return render_template("sessions.html", sessions=Session)
+    return render_template(
+        "sessions.html", sessions=Session.select().order_by(Session.date.desc())
+    )
 
 
 @app.route("/session/<int:session_id>")
