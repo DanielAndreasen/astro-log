@@ -549,25 +549,18 @@ def visibility_plot(form: ImmutableMultiDict[str, str]) -> str | None:
     frames = AltAz(obstime=times, location=location.earth_location)
     sun_pos = get_sun(times).transform_to(frames)
     moon_pos = get_body("moon", times).transform_to(frames)
-    try:
-        obj = SkyCoord.from_name(form.get("name"))
-    except NameResolveError:
-        flash(f"Could not find object: {form.get('name')}", category="danger")
-        return None
-    obj_pos = obj.transform_to(frames)
-
     fig = plt.figure()
-    plt.plot(delta_midnight, sun_pos.alt, color="y", label="Sun")
-    plt.plot(delta_midnight, moon_pos.alt, color="r", label="Moon")
-    plt.scatter(
-        delta_midnight,
-        obj_pos.alt,
-        c=obj_pos.alt,
-        label=form.get("name"),
-        lw=0,
-        s=8,
-        cmap="inferno",
-    )
+    plt.plot(delta_midnight, sun_pos.alt, "--y", label="Sun")
+    plt.plot(delta_midnight, moon_pos.alt, "--r", label="Moon")
+    for name in form.get("name").split(","):
+        try:
+            obj = SkyCoord.from_name(name)
+        except NameResolveError:
+            flash(f"Could not find object: {name}", category="danger")
+            continue
+        obj_pos = obj.transform_to(frames)
+
+        plt.plot(delta_midnight, obj_pos.alt, label=name, lw=5)
     plt.fill_between(
         delta_midnight,
         0 * u.deg,
@@ -585,7 +578,6 @@ def visibility_plot(form: ImmutableMultiDict[str, str]) -> str | None:
         zorder=0,
     )
 
-    plt.colorbar().set_label("Azimuth [deg]")
     plt.legend(loc="upper left")
     plt.xlim(-12, 12)
     plt.xticks((np.arange(13) * 2 - 12))
