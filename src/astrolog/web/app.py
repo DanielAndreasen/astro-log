@@ -53,7 +53,7 @@ def allowed_file(fname: str) -> bool:
 def main() -> str:
     if not User.select().count():
         return redirect(url_for("create_user_page"))
-    return render_template("main.html")
+    return redirect(url_for("all_sessions"))
 
 
 @app.route("/create_user", methods=["GET", "POST"])
