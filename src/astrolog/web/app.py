@@ -632,8 +632,8 @@ def finding_chart_plot(form: ImmutableMultiDict[str, str]) -> str | None:
     size = abs(result["Mag"] - float(threshold)) * 10
 
     fig = plt.figure()
-    plt.scatter(obj.ra, obj.dec, c="C2", marker="*", s=200)
     plt.scatter(result["ra"], result["dec"], s=size, c=result["Mag"], cmap="plasma")
+    plt.scatter(obj.ra, obj.dec, c="C2", marker="*", s=200)
     plt.xlabel("RA")
     plt.ylabel("DEC")
     plt.colorbar().set_label("Magnitude")
