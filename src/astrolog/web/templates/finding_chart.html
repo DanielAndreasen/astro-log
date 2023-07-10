@@ -1,0 +1,56 @@
+{% extends "template.html" %}
+
+{% block body %}
+
+<h2>Visibility curve</h2>
+
+
+<form method="POST">
+  
+  <div class="input-group">
+    <span class="input-group-text" id="name">Object</span>
+    <input
+      name="name"
+      type="text"
+      class="form-control"
+      aria-describedby="name"
+      placeholder="For example: M51"
+      value="{{ name or '' }}"
+    />
+  </div>
+
+  <div class="input-group">
+    <span class="input-group-text" id="radius">Radius</span>
+    <input
+      name="radius"
+      type="text"
+      class="form-control"
+      aria-describedby="radius"
+      value="{{ radius }}"
+    />
+    <span class="input-group-text"><sup>o</sup></span>
+  </div>
+
+  <div class="input-group">
+    <span class="input-group-text" id="threshold">Magnitude threshold</span>
+    <input
+      name="threshold"
+      type="text"
+      class="form-control"
+      aria-describedby="threshold"
+      value="{{ threshold }}"
+    />
+  </div>
+
+  <button type="submit" class="btn btn-primary">Get visibility plot</button>
+</form>
+
+{% if fig is not none %}
+  <div style="text-align:center;">
+    <div style="background-color: white;width: 640px;margin: 0 auto;">
+      {{fig|safe}}
+    </div>
+  </div>
+{% endif %}
+
+{% endblock %}
