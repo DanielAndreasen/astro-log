@@ -5,7 +5,7 @@
 <h2>Visibility curve</h2>
 
 
-<form action="{{url_for('visibility')}}" method="POST">
+<form action="{{ url_for('visibility') }}" method="POST">
 
   <div class="input-group">
     <label for="location" class="input-group-text">Location</label>
@@ -31,7 +31,7 @@
       class="form-control"
       aria-describedby="name"
       placeholder="For example: M42, M31, Pollux"
-      value="{{name or ''}}"
+      value="{{ name or '' }}"
     />
   </div>
 
