@@ -1,4 +1,5 @@
 import datetime
+from astroquery.vo_conesearch import ConeSearch
 import os
 from functools import wraps
 from typing import Any
@@ -540,7 +541,7 @@ def visibility() -> str:
     )
 
 
-def visibility_plot(form: ImmutableMultiDict[str, str]) -> str | None:
+def visibility_plot(form: ImmutableMultiDict[str, str]) -> str:
     quantity_support()
     location = Location.get_by_id(int(form.get("location")))
     midnight = Time(form.get("date"))
@@ -584,6 +585,58 @@ def visibility_plot(form: ImmutableMultiDict[str, str]) -> str | None:
     plt.ylim(0, 90)
     plt.xlabel("Hours from midnight")
     plt.ylabel("Altitude [deg]")
+    return mpld3.fig_to_html(fig)
+
+
+@app.route("/finding-chart", methods=["GET", "POST"])
+def finding_chart() -> str:
+    if request.method == "POST":
+        fig = finding_chart_plot(request.form)
+        return render_template(
+            "finding_chart.html",
+            radius=request.form.get("radius"),
+            threshold=request.form.get("threshold"),
+            name=request.form.get("name"),
+            fig=fig,
+        )
+    return render_template(
+        "finding_chart.html", radius=0.5, threshold=8, fig=None, name=None
+    )
+
+
+def finding_chart_plot(form: ImmutableMultiDict[str, str]) -> str | None:
+    def filter_table(table, obj, tol=1e-3):
+        diff_ra = abs(table["ra"] - obj.ra)
+        diff_dec = abs(table["dec"] - obj.dec)
+        n = len(table)
+        while (min(diff_ra) < tol) and (min(diff_dec) < tol):
+            table = table[(diff_ra != min(diff_ra)) & (diff_dec != min(diff_dec))]
+            diff_ra = abs(table["ra"] - obj.ra)
+            diff_dec = abs(table["dec"] - obj.dec)
+            if len(table) == n:
+                # RA for object1 is close to obj, while DEC for object2 is close to obj.
+                break
+        return table
+
+    quantity_support()
+    name = form.get("name")
+    threshold = float(form.get("threshold"))
+    try:
+        obj = SkyCoord.from_name(name)
+    except NameResolveError:
+        flash(f"Could not find object: {name}", category="danger")
+        return None
+    result = ConeSearch.query_region(obj, float(form.get("radius")) * u.degree)
+    result = result[result["Mag"] <= float(threshold)]
+    result = filter_table(result, obj)
+    size = abs(result["Mag"] - float(threshold)) * 10
+
+    fig = plt.figure()
+    plt.scatter(obj.ra, obj.dec, c="C2", marker="*", s=200)
+    plt.scatter(result["ra"], result["dec"], s=size, c=result["Mag"], cmap="plasma")
+    plt.xlabel("RA")
+    plt.ylabel("DEC")
+    plt.colorbar().set_label("Magnitude")
     return mpld3.fig_to_html(fig)
 
 
