@@ -9,6 +9,7 @@ setup(
     python_requires=">=3.10",
     install_requires=[
         "astropy",
+        "astroquery",
         "bcrypt",
         "Flask >= 2.2",
         "matplotlib",
