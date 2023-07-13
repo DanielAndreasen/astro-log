@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import mpld3
 import numpy as np
-from astropy.coordinates import AltAz, SkyCoord, get_body, get_sun
+from astropy.coordinates import AltAz, EarthLocation, SkyCoord, get_body, get_sun
 from astropy.coordinates.name_resolve import NameResolveError
 from astropy.time import Time
 from astropy.visualization import quantity_support
@@ -541,24 +541,51 @@ def visibility() -> str:
             "visibility_curve.html",
             locations=Location,
             fig=fig,
+            is_year=request.form.get("year") is not None,
+            latitude=request.form.get("latitude"),
+            longitude=request.form.get("longitude"),
+            utcoffset=request.form.get("utcoffset"),
+            altitude=request.form.get("altitude"),
             date=request.form.get("date"),
             name=request.form.get("name"),
-            is_year=request.form.get("year") is not None,
         )
     today = datetime.datetime.today().date()
     return render_template(
-        "visibility_curve.html", locations=Location, fig=None, date=today, name=None
+        "visibility_curve.html",
+        locations=Location,
+        date=today,
+        fig=None,
+        name=None,
+        latitude=None,
+        longitude=None,
+        utcoffset=None,
+        altitude=None,
+        is_year=None,
     )
+
+
+def get_earth_location(form: ImmutableMultiDict[str, str]) -> EarthLocation:
+    latitude, longitude = form.get("latitude"), form.get("longitude")
+    if latitude and longitude:
+        latitude_decimal = Location.coordinate_to_decimal(latitude)
+        longitude_decimal = Location.coordinate_to_decimal(longitude)
+        return EarthLocation(
+            lat=latitude_decimal * u.deg,
+            lon=longitude_decimal * u.deg,
+            height=int(form.get("altitude") or 0) * u.m,
+        )
+    return Location.get_by_id(int(form.get("location"))).earth_location
 
 
 def visibility_plot_year(form: ImmutableMultiDict[str, str]) -> str:
     quantity_support()
     matplotlib.use("agg")
-    location = Location.get_by_id(int(form.get("location")))
+    earth_location = get_earth_location(form)
+
     first_day = datetime.datetime(datetime.date.today().year, 1, 1)
     times_list = [first_day + datetime.timedelta(days=i) for i in range(1, 366)]
     times = Time(times_list)
-    frames = AltAz(obstime=times, location=location.earth_location)
+    frames = AltAz(obstime=times, location=earth_location)
     fig = plt.figure(figsize=(12, 6))
     for name in form.get("name").split(","):
         try:
@@ -578,14 +605,23 @@ def visibility_plot_year(form: ImmutableMultiDict[str, str]) -> str:
     return mpld3.fig_to_html(fig)
 
 
+def get_midnight(form: ImmutableMultiDict[str, str]) -> Time:
+    if form.get("latitude") and form.get("longitude"):
+        # Use custom location, so use custom UTC offset
+        utcoffset = int(form.get("utcoffset"))
+    else:
+        utcoffset = Location.get_by_id(int(form.get("location"))).utcoffset
+    return Time(form.get("date")) - utcoffset * u.hour
+
+
 def visibility_plot(form: ImmutableMultiDict[str, str]) -> str:
     quantity_support()
     matplotlib.use("agg")
-    location = Location.get_by_id(int(form.get("location")))
-    midnight = Time(form.get("date"))
+    earth_location = get_earth_location(form)
+    midnight = get_midnight(form)
     delta_midnight = np.linspace(-12, 12, 1000) * u.hour
     times = midnight + delta_midnight
-    frames = AltAz(obstime=times, location=location.earth_location)
+    frames = AltAz(obstime=times, location=earth_location)
     sun_pos = get_sun(times).transform_to(frames)
     moon_pos = get_body("moon", times).transform_to(frames)
     fig = plt.figure()
@@ -620,6 +656,7 @@ def visibility_plot(form: ImmutableMultiDict[str, str]) -> str:
     plt.legend(loc="upper left")
     plt.xlim(-12, 12)
     plt.xticks((np.arange(13) * 2 - 12))
+    plt.grid(True, which="both", axis="both")
     plt.ylim(0, 90)
     plt.xlabel("Hours from midnight")
     plt.ylabel("Altitude [deg]")

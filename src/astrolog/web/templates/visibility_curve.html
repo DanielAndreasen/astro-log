@@ -12,10 +12,51 @@
     <select name="location" class="form-select form-control">
       {% for location in locations %}
         <option value="{{location.id}}">
-          {{location.name}}, {{location.country}} (lat: {{location.latitude}}; long: {{location.longitude}})
+        {{location.name}}, {{location.country}} (lat: {{location.latitude}}; long: {{location.longitude}}, UTC offset: {% if location.utcoffset < 0 %}-{% else %}+{% endif %}{{location.utcoffset}})
         </option>
       {% endfor %}
     </select>
+  </div>
+
+  <div class="input-group">
+    <label for="location" class="input-group-text">Own location</label>
+    <label for="latitude" class="input-group-text">Latitude</label>
+    <input
+      name="latitude"
+      type="text"
+      class="form-control"
+      aria-describedby="latitude"
+      placeholder="For example: 55:51:18"
+      value="{{ latitude or '' }}"
+    />
+    <label for="longitude" class="input-group-text">Longitude</label>
+    <input
+      name="longitude"
+      type="text"
+      class="form-control"
+      aria-describedby="longitude"
+      placeholder="For example: -9:51:10"
+      value="{{ longitude or '' }}"
+    />
+    <label for="utcoffset" class="input-group-text">UTC offset</label>
+    <input
+      name="utcoffset"
+      type="text"
+      class="form-control"
+      aria-describedby="utcoffset"
+      placeholder="For example: 2"
+      value="{{ utcoffset or 0 }}"
+    />
+    <label for="altitude" class="input-group-text">Altitude</label>
+    <input
+      name="altitude"
+      type="text"
+      class="form-control"
+      aria-describedby="altitude"
+      placeholder="For example: 42"
+      value="{{ altitude or '' }}"
+    />
+    <label for="altitude" class="input-group-text">m</label>
   </div>
   
   <div class="input-group">
