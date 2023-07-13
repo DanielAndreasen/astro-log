@@ -509,6 +509,8 @@ def new_location() -> str:
     if not (longitude := form.get("longitude", None)):
         flash("Longitude must be provided", category="danger")
         return redirect(url_for("locations"))
+    if not (utcoffset := form.get("utcoffset", 0)):
+        flash("UTC offset not provided. Using default value of 0", category="warning")
     if not (altitude := form.get("altitude", None)):
         flash("Altitude must be provided", category="danger")
         return redirect(url_for("locations"))
@@ -517,6 +519,7 @@ def new_location() -> str:
         country=country,
         latitude=latitude,
         longitude=longitude,
+        utcoffset=utcoffset,
         altitude=altitude,
     )
     if created:

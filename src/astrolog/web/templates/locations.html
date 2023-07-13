@@ -4,7 +4,7 @@
 
 <h2>Locations</h2>
 
-<form action="{{url_for('alter_location')}}" method="POST">
+<form action="{{ url_for('alter_location') }}" method="POST">
   <table class="table table-hover">
     <thead>
     <tr>
@@ -13,6 +13,7 @@
       <th>Country</th>
       <th>Latitude</th>
       <th>Longitude</th>
+      <th>UTC offset</th>
       <th>Altitude</th>
       <th>Delete</th>
     </thead>
@@ -23,6 +24,7 @@
           <td>{{location.country}}</td>
           <td>{{location.latitude}}</td>
           <td>{{location.longitude}}</td>
+          <td>{{location.utcoffset}}</td>
           <td>{{location.altitude}}</td>
           <td>
             <button class="btn btn-danger" name="delete" value="{{location.id}}" type="submit">Delete</button></td>
@@ -48,6 +50,10 @@
     <div class="input-group">
       <span id="longitude" class="input-group-text">Longitude</span>
       <input name="longitude" type="text" class="form-control">
+    </div>
+    <div class="input-group">
+      <span id="utcoffset" class="input-group-text">UTC offset</span>
+      <input name="utcoffset" type="text" class="form-control" value="0">
     </div>
     <div class="input-group">
       <span id="altitude" class="input-group-text">Altitude</span>
