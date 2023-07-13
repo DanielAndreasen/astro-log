@@ -6,6 +6,7 @@ from typing import Any
 
 import astropy.units as u
 import matplotlib.pyplot as plt
+import matplotlib
 import mpld3
 import numpy as np
 from astropy.coordinates import AltAz, SkyCoord, get_body, get_sun
@@ -527,13 +528,17 @@ def new_location() -> str:
 @app.route("/visibility", methods=["GET", "POST"])
 def visibility() -> str:
     if request.method == "POST":
-        fig = visibility_plot(request.form)
+        if request.form.get("year"):
+            fig = visibility_plot_year(request.form)
+        else:
+            fig = visibility_plot(request.form)
         return render_template(
             "visibility_curve.html",
             locations=Location,
             fig=fig,
             date=request.form.get("date"),
             name=request.form.get("name"),
+            is_year=request.form.get("year") is not None,
         )
     today = datetime.datetime.today().date()
     return render_template(
@@ -541,8 +546,36 @@ def visibility() -> str:
     )
 
 
+def visibility_plot_year(form: ImmutableMultiDict[str, str]) -> str:
+    quantity_support()
+    matplotlib.use("agg")
+    location = Location.get_by_id(int(form.get("location")))
+    first_day = datetime.datetime(datetime.date.today().year, 1, 1)
+    times_list = [first_day + datetime.timedelta(days=i) for i in range(1, 366)]
+    times = Time(times_list)
+    frames = AltAz(obstime=times, location=location.earth_location)
+    fig = plt.figure(figsize=(12, 6))
+    for name in form.get("name").split(","):
+        try:
+            obj = SkyCoord.from_name(name)
+        except NameResolveError:
+            flash(f"Could not find object: {name}", category="danger")
+            continue
+        obj_pos = obj.transform_to(frames)
+
+        plt.plot(times_list, obj_pos.alt, label=name, lw=5)
+
+    plt.ylim(0, 90)
+    plt.grid(True, which="both", axis="both")
+    plt.xlabel("Day of year")
+    plt.ylabel("Altitude [deg]")
+    plt.legend(loc="upper left")
+    return mpld3.fig_to_html(fig)
+
+
 def visibility_plot(form: ImmutableMultiDict[str, str]) -> str:
     quantity_support()
+    matplotlib.use("agg")
     location = Location.get_by_id(int(form.get("location")))
     midnight = Time(form.get("date"))
     delta_midnight = np.linspace(-12, 12, 1000) * u.hour
@@ -619,6 +652,7 @@ def finding_chart_plot(form: ImmutableMultiDict[str, str]) -> str | None:
         return table
 
     quantity_support()
+    matplotlib.use("agg")
     name = form.get("name")
     threshold = float(form.get("threshold"))
     try:
