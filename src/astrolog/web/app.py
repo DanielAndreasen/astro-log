@@ -6,6 +6,7 @@ from typing import Any
 
 import astropy.units as u
 import matplotlib.pyplot as plt
+import matplotlib
 import mpld3
 import numpy as np
 from astropy.coordinates import AltAz, SkyCoord, get_body, get_sun
@@ -547,6 +548,7 @@ def visibility() -> str:
 
 def visibility_plot_year(form: ImmutableMultiDict[str, str]) -> str:
     quantity_support()
+    matplotlib.use("agg")
     location = Location.get_by_id(int(form.get("location")))
     first_day = datetime.datetime(datetime.date.today().year, 1, 1)
     times_list = [first_day + datetime.timedelta(days=i) for i in range(1, 366)]
@@ -590,6 +592,7 @@ def visibility_plot_year(form: ImmutableMultiDict[str, str]) -> str:
 
 def visibility_plot(form: ImmutableMultiDict[str, str]) -> str:
     quantity_support()
+    matplotlib.use("agg")
     location = Location.get_by_id(int(form.get("location")))
     midnight = Time(form.get("date"))
     delta_midnight = np.linspace(-12, 12, 1000) * u.hour
@@ -666,6 +669,7 @@ def finding_chart_plot(form: ImmutableMultiDict[str, str]) -> str | None:
         return table
 
     quantity_support()
+    matplotlib.use("agg")
     name = form.get("name")
     threshold = float(form.get("threshold"))
     try:
