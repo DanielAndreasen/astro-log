@@ -21,6 +21,10 @@
   <div class="input-group">
     <span class="input-group-text" id="name">Date</span>
     <input name="date" type="date" class="form-control" id="date" value="{{date}}">
+    <div class="input-group-text">
+      <input name="year" class="form-check-input mt-0" type="checkbox" value="true" {% if is_year %}checked{% endif %}>
+    </div>
+    <label type="text" class="input-group-text">Span over year (at midnight)</label>
   </div>
 
   <div class="input-group">
