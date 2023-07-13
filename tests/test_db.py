@@ -83,13 +83,19 @@ def get_object(
 
 
 def get_location(
-    name: str, country: str, latitude: str, longitude: str, altitude: int
+    name: str,
+    country: str,
+    latitude: str,
+    longitude: str,
+    utcoffset: int,
+    altitude: int,
 ) -> Location:
     location, _ = Location.get_or_create(
         name=name,
         country=country,
         latitude=latitude,
         longitude=longitude,
+        utcoffset=utcoffset,
         altitude=altitude,
     )
     return location
@@ -176,12 +182,14 @@ class TestDB(TestCase):
             country="Denmark",
             latitude="55:51:38",
             longitude="-9:51:1",
+            utcoffset=2,
             altitude=0,
         )
         self.assertEqual(horsens.name, "Horsens")
         self.assertEqual(horsens.country, "Denmark")
         self.assertEqual(horsens.latitude, "55:51:38")
         self.assertEqual(horsens.longitude, "-9:51:1")
+        self.assertEqual(horsens.utcoffset, 2)
         self.assertEqual(horsens.altitude, 0)
 
     def test_condition(self) -> None:
@@ -204,6 +212,7 @@ class TestDB(TestCase):
             country="Denmark",
             latitude="55:51:38",
             longitude="-9:51:1",
+            utcoffset=2,
             altitude=0,
         )
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
@@ -222,6 +231,7 @@ class TestDB(TestCase):
             country="Denmark",
             latitude="55:51:38",
             longitude="-9:51:1",
+            utcoffset=2,
             altitude=0,
         )
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
@@ -237,6 +247,7 @@ class TestDB(TestCase):
             country="Denmark",
             latitude="55:51:38",
             longitude="-9:51:1",
+            utcoffset=2,
             altitude=0,
         )
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
@@ -261,6 +272,7 @@ class TestDB(TestCase):
             country="Denmark",
             latitude="55:51:38",
             longitude="-9:51:1",
+            utcoffset=2,
             altitude=0,
         )
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
@@ -317,6 +329,7 @@ class TestDB(TestCase):
             country="Denmark",
             latitude="55:51:38",
             longitude="-9:51:1",
+            utcoffset=2,
             altitude=0,
         )
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
@@ -347,6 +360,7 @@ class TestDB(TestCase):
             country="Denmark",
             latitude="55:51:38",
             longitude="-9:51:1",
+            utcoffset=2,
             altitude=0,
         )
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
@@ -392,6 +406,7 @@ class TestDB(TestCase):
             country="Denmark",
             latitude="55:51:38",
             longitude="-9:51:1",
+            utcoffset=2,
             altitude=0,
         )
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
@@ -417,6 +432,7 @@ class TestDB(TestCase):
             country="Denmark",
             latitude="55:51:38",
             longitude="-9:51:1",
+            utcoffset=2,
             altitude=0,
         )
         september_13_1989 = datetime.datetime(1989, 9, 13).date()
@@ -442,6 +458,7 @@ class TestDB(TestCase):
             country="Denmark",
             latitude="55:51:38",
             longitude="-9:51:1",
+            utcoffset=2,
             altitude=0,
         )
         earth_location = horsens.earth_location

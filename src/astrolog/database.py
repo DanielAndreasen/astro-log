@@ -30,18 +30,20 @@ class Location(AstroLogModel):
     country = TextField()
     latitude = TextField()
     longitude = TextField()
+    utcoffset = IntegerField(default=0)
     altitude = IntegerField()
+
+    @staticmethod
+    def coordinate_to_decimal(coordinate: str) -> float:
+        parts = [int(part) for part in coordinate.split(":")]
+        if parts[0] < 0:
+            return parts[0] - parts[1] / 60 - parts[2] / 3600
+        return parts[0] + parts[1] / 60 + parts[2] / 3600
 
     @property
     def earth_location(self) -> EarthLocation:
-        def coordinate_to_decimal(coordinate: str) -> float:
-            parts = [int(part) for part in coordinate.split(":")]
-            if parts[0] < 0:
-                return parts[0] - parts[1] / 60 - parts[2] / 3600
-            return parts[0] + parts[1] / 60 + parts[2] / 3600
-
-        latitude_decimal = coordinate_to_decimal(self.latitude)
-        longitude_decimal = coordinate_to_decimal(self.longitude)
+        latitude_decimal = Location.coordinate_to_decimal(self.latitude)
+        longitude_decimal = Location.coordinate_to_decimal(self.longitude)
         return EarthLocation(
             lat=latitude_decimal * u.deg,
             lon=longitude_decimal * u.deg,
