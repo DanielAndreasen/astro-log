@@ -554,7 +554,7 @@ def visibility_plot_year(form: ImmutableMultiDict[str, str]) -> str:
     times_list = [first_day + datetime.timedelta(days=i) for i in range(1, 366)]
     times = Time(times_list)
     frames = AltAz(obstime=times, location=location.earth_location)
-    fig = plt.figure()
+    fig = plt.figure(figsize=(12, 6))
     for name in form.get("name").split(","):
         try:
             obj = SkyCoord.from_name(name)
@@ -565,28 +565,11 @@ def visibility_plot_year(form: ImmutableMultiDict[str, str]) -> str:
 
         plt.plot(times_list, obj_pos.alt, label=name, lw=5)
 
-    plt.legend(loc="upper left")
     plt.ylim(0, 90)
-    plt.xticks(
-        ticks=[datetime.date(first_day.year, i, 1) for i in range(1, 13, 3)],
-        labels=[
-            "Jan",
-            # "Feb",
-            # "Mar",
-            "Apr",
-            # "May",
-            # "Jun",
-            "Jul",
-            # "Aug",
-            # "Sep",
-            "Oct",
-            # "Nov",
-            # "Dec",
-        ],
-    )
-    plt.grid(True, which="both", axis="x")
+    plt.grid(True, which="both", axis="both")
     plt.xlabel("Day of year")
     plt.ylabel("Altitude [deg]")
+    plt.legend(loc="upper left")
     return mpld3.fig_to_html(fig)
 
 
