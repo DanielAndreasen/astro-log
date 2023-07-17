@@ -61,9 +61,11 @@ def get_front_filter(name: str) -> FrontFilter:
     return filter
 
 
-def get_eyepiece(type: str, focal_length: int, width: float) -> EyePiece:
+def get_eyepiece(
+    type: str, focal_length: int, width: float, fov: int | None = None
+) -> EyePiece:
     eyepiece, _ = EyePiece.get_or_create(
-        type=type, focal_length=focal_length, width=width
+        type=type, focal_length=focal_length, width=width, fov=fov
     )
     return eyepiece
 
@@ -153,10 +155,12 @@ class TestDB(TestCase):
         self.assertEqual(telescope.front_filter, None)
         self.assertEqual(telescope.barlow, None)
         # Use one eyepiece
-        plossl = get_eyepiece(type="Plössl", focal_length=6, width=1.25)
+        plossl = get_eyepiece(type="Plössl", focal_length=6, width=1.25, fov=60)
         magnification1 = telescope.focal_length / plossl.focal_length
+        afov = plossl.fov / (telescope.focal_length / plossl.focal_length)
         telescope.use_eyepiece(plossl)
         self.assertEqual(telescope.magnification, magnification1)
+        self.assertEqual(telescope.afov, afov)
         # Use barlow
         barlow = get_barlow(name="barlow", multiplier=2)
         telescope.use_barlow(barlow)
