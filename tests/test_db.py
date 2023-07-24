@@ -1,7 +1,7 @@
 import datetime
 from unittest import TestCase
-from astropy.coordinates import EarthLocation
 
+from astropy.coordinates import EarthLocation
 from peewee import IntegrityError, SqliteDatabase
 
 from astrolog.database import (

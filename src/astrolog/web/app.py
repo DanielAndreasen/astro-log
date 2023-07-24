@@ -1,18 +1,18 @@
 import datetime
-from astroquery.vo_conesearch import ConeSearch
 import os
 from functools import wraps
 from typing import Any
 
 import astropy.units as u
-import matplotlib.pyplot as plt
 import matplotlib
+import matplotlib.pyplot as plt
 import mpld3
 import numpy as np
 from astropy.coordinates import AltAz, EarthLocation, SkyCoord, get_body, get_sun
 from astropy.coordinates.name_resolve import NameResolveError
 from astropy.time import Time
 from astropy.visualization import quantity_support
+from astroquery.vo_conesearch import ConeSearch
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from peewee import JOIN, IntegrityError, SqliteDatabase
 from werkzeug.datastructures import ImmutableMultiDict

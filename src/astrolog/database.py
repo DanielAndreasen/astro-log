@@ -1,8 +1,8 @@
 import os
 from typing import Iterable, Optional
-from astropy.coordinates import EarthLocation
-import astropy.units as u
 
+import astropy.units as u
+from astropy.coordinates import EarthLocation
 from peewee import (
     BlobField,
     BooleanField,
