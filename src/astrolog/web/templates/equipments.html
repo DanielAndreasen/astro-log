@@ -46,6 +46,7 @@
           class="form-control"
           aria-describedby="aperture"
         />
+        <span class="input-group-text" id="aperture">mm</span>
       </div>
       <div class="input-group">
         <span class="input-group-text" id="focal_length">Focal length</span>
@@ -55,6 +56,7 @@
           class="form-control"
           aria-describedby="focal_length"
         />
+        <span class="input-group-text" id="focal_length">mm</span>
       </div>
       <button type="submit" class="btn btn-primary">Add telescope</button>
     </form>
@@ -71,6 +73,7 @@
         <th>Type</th>
         <th>Focal length</th>
         <th>Width</th>
+        <th>FoV</th>
       </thead>
       <tbody>
         {% for eyepiece in eyepieces %}
@@ -101,6 +104,7 @@
           class="form-control"
           aria-describedby="focal_length"
         />
+        <span class="input-group-text" id="focal_length">mm</span>
       </div>
       <div class="input-group">
         <span class="input-group-text" id="width">Width</span>
@@ -110,6 +114,17 @@
           class="form-control"
           aria-describedby="width"
         />
+        <span class="input-group-text" id="width">"</span>
+      </div>
+      <div class="input-group">
+        <span class="input-group-text" id="fov">FoV</span>
+        <input
+          name="fov"
+          type="text"
+          class="form-control"
+          aria-describedby="fov"
+        />
+        <span class="input-group-text" id="fov">&#176;</span>
       </div>
       <button type="submit" class="btn btn-primary">Add eyepiece</button>
     </form>
@@ -158,6 +173,7 @@
           class="form-control"
           aria-describedby="aperture"
         />
+        <span class="input-group-text" id="aperture">mm</span>
       </div>
       <div class="input-group">
         <span class="input-group-text" id="magnification">Magnification</span>
