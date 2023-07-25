@@ -85,8 +85,14 @@ class Binocular(AstroLogModel):
     magnification = IntegerField()
 
 
+class Camera(AstroLogModel):
+    manufacture = TextField()
+    model = TextField()
+    megapixel = FloatField()
+
+
 class Telescope(AstroLogModel):
-    _eyepiece = _front_filter = _barlow = None
+    _eyepiece = _front_filter = _barlow = _camera = None
 
     name = TextField()
     aperture = IntegerField()
@@ -118,7 +124,12 @@ class Telescope(AstroLogModel):
     def barlow(self) -> Optional[Barlow]:
         return self._barlow
 
+    @property
+    def camera(self) -> Optional[Camera]:
+        return self._camera
+
     def use_eyepiece(self, eyepiece: EyePiece) -> None:
+        self._camera = None
         self._eyepiece = eyepiece
 
     def use_barlow(self, barlow: Barlow) -> None:
@@ -126,6 +137,10 @@ class Telescope(AstroLogModel):
 
     def attach_front_filter(self, front_filter: FrontFilter) -> None:
         self._front_filter = front_filter
+
+    def use_camera(self, camera: Camera) -> None:
+        self._barlow = self._eyepiece = None
+        self._camera = camera
 
 
 class Structure(AstroLogModel):
@@ -212,6 +227,7 @@ class Observation(AstroLogModel):
     telescope = ForeignKeyField(Telescope, null=True)
     eyepiece = ForeignKeyField(EyePiece, null=True)
     barlow = ForeignKeyField(Barlow, null=True)
+    camera = ForeignKeyField(Camera, null=True)
     front_filter = ForeignKeyField(FrontFilter, null=True)
     optic_filter = ForeignKeyField(Filter, null=True)
     note = TextField(null=True)
@@ -248,6 +264,7 @@ MODELS = [
     AltName,
     Barlow,
     Binocular,
+    Camera,
     Condition,
     EyePiece,
     Filter,
