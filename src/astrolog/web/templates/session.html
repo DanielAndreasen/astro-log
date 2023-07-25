@@ -19,7 +19,7 @@
 <h2>
   Session - 
   <small>
-    {{session.date.strftime('%d/%m/%Y')}}
+    {{ session.date.strftime('%d/%m/%Y') }}
   </small>
   ; Location - 
   <small title="Lat.: {{loc.latitude}}, Lon.: {{loc.longitude}}, Alt.: {{loc.altitude}}m">
@@ -83,11 +83,11 @@
             {{observation.front_filter.name}} + {{observation.optic_filter.name}}
           {% endif %}
         </td>
-        <td>{{observation.note or ''}}</td>
+        <td>{{ observation.note or '' }}</td>
         <td>
           <div class="input-group">
             <form
-              action="{{url_for('upload_image', observation_id=observation.id)}}"
+              action="{{ url_for( 'upload_image', observation_id=observation.id) }}"
               method="POST"
               enctype="multipart/form-data">
               <input name="file" type="file" style="width: 16em;" class="form-control form-control-sm">
