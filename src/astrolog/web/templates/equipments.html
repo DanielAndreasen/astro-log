@@ -28,7 +28,7 @@
       </tbody>
     </table>
 
-    <form action="{{url_for('new_telescope')}}" method="POST">
+    <form action="{{ url_for('new_telescope') }}" method="POST">
       <div class="input-group">
         <span class="input-group-text" id="name">Name</span>
         <input
@@ -78,12 +78,13 @@
             <td>{{eyepiece.type}}</td>
             <td>{{eyepiece.focal_length}}mm</td>
             <td>{{eyepiece.width}}"</td>
+            <td>{{eyepiece.fov or ''}}&#176;</td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
 
-    <form action="{{url_for('new_eyepiece')}}" method="POST">
+    <form action="{{ url_for('new_eyepiece') }}" method="POST">
       <div class="input-group">
         <span class="input-group-text" id="type">Type</span>
         <input
@@ -140,7 +141,7 @@
       </tbody>
     </table>
 
-    <form action="{{url_for('new_binocular')}}" method="POST">
+    <form action="{{ url_for('new_binocular') }}" method="POST">
       <div class="input-group">
         <span class="input-group-text" id="name">Name</span>
         <input
@@ -193,7 +194,7 @@
       </tbody>
     </table>
 
-    <form action="{{url_for('new_barlow')}}" method="POST">
+    <form action="{{ url_for('new_barlow') }}" method="POST">
       <div class="input-group">
         <span class="input-group-text" id="name">Name</span>
         <input
@@ -237,7 +238,7 @@
       </tbody>
     </table>
 
-    <form action="{{url_for('new_filter')}}" method="POST">
+    <form action="{{ url_for('new_filter') }}" method="POST">
       <div class="input-group">
         <span class="input-group-text" id="name">Filter</span>
         <input
