@@ -15,6 +15,5 @@ camera = ForeignKeyField(Camera, field=Camera.id, null=True)
 
 with db.transaction():
     migrate(
-        migrator.drop_index("observation", "observation_camera_id"),
         migrator.add_column("observation", "camera_id", camera),
     )

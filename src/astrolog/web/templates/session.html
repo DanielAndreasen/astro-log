@@ -66,10 +66,10 @@
           {% elif observation.eyepiece is not none and observation.barlow is none %}
             {{observation.eyepiece.type}}
           {% elif observation.camera is not none %}
-            {{observation.camera.manufacture}}, {{observation.camera.model}} ({{observation.camera.megapixel}}MP)
+            {{observation.camera.manufacture}}: {{observation.camera.model}} ({{observation.camera.megapixel}}MP)
           {% endif %}
         </td>
-        {% if observation.naked_eye %}
+        {% if observation.magnification is none %}
           <td></td>
         {% else %}
           <td>{{observation.magnification}}X</td>
