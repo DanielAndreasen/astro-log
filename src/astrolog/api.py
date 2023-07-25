@@ -5,6 +5,7 @@ import bcrypt
 from astrolog.database import (
     Barlow,
     Binocular,
+    Camera,
     EyePiece,
     Filter,
     FrontFilter,
@@ -45,6 +46,7 @@ def create_observation(
     telescope: Telescope | None = None,
     eyepiece: EyePiece | None = None,
     barlow: Barlow | None = None,
+    camera: Camera | None = None,
     optic_filter: Filter | None = None,
     front_filter: FrontFilter | None = None,
     note: str | None = None,
@@ -61,8 +63,9 @@ def create_observation(
         raise ValueError(
             "Not possible to make observation with an optical filter in binoculars"
         )
-    if telescope and not eyepiece:
-        raise ValueError("Telescope require an eyepiece to function")
+    if telescope:
+        if not camera and not eyepiece:
+            raise ValueError("Telescope require an eyepiece or camera to function")
 
     # This object has now been observed
     object.to_be_watched = False
@@ -75,6 +78,7 @@ def create_observation(
         telescope=telescope,
         eyepiece=eyepiece,
         barlow=barlow,
+        camera=camera,
         optic_filter=optic_filter,
         front_filter=front_filter,
         note=note,
