@@ -78,7 +78,7 @@
             <td>{{eyepiece.type}}</td>
             <td>{{eyepiece.focal_length}}mm</td>
             <td>{{eyepiece.width}}"</td>
-            <td>{{eyepiece.fov or ''}}&#176;</td>
+            <td>{{eyepiece.fov or '' }}&#176;</td>
           </tr>
         {% endfor %}
       </tbody>
@@ -217,6 +217,59 @@
     </form>
   </div>
 
+  <div class="col-4">
+    <h2>Camera</h2>
+    <table class="table table-hover">
+      <thead>
+      <tr>
+      </tr>
+        <th>Manufacture</th>
+        <th>Model</th>
+        <th>Megapixel</th>
+      </thead>
+      <tbody>
+        {% for camera in cameras %}
+          <tr>
+            <td>{{camera.manufacture}}</td>
+            <td>{{camera.model}}X</td>
+            <td>{{camera.megapixel}}X</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <form action="{{ url_for('new_camera') }}" method="POST">
+      <div class="input-group">
+        <span class="input-group-text" id="manufacture">Manufacture</span>
+        <input
+          name="manufacture"
+          type="text"
+          class="form-control"
+          aria-describedby="manufacture"
+        />
+      </div>
+      <div class="input-group">
+        <span class="input-group-text" id="model">Model</span>
+        <input
+          name="model"
+          type="text"
+          class="form-control"
+          aria-describedby="model"
+        />
+      </div>
+      <div class="input-group">
+        <span class="input-group-text" id="megapixel">Megapixel</span>
+        <input
+          name="megapixel"
+          type="text"
+          class="form-control"
+          aria-describedby="megapixel"
+        />
+      </div>
+      <button type="submit" class="btn btn-primary">Add camera</button>
+    </form>
+  </div>
+
 </div>
 
 <div class="row">
@@ -271,7 +324,7 @@
       </tbody>
     </table>
 
-    <form action="{{url_for('new_front_filter')}}" method="POST">
+    <form action="{{ url_for('new_front_filter') }}" method="POST">
       <div class="input-group">
         <span class="input-group-text" id="name">Filter</span>
         <input

@@ -37,7 +37,7 @@
   </tr>
     <th>Object</th>
     <th>Observation type</th>
-    <th>Eyepiece</th>
+    <th>Eyepiece/camera</th>
     <th>Magnification</th>
     <th>Filter</th>
     <th>Note</th>
@@ -65,6 +65,8 @@
             {{observation.eyepiece.type}} + {{observation.barlow.name}} {{observation.barlow.multiplier}}X
           {% elif observation.eyepiece is not none and observation.barlow is none %}
             {{observation.eyepiece.type}}
+          {% elif observation.camera is not none %}
+            {{observation.camera.manufacture}}, {{observation.camera.model}} ({{observation.camera.megapixel}}MP)
           {% endif %}
         </td>
         {% if observation.naked_eye %}

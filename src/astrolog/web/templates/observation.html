@@ -61,6 +61,16 @@
     </select>
   </div>
 
+  <div id="camera-group" class="input-group" hidden>
+    <label for="camera" class="input-group-text">Camera (optional)</label>
+    <select name="camera" class="form-select form-control" id="camera">
+      <option value=""></option>
+      {% for camera in cameras %}
+        <option value="{{camera.id}}">{{camera.manufacture}}, {{camera.model}} ({{camera.megapixel}}MP)</option>
+      {% endfor %}
+    </select>
+  </div>
+
   <div id="optical-filter-group" class="input-group" hidden>
     <label for="optical_filter" class="input-group-text">Filter (optional)</label>
     <select name="optical_filter" class="form-select form-control" id="optical_filter">
