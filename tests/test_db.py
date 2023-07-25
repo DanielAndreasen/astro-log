@@ -1,7 +1,7 @@
 import datetime
 from unittest import TestCase
-from astropy.coordinates import EarthLocation
 
+from astropy.coordinates import EarthLocation
 from peewee import IntegrityError, SqliteDatabase
 
 from astrolog.database import (
@@ -9,6 +9,7 @@ from astrolog.database import (
     AltName,
     Barlow,
     Binocular,
+    Camera,
     Condition,
     EyePiece,
     Filter,
@@ -68,6 +69,13 @@ def get_eyepiece(
         type=type, focal_length=focal_length, width=width, fov=fov
     )
     return eyepiece
+
+
+def get_camera(manufacture: str, model: str, megapixel: float) -> Camera:
+    camera, _ = Camera.get_or_create(
+        manufacture=manufacture, model=model, megapixel=megapixel
+    )
+    return camera
 
 
 def get_barlow(name: str, multiplier: int) -> Barlow:
@@ -139,6 +147,14 @@ class TestDB(TestCase):
         plossl.use_filter(red_filter)
         self.assertEqual(plossl.optic_filter, red_filter)
 
+    def test_camera(self) -> None:
+        bresser = get_camera(
+            manufacture="Bresser", model="HD moon, planet, and guiding", megapixel=1.2
+        )
+        self.assertEqual(bresser.manufacture, "Bresser")
+        self.assertEqual(bresser.model, "HD moon, planet, and guiding")
+        self.assertEqual(bresser.megapixel, 1.2)
+
     def test_binocular(self) -> None:
         binocular = get_binocular(name="Something", aperture=50, magnification=12)
         self.assertEqual(binocular.name, "Something")
@@ -154,6 +170,7 @@ class TestDB(TestCase):
         self.assertEqual(telescope.magnification, None)
         self.assertEqual(telescope.front_filter, None)
         self.assertEqual(telescope.barlow, None)
+        self.assertEqual(telescope.camera, None)
         # Use one eyepiece
         plossl = get_eyepiece(type="Plössl", focal_length=6, width=1.25, fov=60)
         magnification1 = telescope.focal_length / plossl.focal_length
@@ -171,14 +188,29 @@ class TestDB(TestCase):
         self.assertEqual(telescope.magnification, magnification2)
         # Change eyepiece
         kellner = get_eyepiece(type="Kellner", focal_length=15, width=1.25)
-        magnification3 = telescope.focal_length / kellner.focal_length
-        telescope = get_telescope(name="Explorer 150P", aperture=150, focal_length=750)
+        magnification3 = (
+            telescope.focal_length / kellner.focal_length * barlow.multiplier
+        )
         telescope.use_eyepiece(kellner)
         self.assertEqual(telescope.magnification, magnification3)
         # Use a filter in front (solar white filter)
         solar_filter = get_front_filter(name="Solar front filter")
         telescope.attach_front_filter(solar_filter)
         self.assertEqual(telescope.front_filter, solar_filter)
+        # Use a decicated camera
+        bresser = get_camera(
+            manufacture="Bresser", model="HD moon, planet, and guiding", megapixel=1.2
+        )
+        self.assertIsNotNone(telescope.eyepiece)
+        self.assertIsNotNone(telescope.barlow)
+        telescope.use_camera(bresser)
+        self.assertIsNone(telescope.eyepiece)
+        self.assertIsNone(telescope.barlow)
+        self.assertEqual(telescope.camera, bresser)
+        # Change back to an eyepiece
+        telescope.use_eyepiece(plossl)
+        self.assertIsNone(telescope.camera)
+        self.assertIsNotNone(telescope.eyepiece)
 
     def test_location(self) -> None:
         horsens = get_location(
@@ -353,6 +385,9 @@ class TestDB(TestCase):
         moon_filter = get_filter(name="Moon filter")
         solar_filter = get_front_filter(name="Solar filter")
         barlow = get_barlow(name="Barlow", multiplier=2)
+        bresser = get_camera(
+            manufacture="Bresser", model="HD moon, planet, and guiding", megapixel=1.2
+        )
         telescope = get_telescope(name="Explorer 150P", aperture=150, focal_length=750)
         telescope.use_eyepiece(plossl)
         telescope.use_barlow(barlow)
@@ -383,6 +418,7 @@ class TestDB(TestCase):
         )
         observation.save()
         self.assertEqual(observation.note, None)
+        self.assertEqual(observation.camera, None)
         self.assertEqual(observation.session, session)
         self.assertEqual(observation.object, betelgeuse)
         self.assertEqual(observation.eyepiece, plossl)
@@ -403,6 +439,16 @@ class TestDB(TestCase):
         self.assertEqual(observation.optic_filter, None)
         self.assertEqual(observation.note, "Wow, what a view tonight!")
         self.assertEqual(session.number_of_observations, 2)
+
+        observation = Observation(
+            object=betelgeuse,
+            session=session,
+            telescope=telescope,
+            camera=bresser,
+            note="First time with a dedicated camera",
+        )
+        self.assertIsNone(observation.eyepiece)
+        self.assertEqual(observation.camera, bresser)
 
     def test_observation_add_image(self) -> None:
         horsens = get_location(

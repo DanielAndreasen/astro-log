@@ -19,7 +19,7 @@
 <h2>
   Session - 
   <small>
-    {{session.date.strftime('%d/%m/%Y')}}
+    {{ session.date.strftime('%d/%m/%Y') }}
   </small>
   ; Location - 
   <small title="Lat.: {{loc.latitude}}, Lon.: {{loc.longitude}}, Alt.: {{loc.altitude}}m">
@@ -37,7 +37,7 @@
   </tr>
     <th>Object</th>
     <th>Observation type</th>
-    <th>Eyepiece</th>
+    <th>Eyepiece/camera</th>
     <th>Magnification</th>
     <th>Filter</th>
     <th>Note</th>
@@ -65,9 +65,11 @@
             {{observation.eyepiece.type}} + {{observation.barlow.name}} {{observation.barlow.multiplier}}X
           {% elif observation.eyepiece is not none and observation.barlow is none %}
             {{observation.eyepiece.type}}
+          {% elif observation.camera is not none %}
+            {{observation.camera.manufacture}}: {{observation.camera.model}} ({{observation.camera.megapixel}}MP)
           {% endif %}
         </td>
-        {% if observation.naked_eye %}
+        {% if observation.magnification is none %}
           <td></td>
         {% else %}
           <td>{{observation.magnification}}X</td>
@@ -81,11 +83,11 @@
             {{observation.front_filter.name}} + {{observation.optic_filter.name}}
           {% endif %}
         </td>
-        <td>{{observation.note or ''}}</td>
+        <td>{{ observation.note or '' }}</td>
         <td>
           <div class="input-group">
             <form
-              action="{{url_for('upload_image', observation_id=observation.id)}}"
+              action="{{ url_for( 'upload_image', observation_id=observation.id) }}"
               method="POST"
               enctype="multipart/form-data">
               <input name="file" type="file" style="width: 16em;" class="form-control form-control-sm">

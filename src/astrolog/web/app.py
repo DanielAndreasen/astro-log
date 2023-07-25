@@ -1,18 +1,18 @@
 import datetime
-from astroquery.vo_conesearch import ConeSearch
 import os
 from functools import wraps
 from typing import Any
 
 import astropy.units as u
-import matplotlib.pyplot as plt
 import matplotlib
+import matplotlib.pyplot as plt
 import mpld3
 import numpy as np
 from astropy.coordinates import AltAz, EarthLocation, SkyCoord, get_body, get_sun
 from astropy.coordinates.name_resolve import NameResolveError
 from astropy.time import Time
 from astropy.visualization import quantity_support
+from astroquery.vo_conesearch import ConeSearch
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from peewee import JOIN, IntegrityError, SqliteDatabase
 from werkzeug.datastructures import ImmutableMultiDict
@@ -24,6 +24,7 @@ from astrolog.database import (
     AltName,
     Barlow,
     Binocular,
+    Camera,
     EyePiece,
     Filter,
     FrontFilter,
@@ -175,6 +176,7 @@ def new_observation(session_id: int) -> str:
                 telescope = Telescope.get_or_none(name=form.get("telescope"))
                 eyepiece = EyePiece.get_or_none(type=form.get("eyepiece"))
                 barlow = Barlow.get_or_none(name=form.get("barlow"))
+                camera = Camera.get_or_none(id=form.get("camera"))
                 optic_filter = Filter.get_or_none(name=form.get("optical_filter"))
                 front_filter = FrontFilter.get_or_none(name=form.get("front_filter"))
             case "binocular":
@@ -188,6 +190,7 @@ def new_observation(session_id: int) -> str:
                 telescope=telescope,
                 eyepiece=eyepiece,
                 barlow=barlow,
+                camera=camera,
                 optic_filter=optic_filter,
                 front_filter=front_filter,
                 binocular=binocular,
@@ -206,6 +209,7 @@ def new_observation(session_id: int) -> str:
         telescopes=Telescope,
         eyepieces=EyePiece,
         barlows=Barlow,
+        cameras=Camera,
         optical_filters=Filter,
         front_filters=FrontFilter,
         binoculars=Binocular,
@@ -336,6 +340,7 @@ def equipments() -> str:
         telescopes=Telescope,
         eyepieces=EyePiece,
         barlows=Barlow,
+        cameras=Camera,
         filters=Filter,
         front_filters=FrontFilter,
         binoculars=Binocular,
@@ -430,6 +435,35 @@ def new_barlow() -> str:
     else:
         flash(
             f'Barlow "{barlow.name} ({barlow.multiplier})" already exists',
+            category="success",
+        )
+    return redirect(url_for("equipments"))
+
+
+@app.route("/equipments/new/camera", methods=["POST"])
+@login_required
+def new_camera() -> str:
+    form = request.form
+    if not (manufacture := form.get("manufacture", None)):
+        flash("Camera manufacture must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    if not (model := form.get("model", None)):
+        flash("Camera model must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    if not (megapixel := form.get("megapixel", None)):
+        flash("Camera megapixel must be provided", category="danger")
+        return redirect(url_for("equipments"))
+    camera, created = Camera.get_or_create(
+        manufacture=manufacture, model=model, megapixel=megapixel
+    )
+    if created:
+        flash(
+            f'Camera "{camera.manufacture}, {camera.model} ({camera.megapixel}MP)" was created',
+            category="success",
+        )
+    else:
+        flash(
+            f'Camera "{camera.manufacture}, {camera.model} ({camera.megapixel}MP)" already exists',
             category="success",
         )
     return redirect(url_for("equipments"))

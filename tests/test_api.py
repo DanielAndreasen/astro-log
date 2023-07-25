@@ -8,6 +8,7 @@ from astrolog.database import (
     MODELS,
     Barlow,
     Binocular,
+    Camera,
     EyePiece,
     Filter,
     FrontFilter,
@@ -46,7 +47,7 @@ def get_and_create_session_with_n_observations(
     return session
 
 
-class TestDB(TestCase):
+class TestAPI(TestCase):
     def setUp(self) -> None:
         db.create_tables(MODELS)
 
@@ -135,6 +136,9 @@ class TestDB(TestCase):
         )
         eyepiece = EyePiece.create(type="Plössl", focal_length=6, width=1.25)
         barlow = Barlow.create(name="Barlow", multiplier=2)
+        camera = Camera.create(
+            manufacture="Bresser", model="HD Moon, planet, and guiding", megapixel=1.2
+        )
         optic_filter = Filter.create(name="Moon filter")
         solar_filter = FrontFilter.create(name="Moon filter")
 
@@ -195,6 +199,20 @@ class TestDB(TestCase):
         self.assertIsNone(observation.binocular)
         self.assertIsNone(observation.telescope)
         self.assertTrue(observation.naked_eye)
+
+        # Make an observation with telescope and dedicated camera
+        observation, created = api.create_observation(
+            session,
+            betelgeuse,
+            telescope=telescope,
+            camera=camera,
+            optic_filter=optic_filter,
+        )
+        self.assertTrue(created)
+        self.assertEqual(observation.telescope, telescope)
+        self.assertEqual(observation.camera, camera)
+        self.assertEqual(observation.optic_filter, optic_filter)
+        self.assertIsNone(observation.eyepiece, eyepiece)
 
     def test_create_observations_nagetives(self) -> None:
         date = datetime.datetime(2013, 12, 1).date()
