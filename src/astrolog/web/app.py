@@ -39,7 +39,7 @@ from astrolog.database import (
     database_proxy,
 )
 
-ALLOWED_EXTENSIONS = {"pdf", "png", "jpg", "jpeg"}
+ALLOWED_EXTENSIONS = {"pdf", "png", "jpg", "jpeg", "gif"}
 app = Flask(__name__, template_folder="templates")
 app.secret_key = os.urandom(24)
 app.config["UPLOAD_FOLDER"] = os.path.join(app.static_folder, "uploads")
