@@ -1,5 +1,3 @@
-from datetime import date
-
 import bcrypt
 
 from astrolog.database import (
@@ -16,27 +14,6 @@ from astrolog.database import (
     Telescope,
     User,
 )
-
-
-def get_session(date: date) -> dict[str, list[Observation] | Session]:
-    session = Session.get_or_none(date=date)
-    if not session:
-        return {"session": session, "observations": []}
-    return {"session": session, "observations": list(session.observation_set)}
-
-
-def get_sessions(date1: date, date2: date) -> dict[str, list[Session]]:
-    sessions = Session.select().where((Session.date >= date1) & (Session.date <= date2))
-    if not len(sessions):
-        return {"sessions": []}
-    return {"sessions": [session for session in sessions]}
-
-
-def get_observations_of_object(object: Object) -> dict[str, list[Observation]]:
-    observations = Observation.select().where(Observation.object == object)
-    if not len(observations):
-        return {"observations": []}
-    return {"observations": list(observations)}
 
 
 def create_observation(
@@ -86,7 +63,8 @@ def create_observation(
 
 
 def delete_location(location: Location) -> bool:
-    match len(location.session_set):
+    query = Session.select().join(Location).where(Location.id == location.id)
+    match len(query):
         case 0:
             location.delete_instance()
             return True

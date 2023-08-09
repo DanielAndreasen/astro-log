@@ -3,7 +3,7 @@
 {% block body %}
 
 <h2>
-  Result for <b>{{text}}</b>
+  Result for <b>{{ text }}</b>
 </h2>
 
 <h3>Objects</h3>
@@ -19,10 +19,10 @@
   <tbody>
     {% for object in objects %}
       <tr>
-        <td>{{object.name}}</td>
-        <td>{{', '.join(object.alt_names)}}</td>
+        <td>{{ object.name }}</td>
+        <td>{{ ', '.join(object.alt_names) }}</td>
         <td>{{ object.structure.name if object.structure else '' }}</td>
-        <td>{{object.observation_set|length}}</td>
+        <td>{{ object.observation_set|length }}</td>
       </tr>
     {% endfor %}
   </tbody>
@@ -42,10 +42,16 @@
   <tbody>
     {% for session in sessions %}
       <tr>
-        <td><a class="btn btn-primary" href="{{url_for('session_page', session_id=session.id)}}">{{session.date}}</a></td>
-        <td>{{session.location.name}}</td>
-        <td>{{session.number_of_observations}}</td>
-        <td>{{session.note or ''}}</td>
+        <td>
+          <a
+            class="btn btn-primary"
+            href="{{ url_for('session_page', session_id=session.id) }}">
+            {{ session.date }}
+          </a>
+        </td>
+        <td>{{ session.location.name }}</td>
+        <td>{{ session.number_of_observations }}</td>
+        <td>{{ session.note or '' }}</td>
       </tr>
     {% endfor %}
   </tbody>
@@ -69,25 +75,25 @@
     {% for observation in observations %}
       {% set session = observation.session %}
       <tr>
-        <td><a class="btn btn-primary" href="{{url_for('session_page', session_id=session.id)}}">{{session.date}}</a></td>
+        <td><a class="btn btn-primary" href="{{ url_for('session_page', session_id=session.id) }}">{{ session.date }}</a></td>
         <td>
-          {{observation.object.name}}
+          {{ observation.object.name }}
         </td>
         {% if observation.telescope is not none %}
-          <td>{{observation.telescope.name}} (f{{observation.telescope.f_ratio}})</td>
+          <td>{{ observation.telescope.name }} (f{{ observation.telescope.f_ratio }})</td>
         {% elif observation.binocular is not none %}
-          <td>{{observation.binocular.name}}</td>
+          <td>{{ observation.binocular.name }}</td>
         {% else %}
           <td>Naked eye</td>
         {% endif %}
-        <td>{{observation.eyepiece.type}}</td>
+        <td>{{ observation.eyepiece.type }}</td>
         {% if observation.naked_eye %}
           <td></td>
         {% else %}
-          <td>{{observation.magnification}}X</td>
+          <td>{{ observation.magnification }}X</td>
         {% endif %}
-        <td>{{observation.optic_filter.name}}</td>
-        <td>{{observation.note or ''}}</td>
+        <td>{{ observation.optic_filter.name }}</td>
+        <td>{{ observation.note or '' }}</td>
       </tr>
     {% endfor %}
   </tbody>

@@ -1,9 +1,10 @@
 import os
-from typing import Iterable, Optional
+from typing import Iterable, Optional, cast
 
 import astropy.units as u
 from astropy.coordinates import EarthLocation
 from peewee import (
+    AutoField,
     BlobField,
     BooleanField,
     Check,
@@ -17,15 +18,17 @@ from peewee import (
 )
 
 database_proxy = DatabaseProxy()
+degree = cast(u.UnitBase, u.deg)
+meter = cast(u.UnitBase, u.m)
 
 
 class AstroLogModel(Model):
     class Meta:
-        # database = db
         database = database_proxy
 
 
 class Location(AstroLogModel):
+    id = AutoField()
     name = TextField()
     country = TextField()
     latitude = TextField()
@@ -42,24 +45,27 @@ class Location(AstroLogModel):
 
     @property
     def earth_location(self) -> EarthLocation:
-        latitude_decimal = Location.coordinate_to_decimal(self.latitude)
-        longitude_decimal = Location.coordinate_to_decimal(self.longitude)
+        latitude_decimal = Location.coordinate_to_decimal(str(self.latitude))
+        longitude_decimal = Location.coordinate_to_decimal(str(self.longitude))
         return EarthLocation(
-            lat=latitude_decimal * u.deg,
-            lon=longitude_decimal * u.deg,
-            height=self.altitude * u.m,
+            lat=latitude_decimal * degree,
+            lon=longitude_decimal * degree,
+            height=self.altitude * meter,
         )
 
 
 class Filter(AstroLogModel):
+    id = AutoField()
     name = TextField()
 
 
 class FrontFilter(AstroLogModel):
+    id = AutoField()
     name = TextField()
 
 
 class EyePiece(AstroLogModel):
+    id = AutoField()
     type = TextField()
     focal_length = IntegerField()
     width = FloatField()
@@ -75,17 +81,20 @@ class EyePiece(AstroLogModel):
 
 
 class Barlow(AstroLogModel):
+    id = AutoField()
     name = TextField()
     multiplier = IntegerField()
 
 
 class Binocular(AstroLogModel):
+    id = AutoField()
     name = TextField()
     aperture = IntegerField()
     magnification = IntegerField()
 
 
 class Camera(AstroLogModel):
+    id = AutoField()
     manufacture = TextField()
     model = TextField()
     megapixel = FloatField()
@@ -94,6 +103,7 @@ class Camera(AstroLogModel):
 class Telescope(AstroLogModel):
     _eyepiece = _front_filter = _barlow = _camera = None
 
+    id = AutoField()
     name = TextField()
     aperture = IntegerField()
     focal_length = IntegerField()
@@ -144,6 +154,7 @@ class Telescope(AstroLogModel):
 
 
 class Structure(AstroLogModel):
+    id = AutoField()
     name = TextField()
 
     def add_object(self, object: "Object") -> None:
@@ -154,18 +165,19 @@ class Structure(AstroLogModel):
 
     @property
     def objects(self) -> list["Object"]:
-        return list(self.object_set)
+        return list(Object.select().join(Structure).where(Structure.name == self.name))
 
     @property
     def objects_str(self) -> str:
-        return ", ".join([obj.name for obj in self.objects])
+        return ", ".join([str(obj.name) for obj in self.objects])
 
 
 class Object(AstroLogModel):
+    id = AutoField()
     name = TextField()
     favourite = BooleanField(default=False)
-    to_be_watched = BooleanField(default=False)
-    structure = ForeignKeyField(Structure, null=True)
+    to_be_watched: BooleanField | bool = BooleanField(default=False)
+    structure: ForeignKeyField | Structure = ForeignKeyField(Structure, null=True)
 
     def toggle_favourite(self) -> None:
         self.favourite = not self.favourite
@@ -173,15 +185,18 @@ class Object(AstroLogModel):
 
     @property
     def alt_names(self) -> list[str | None]:
-        return [alt.name for alt in self.altname_set]
+        query = AltName.select().join(Object).where(Object.id == self.id)
+        return [alt.name for alt in query]
 
 
 class AltName(AstroLogModel):
+    id = AutoField()
     object = ForeignKeyField(Object)
     name = TextField(unique=True)
 
 
 class Condition(AstroLogModel):
+    id = AutoField()
     temperature = IntegerField()
     humidity = IntegerField(
         null=True, constraints=[Check("humidity >= 0"), Check("humidity <= 100")]
@@ -190,6 +205,7 @@ class Condition(AstroLogModel):
 
 
 class Session(AstroLogModel):
+    id = AutoField()
     date = DateField()
     location = ForeignKeyField(Location)
     moon_phase = IntegerField(
@@ -200,20 +216,22 @@ class Session(AstroLogModel):
 
     @property
     def observations(self) -> Iterable["Observation"]:
-        for observation in self.observation_set:
+        query = Observation.select().join(Session).where(Session.id == self.id)
+        for observation in query:
             yield observation
 
     @property
     def number_of_observations(self) -> int:
-        return len(self.observation_set)
+        return len(Observation.select().join(Session).where(Session.id == self.id))
 
 
 class Image(AstroLogModel):
+    id = AutoField()
     fname = TextField()
 
     @property
     def image_loc(self) -> str:
-        return os.path.join("/static/uploads", self.fname)
+        return os.path.join("/static/uploads", str(self.fname))
 
     @property
     def observation(self) -> "Observation":
@@ -221,6 +239,7 @@ class Image(AstroLogModel):
 
 
 class Observation(AstroLogModel):
+    id = AutoField()
     object = ForeignKeyField(Object)
     session = ForeignKeyField(Session)
     binocular = ForeignKeyField(Binocular, null=True)
@@ -256,6 +275,7 @@ class Observation(AstroLogModel):
 
 
 class User(AstroLogModel):
+    id = AutoField()
     username = TextField()
     hashed_password = BlobField()
 
