@@ -1,7 +1,7 @@
 import datetime
 import os
 from functools import wraps
-from typing import Any
+from typing import Any, cast
 
 import astropy.units as u
 import matplotlib
@@ -17,6 +17,7 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from peewee import JOIN, IntegrityError, SqliteDatabase
 from werkzeug.datastructures import ImmutableMultiDict
 from werkzeug.utils import secure_filename
+from werkzeug.wrappers.response import Response
 
 from astrolog.api import create_observation, create_user, delete_location, valid_login
 from astrolog.database import (
@@ -42,7 +43,11 @@ from astrolog.database import (
 ALLOWED_EXTENSIONS = {"pdf", "png", "jpg", "jpeg", "gif"}
 app = Flask(__name__, template_folder="templates")
 app.secret_key = os.urandom(24)
-app.config["UPLOAD_FOLDER"] = os.path.join(app.static_folder, "uploads")
+app.config["UPLOAD_FOLDER"] = os.path.join(str(app.static_folder), "uploads")
+
+degree = cast(u.UnitBase, u.deg)
+meter = cast(u.UnitBase, u.m)
+hour = cast(u.UnitBase, u.hour)
 
 
 def login_required(f: Any) -> Any:
@@ -64,19 +69,19 @@ def allowed_file(fname: str) -> bool:
 
 
 @app.route("/")
-def main() -> str:
+def main() -> Response:
     if not User.select().count():
         return redirect(url_for("create_user_page"))
     return redirect(url_for("all_sessions"))
 
 
 @app.route("/create_user", methods=["GET", "POST"])
-def create_user_page() -> str:
+def create_user_page() -> Response | str:
     if request.method == "POST":
         try:
             create_user(
-                username=request.form.get("username"),
-                password=request.form.get("password"),
+                username=request.form.get("username", ""),
+                password=request.form.get("password", ""),
             )
             return redirect(url_for("login"))
         except ValueError:
@@ -89,14 +94,16 @@ def create_user_page() -> str:
 
 
 @app.route("/login", methods=["GET", "POST"])
-def login() -> str:
+def login() -> Response | str:
     if request.method == "POST":
         form = request.form
         if "logout" in form.keys():
             del session["logged_in"]
             flash("You are now logged out", category="success")
             return redirect(url_for("main"))
-        if valid_login(username=form.get("username"), password=form.get("password")):
+        if valid_login(
+            username=form.get("username", ""), password=form.get("password", "")
+        ):
             session["logged_in"] = True
             flash("You are now logged in", category="success")
             return redirect(url_for("main"))
@@ -134,10 +141,11 @@ def search() -> str:
 # Sessions
 @app.route("/session/new", methods=["GET", "POST"])
 @login_required
-def new_session() -> str:
+def new_session() -> Response | str:
+    today = datetime.datetime.today().date().strftime("%Y-%m-%d")
     if request.method == "POST":
         location = Location.get_or_none(name=request.form.get("location"))
-        date = datetime.datetime.strptime(request.form.get("date"), "%Y-%m-%d")
+        date = datetime.datetime.strptime(request.form.get("date", today), "%Y-%m-%d")
         note = request.form.get("note", None)
         session, created = Session.get_or_create(
             location=location, date=date, note=note
@@ -147,12 +155,12 @@ def new_session() -> str:
             return redirect(url_for("new_observation", session_id=session.id))
         flash("This session already exists!", category="warning")
         return redirect(url_for("new_observation", session_id=session.id))
-    return render_template("session_new.html", locations=Location)
+    return render_template("session_new.html", locations=Location, today=today)
 
 
 @app.route("/observation/new/session/<int:session_id>", methods=["GET", "POST"])
 @login_required
-def new_observation(session_id: int) -> str:
+def new_observation(session_id: int) -> Response | str:
     session = Session.get_or_none(session_id)
     if not session:
         flash(f"Session with id {session_id} was not found", category="warning")
@@ -170,7 +178,9 @@ def new_observation(session_id: int) -> str:
             flash(
                 f"Congratulations! First time observing {obj.name}", category="success"
             )
-        telescope = eyepiece = optic_filter = front_filter = binocular = None
+        telescope = (
+            eyepiece
+        ) = optic_filter = front_filter = binocular = barlow = camera = None
         match form.get("observation-type"):
             case "telescope":
                 telescope = Telescope.get_or_none(name=form.get("telescope"))
@@ -218,16 +228,16 @@ def new_observation(session_id: int) -> str:
 
 @app.route("/observation/new/image/<int:observation_id>", methods=["POST"])
 @login_required
-def upload_image(observation_id: int) -> str:
+def upload_image(observation_id: int) -> Response | str:
     observation: Observation = Observation.get(observation_id)
     if (file := request.files.get("file", None)) is None:
         flash("No image selected", category="warning")
         return redirect(url_for("session_page", session_id=observation.session.id))
-    if not allowed_file(file.filename):
+    if not allowed_file(str(file.filename)):
         flash("Image extension not allowed", category="warning")
         return redirect(url_for("session_page", session_id=observation.session.id))
     fname_path = os.path.join(
-        app.config["UPLOAD_FOLDER"], secure_filename(file.filename)
+        app.config["UPLOAD_FOLDER"], secure_filename(str(file.filename))
     )
     file.save(fname_path)
     observation.add_image(fname_path)
@@ -243,7 +253,7 @@ def all_sessions() -> str:
 
 
 @app.route("/session/<int:session_id>")
-def session_page(session_id: int) -> str:
+def session_page(session_id: int) -> Response | str:
     session = Session.get_or_none(session_id)
     if not session:
         flash(f"Session with id {session_id} was not found", category="warning")
@@ -259,7 +269,7 @@ def structures() -> str:
 
 @app.route("/structures/add", methods=["POST"])
 @login_required
-def add_structure() -> str:
+def add_structure() -> Response | str:
     form = request.form
     if (name := form.get("structure", None)) is None:
         flash("Need to add a name before adding", category="danger")
@@ -273,9 +283,9 @@ def add_structure() -> str:
 
 @app.route("/structures/add_object", methods=["POST"])
 @login_required
-def add_object_to_structure() -> str:
+def add_object_to_structure() -> Response:
     form = request.form
-    structure = Structure.get(int(form.get("structure")))
+    structure = Structure.get(int(form.get("structure", -1)))
     if (object := Object.get_or_none(name=form.get("object"))) is None:
         flash("Please select an object before submitting", category="warning")
         return redirect(url_for("structures"))
@@ -291,7 +301,7 @@ def objects() -> str:
         match len(form):
             case 1:
                 # Toggle favourite
-                object = Object.get(int(form.get("toggle_favourite")))
+                object = Object.get(int(form.get("toggle_favourite", -1)))
                 object.toggle_favourite()
             case _:
                 # Adding a new object
@@ -310,7 +320,7 @@ def objects() -> str:
 
 @app.route("/objects/alt_name", methods=["POST"])
 @login_required
-def add_alt_name() -> str:
+def add_alt_name() -> Response | str:
     form = request.form
     object = Object.get(name=form.get("object"))
     if alt_name := form.get("alt-name"):
@@ -349,7 +359,7 @@ def equipments() -> str:
 
 @app.route("/equipments/new/telescope", methods=["POST"])
 @login_required
-def new_telescope() -> str:
+def new_telescope() -> Response:
     form = request.form
     if not (name := form.get("name", None)):
         flash("Telescope name must be provided", category="danger")
@@ -372,7 +382,7 @@ def new_telescope() -> str:
 
 @app.route("/equipments/new/binocular", methods=["POST"])
 @login_required
-def new_binocular() -> str:
+def new_binocular() -> Response:
     form = request.form
     if not (name := form.get("name", None)):
         flash("Binocular name must be provided", category="danger")
@@ -395,7 +405,7 @@ def new_binocular() -> str:
 
 @app.route("/equipments/new/eyepiece", methods=["POST"])
 @login_required
-def new_eyepiece() -> str:
+def new_eyepiece() -> Response:
     form = request.form
     if not (type_ := form.get("type", None)):
         flash("Eyepiece type must be provided", category="danger")
@@ -418,7 +428,7 @@ def new_eyepiece() -> str:
 
 @app.route("/equipments/new/barlow", methods=["POST"])
 @login_required
-def new_barlow() -> str:
+def new_barlow() -> Response:
     form = request.form
     if not (name := form.get("name", None)):
         flash("Barlow name must be provided", category="danger")
@@ -442,7 +452,7 @@ def new_barlow() -> str:
 
 @app.route("/equipments/new/camera", methods=["POST"])
 @login_required
-def new_camera() -> str:
+def new_camera() -> Response:
     form = request.form
     if not (manufacture := form.get("manufacture", None)):
         flash("Camera manufacture must be provided", category="danger")
@@ -471,7 +481,7 @@ def new_camera() -> str:
 
 @app.route("/equipments/new/filter", methods=["POST"])
 @login_required
-def new_filter() -> str:
+def new_filter() -> Response:
     form = request.form
     if not (name := form.get("name", None)):
         flash("Filter name must be provided", category="danger")
@@ -486,7 +496,7 @@ def new_filter() -> str:
 
 @app.route("/equipments/new/front_filter", methods=["POST"])
 @login_required
-def new_front_filter() -> str:
+def new_front_filter() -> Response:
     form = request.form
     if not (name := form.get("name", None)):
         flash("Filter name must be provided", category="danger")
@@ -508,7 +518,7 @@ def locations() -> str:
 
 @app.route("/locations/alter", methods=["POST"])
 @login_required
-def alter_location() -> str:
+def alter_location() -> Response:
     form = request.form
     for action, location_id in form.items():
         location = Location.get(int(location_id))
@@ -529,7 +539,7 @@ def alter_location() -> str:
 
 @app.route("/locations/new", methods=["POST"])
 @login_required
-def new_location() -> str:
+def new_location() -> Response:
     form = request.form
     if not (name := form.get("name", None)):
         flash("Name must be provided", category="danger")
@@ -604,11 +614,11 @@ def get_earth_location(form: ImmutableMultiDict[str, str]) -> EarthLocation:
         latitude_decimal = Location.coordinate_to_decimal(latitude)
         longitude_decimal = Location.coordinate_to_decimal(longitude)
         return EarthLocation(
-            lat=latitude_decimal * u.deg,
-            lon=longitude_decimal * u.deg,
-            height=int(form.get("altitude") or 0) * u.m,
+            lat=latitude_decimal * degree,
+            lon=longitude_decimal * degree,
+            height=int(form.get("altitude", 0) or 0) * meter,
         )
-    return Location.get_by_id(int(form.get("location"))).earth_location
+    return Location.get_by_id(int(form.get("location", -1))).earth_location
 
 
 def visibility_plot_year(form: ImmutableMultiDict[str, str]) -> str:
@@ -621,7 +631,7 @@ def visibility_plot_year(form: ImmutableMultiDict[str, str]) -> str:
     times = Time(times_list)
     frames = AltAz(obstime=times, location=earth_location)
     fig = plt.figure(figsize=(12, 6))
-    for name in form.get("name").split(","):
+    for name in form.get("name", "").split(","):
         try:
             obj = SkyCoord.from_name(name)
         except NameResolveError:
@@ -642,10 +652,10 @@ def visibility_plot_year(form: ImmutableMultiDict[str, str]) -> str:
 def get_midnight(form: ImmutableMultiDict[str, str]) -> Time:
     if form.get("latitude") and form.get("longitude"):
         # Use custom location, so use custom UTC offset
-        utcoffset = int(form.get("utcoffset"))
+        utcoffset = int(form.get("utcoffset", 0))
     else:
-        utcoffset = Location.get_by_id(int(form.get("location"))).utcoffset
-    return Time(form.get("date")) - utcoffset * u.hour
+        utcoffset = Location.get_by_id(int(form.get("location", 0))).utcoffset
+    return Time(form.get("date")) - utcoffset * hour
 
 
 def visibility_plot(form: ImmutableMultiDict[str, str]) -> str:
@@ -653,7 +663,7 @@ def visibility_plot(form: ImmutableMultiDict[str, str]) -> str:
     matplotlib.use("agg")
     earth_location = get_earth_location(form)
     midnight = get_midnight(form)
-    delta_midnight = np.linspace(-12, 12, 1000) * u.hour
+    delta_midnight = np.linspace(-12, 12, 1000) * hour
     times = midnight + delta_midnight
     frames = AltAz(obstime=times, location=earth_location)
     sun_pos = get_sun(times).transform_to(frames)
@@ -661,7 +671,7 @@ def visibility_plot(form: ImmutableMultiDict[str, str]) -> str:
     fig = plt.figure()
     plt.plot(delta_midnight, sun_pos.alt, "--y", label="Sun")
     plt.plot(delta_midnight, moon_pos.alt, "--r", label="Moon")
-    for name in form.get("name").split(","):
+    for name in form.get("name", "").split(","):
         try:
             obj = SkyCoord.from_name(name)
         except NameResolveError:
@@ -670,19 +680,23 @@ def visibility_plot(form: ImmutableMultiDict[str, str]) -> str:
         obj_pos = obj.transform_to(frames)
 
         plt.plot(delta_midnight, obj_pos.alt, label=name, lw=5)
+
+    sun_pos_alt: SkyCoord = cast(SkyCoord, sun_pos.alt)
+    horizon_0: u.UnitBase = cast(u.UnitBase, -0 * degree)
+    horizon_18: u.UnitBase = cast(u.UnitBase, -18 * degree)
     plt.fill_between(
         delta_midnight,
-        0 * u.deg,
-        90 * u.deg,
-        where=sun_pos.alt < -0 * u.deg,
+        0 * degree,
+        90 * degree,
+        where=sun_pos_alt < horizon_0,
         color="0.5",
         zorder=0,
     )
     plt.fill_between(
         delta_midnight,
-        0 * u.deg,
-        90 * u.deg,
-        where=sun_pos.alt < -18 * u.deg,
+        0 * degree,
+        90 * degree,
+        where=sun_pos.alt < horizon_18,
         color="k",
         zorder=0,
     )
@@ -730,13 +744,15 @@ def finding_chart_plot(form: ImmutableMultiDict[str, str]) -> str | None:
     quantity_support()
     matplotlib.use("agg")
     name = form.get("name")
-    threshold = float(form.get("threshold"))
+    threshold = float(form.get("threshold", 10))
     try:
         obj = SkyCoord.from_name(name)
     except NameResolveError:
         flash(f"Could not find object: {name}", category="danger")
         return None
-    result = ConeSearch.query_region(obj, float(form.get("radius")) * u.degree)
+    result = ConeSearch.query_region(obj, float(form.get("radius", 1)) * degree)
+    if result is None:
+        return None
     result = result[result["Mag"] <= float(threshold)]
     result = filter_table(result, obj)
     size = abs(result["Mag"] - float(threshold)) * 10
