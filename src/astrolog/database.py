@@ -20,7 +20,6 @@ from peewee import (
 database_proxy = DatabaseProxy()
 degree = cast(u.UnitBase, u.deg)
 meter = cast(u.UnitBase, u.m)
-hour = cast(u.UnitBase, u.hour)
 
 
 class AstroLogModel(Model):
