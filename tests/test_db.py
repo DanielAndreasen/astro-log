@@ -141,7 +141,8 @@ class TestDB(TestCase):
         moon_filter = get_filter(name="Moon filter")
         plossl.use_filter(moon_filter)
         self.assertEqual(plossl.optic_filter, moon_filter)
-        self.assertEqual(plossl.optic_filter.name, "Moon filter")
+        if plossl.optic_filter:
+            self.assertEqual(plossl.optic_filter.name, "Moon filter")
         # Change filter
         red_filter = get_filter(name="Red filter")
         plossl.use_filter(red_filter)

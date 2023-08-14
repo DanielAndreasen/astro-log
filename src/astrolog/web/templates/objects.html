@@ -42,7 +42,7 @@
               <i class="fa fa-star-o" aria-hidden="true"></i>
             {% endif %}
           </td>
-          <td>{{', '.join(object.alt_names)}}</td>
+          <td>{{ ', '.join(object.alt_names) }}</td>
           <td>{{ object.structure.name if object.structure else '' }}</td>
         </tr>
       {% endif %}
@@ -65,8 +65,8 @@
     <tbody>
       {% for object in objects %}
         <tr>
-          <td>{{object.name}}</td>
-          <td>{{', '.join(object.alt_names)}}</td>
+          <td>{{ object.name }}</td>
+          <td>{{ ', '.join(object.alt_names) }}</td>
           <td>{{ object.structure.name if object.structure else '' }}</td>
           <td>
             {% if object.favourite %}
@@ -100,7 +100,7 @@
   </table>
 </form>
 
-<form action="{{url_for('add_alt_name')}}" method="POST">
+<form action="{{ url_for('add_alt_name') }}" method="POST">
   <div class="input-group">
     <label for="object" class="input-group-text">Object</label>
     <select name="object" class="form-select form-control-plaintext" id="object">
