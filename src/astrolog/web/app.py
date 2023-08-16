@@ -417,7 +417,7 @@ def new_eyepiece() -> Response:
         flash("Eyepiece width must be provided", category="danger")
         return redirect(url_for("equipments"))
     eyepiece, created = EyePiece.get_or_create(
-        type=type_, focal_length=focal_length, width=width
+        type=type_, focal_length=focal_length, width=width, afov=form.get("afov", None)
     )
     if created:
         flash(f'Eyepiece "{eyepiece.type}" was created', category="success")

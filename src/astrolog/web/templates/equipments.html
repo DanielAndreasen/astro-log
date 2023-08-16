@@ -73,7 +73,7 @@
         <th>Type</th>
         <th>Focal length</th>
         <th>Width</th>
-        <th>FoV</th>
+        <th>AFoV</th>
       </thead>
       <tbody>
         {% for eyepiece in eyepieces %}
@@ -81,7 +81,7 @@
             <td>{{eyepiece.type}}</td>
             <td>{{eyepiece.focal_length}}mm</td>
             <td>{{eyepiece.width}}"</td>
-            <td>{{eyepiece.fov or '' }}&#176;</td>
+            <td>{{eyepiece.afov or '' }}&#176;</td>
           </tr>
         {% endfor %}
       </tbody>
@@ -118,14 +118,14 @@
         <span class="input-group-text" id="width">"</span>
       </div>
       <div class="input-group">
-        <span class="input-group-text" id="fov">FoV</span>
+        <span class="input-group-text" id="afov">AFoV</span>
         <input
-          name="fov"
+          name="afov"
           type="text"
           class="form-control"
-          aria-describedby="fov"
+          aria-describedby="afov"
         />
-        <span class="input-group-text" id="fov">&#176;</span>
+        <span class="input-group-text" id="afov">&#176;</span>
       </div>
       <button type="submit" class="btn btn-primary">Add eyepiece</button>
     </form>
