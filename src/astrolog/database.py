@@ -69,6 +69,7 @@ class EyePiece(AstroLogModel):
     type = TextField()
     focal_length = IntegerField()
     width = FloatField()
+    afov = IntegerField(null=True, default=None)
 
     def use_filter(self, optic_filter: Filter) -> None:
         self.optic_filter_ = optic_filter
@@ -121,6 +122,14 @@ class Telescope(AstroLogModel):
                 )
             return int(self.focal_length / eyepiece.focal_length)
         return None
+
+    @property
+    def fov(self) -> float | None:
+        """True field of view, which is apparent fov (afov) / magnification"""
+        if eyepiece := self.eyepiece:
+            if eyepiece.afov:
+                return eyepiece.afov / (self.focal_length / eyepiece.focal_length)
+            return None
 
     @property
     def eyepiece(self) -> Optional[EyePiece]:
