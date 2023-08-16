@@ -46,6 +46,8 @@
   <tbody>
     {% for observation in session.observations %}
       {% set image = observation.image %}
+      {% set eyepiece = observation.eyepiece %}
+      {% set barlow = observation.barlow %}
       <tr {% if image is not none %}data-image-name="{{image.image_loc}}" title="Click to see image"{% endif %}>
         <td>
           {{observation.object.name}}
@@ -61,10 +63,10 @@
           <td>Naked eye</td>
         {% endif %}
         <td>
-          {% if observation.eyepiece is not none and observation.barlow is not none %}
-            {{observation.eyepiece.type}} + {{observation.barlow.name}} {{observation.barlow.multiplier}}X
-          {% elif observation.eyepiece is not none and observation.barlow is none %}
-            {{observation.eyepiece.type}}
+          {% if eyepiece is not none and barlow is not none %}
+            {{eyepiece.type}} + {{barlow.name}} {{barlow.multiplier}}X {% if eyepiece.afov is not none %} (fov: {{ eyepiece.afov / (observation.magnification * barlow.multiplier) }}&#176;) {% endif %}
+          {% elif eyepiece is not none and barlow is none %}
+            {{eyepiece.type}} {% if eyepiece.afov is not none %}  (fov: {{ eyepiece.afov / observation.magnification }}&#176;) {% endif %}
           {% elif observation.camera is not none %}
             {{observation.camera.manufacture}}: {{observation.camera.model}} ({{observation.camera.megapixel}}MP)
           {% endif %}
