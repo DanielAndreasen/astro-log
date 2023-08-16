@@ -11,9 +11,9 @@ db = SqliteDatabase(ASTRO_LOG_DB)
 database_proxy.initialize(db)
 migrator = SqliteMigrator(db)
 
-fov = IntegerField(null=True, default=None)
+afov = IntegerField(null=True, default=None)
 
 with db.transaction():
     migrate(
-        migrator.add_column("eyepiece", "fov", fov),
+        migrator.add_column("eyepiece", "afov", afov),
     )
