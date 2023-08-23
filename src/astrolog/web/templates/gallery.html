@@ -104,7 +104,7 @@ img {
 
 <h2 style="text-align:center">Slideshow Gallery</h2>
 
-{% set N = images.select().count()%}
+{% set N = images.select().count() %}
 <div class="container">
   {% for i, image in enumerate(images, start=1) %}
     <div class="mySlides">
