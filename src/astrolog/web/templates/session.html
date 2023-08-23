@@ -106,13 +106,13 @@
 
 <script>
   $('.table > tbody > tr').click(function() {
-    var src = $(this).data('image-name');
-    if (src != undefined) {
-      var img = document.getElementsByClassName('img-fluid')[0];
+    const src = $(this).data('image-name');
+    if (src !== undefined) {
+      const img = document.getElementsByClassName('img-fluid')[0];
       img.src = src;
       const myModal = new bootstrap.Modal(document.getElementById('myModal'));
-      myModal.toggle();
-    };
+    myModal.toggle();
+    }
   });
 </script>
 

@@ -111,13 +111,13 @@
 
 <script>
   function toggle_groups(selector){
-    var binocular_group = document.getElementById('binocular-group');
-    var telescope_group = document.getElementById('telescope-group');
-    var eyepiece_group = document.getElementById('eyepiece-group');
-    var barlow_group = document.getElementById('barlow-group');
-    var camera_group = document.getElementById('camera-group');
-    var optical_filter_group = document.getElementById('optical-filter-group');
-    var front_filter_group = document.getElementById('front-filter-group');
+    const binocular_group = document.getElementById('binocular-group');
+    const telescope_group = document.getElementById('telescope-group');
+    const eyepiece_group = document.getElementById('eyepiece-group');
+    const barlow_group = document.getElementById('barlow-group');
+    const camera_group = document.getElementById('camera-group');
+    const optical_filter_group = document.getElementById('optical-filter-group');
+    const front_filter_group = document.getElementById('front-filter-group');
     switch (selector.value) {
       case 'binocular':
         binocular_group.hidden = false;
