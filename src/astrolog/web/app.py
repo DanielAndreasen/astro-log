@@ -768,7 +768,8 @@ def finding_chart_plot(form: ImmutableMultiDict[str, str]) -> str | None:
 
 @app.route("/gallery", methods=["GET"])
 def gallery() -> str:
-    return render_template("gallery.html", images=Image, enumerate=enumerate)
+    images = Image.select().join(Observation)
+    return render_template("gallery.html", images=images, enumerate=enumerate)
 
 
 if __name__ == "__main__":  # pragma: no cover
