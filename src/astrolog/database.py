@@ -129,7 +129,7 @@ class Telescope(AstroLogModel):
         if eyepiece := self.eyepiece:
             if eyepiece.afov:
                 return eyepiece.afov / (self.focal_length / eyepiece.focal_length)
-            return None
+        return None
 
     @property
     def eyepiece(self) -> Optional[EyePiece]:
