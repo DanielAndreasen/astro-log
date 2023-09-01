@@ -181,12 +181,18 @@ class Structure(AstroLogModel):
         return ", ".join([str(obj.name) for obj in self.objects])
 
 
+class Kind(AstroLogModel):
+    id = AutoField()
+    name = TextField()
+
+
 class Object(AstroLogModel):
     id = AutoField()
     name = TextField()
     favourite = BooleanField(default=False)
     to_be_watched: BooleanField | bool = BooleanField(default=False)
     structure: ForeignKeyField | Structure = ForeignKeyField(Structure, null=True)
+    kind: ForeignKeyField | Kind = ForeignKeyField(Kind, null=True)
 
     def toggle_favourite(self) -> None:
         self.favourite = not self.favourite
@@ -299,6 +305,7 @@ MODELS = [
     Filter,
     FrontFilter,
     Image,
+    Kind,
     Location,
     Object,
     Observation,

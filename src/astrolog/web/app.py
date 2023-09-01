@@ -30,6 +30,7 @@ from astrolog.database import (
     Filter,
     FrontFilter,
     Image,
+    Kind,
     Location,
     Object,
     Observation,
@@ -39,11 +40,13 @@ from astrolog.database import (
     User,
     database_proxy,
 )
+from astrolog.web.ajax import bp
 
 ALLOWED_EXTENSIONS = {"pdf", "png", "jpg", "jpeg", "gif"}
 app = Flask(__name__, template_folder="templates")
 app.secret_key = os.urandom(24)
 app.config["UPLOAD_FOLDER"] = os.path.join(str(app.static_folder), "uploads")
+app.register_blueprint(bp)
 
 degree = cast(u.UnitBase, u.deg)
 meter = cast(u.UnitBase, u.m)
@@ -315,7 +318,12 @@ def objects() -> str:
                     )
                 if structure := Structure.get_or_none(name=form.get("structure")):
                     structure.add_object(object)
-    return render_template("objects.html", objects=Object, structures=Structure)
+    return render_template(
+        "objects.html",
+        objects=Object.select().order_by(Object.name),
+        structures=Structure.select().order_by(Structure.name),
+        kinds=Kind.select().order_by(Kind.name),
+    )
 
 
 @app.route("/objects/alt_name", methods=["POST"])

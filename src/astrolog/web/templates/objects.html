@@ -16,8 +16,17 @@
       <input name="favourite" class="form-check-input mt-0" type="checkbox" value="">
     </div>
     <label type="text" class="input-group-text">Favourite</label>
+    <button name="add_object" value="add_object" class="btn btn-primary" type="submit">Add object</button>
   </div>
-  <button name="add_object" value="add_object2" class="btn btn-primary" type="submit">Add object</button>
+</form>
+
+<h2>Add new object kind</h2>
+<form class="mb-5" method="POST" action="{{ url_for('ajax.add_kind') }}">
+  <div class="input-group">
+    <label for="kind" class="input-group-text">Kind</label>
+    <input name="kind" type="text" class="form-control" id="kind">
+    <button name="add_kind" value="add_kind" class="btn btn-primary" type="submit">Add kind</button>
+  </div>
 </form>
 
 <h2>To be watched</h2>
@@ -58,6 +67,7 @@
         <th>Name</th>
         <th>Alt. name(s)</th>
         <th>Structure</th>
+        <th>Kind</th>
         <th>Favourite</th>
         <th>Observed</th>
       </tr>
@@ -69,6 +79,14 @@
           <td>{{ ', '.join(object.alt_names) }}</td>
           <td>{{ object.structure.name if object.structure else '' }}</td>
           <td>
+            <select onchange="update_kind(this, {{ object.id }})">
+              <option value=""></option>
+              {% for kind in kinds %}
+                <option value="{{kind.id}}" {% if object.kind == kind %}selected{% endif %}>{{kind.name}}</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td>
             {% if object.favourite %}
               <button
                 name="toggle_favourite"
@@ -78,13 +96,13 @@
                 <i class="fa fa-star" aria-hidden="true"></i>
               </button>
             {% else %}
-            <button
-              name="toggle_favourite"
-              value="{{object.id}}"
-              type="submit"
-              class="btn btn-outline-primary">
-              <i class="fa fa-star-o" aria-hidden="true"></i>
-            </button>
+              <button
+                name="toggle_favourite"
+                value="{{object.id}}"
+                type="submit"
+                class="btn btn-outline-primary">
+                <i class="fa fa-star-o" aria-hidden="true"></i>
+              </button>
             {% endif %}
           </td>
           <td>
@@ -114,5 +132,18 @@
     <button class="btn btn-success" type="submit">Add</button></td>
   </div>
 </form>
+
+<script>
+  async function update_kind(select, object_id) {
+    const kind_id = select.value;
+    const data = {object_id: object_id.toString(), kind_id: kind_id}
+    let url = "{{ url_for('ajax.update_kind') }}";
+    let options = {
+      headers: {'Content-Type': 'application/json;charset=UTF-8'},
+      body: JSON.stringify(data),
+      method: 'POST'};
+    fetch(url, options);
+  }
+</script>
 
 {% endblock %}
