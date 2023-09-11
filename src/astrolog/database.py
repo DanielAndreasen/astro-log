@@ -128,7 +128,9 @@ class Telescope(AstroLogModel):
         """True field of view, which is apparent fov (afov) / magnification"""
         if eyepiece := self.eyepiece:
             if eyepiece.afov:
-                return eyepiece.afov / (self.focal_length / eyepiece.focal_length)
+                return round(
+                    eyepiece.afov / (self.focal_length / eyepiece.focal_length), 2
+                )
         return None
 
     @property
@@ -277,6 +279,19 @@ class Observation(AstroLogModel):
         elif self.binocular:
             return self.binocular.magnification
         return None
+
+    @property
+    def fov(self) -> Optional[float]:
+        if not self.telescope:
+            return None
+        if not self.eyepiece:
+            return None
+        if not self.eyepiece.afov:
+            return None
+        self.telescope.use_eyepiece(self.eyepiece)
+        if self.barlow:
+            self.telescope.use_barlow(self.barlow)
+        return self.telescope.fov
 
     @property
     def naked_eye(self) -> bool:

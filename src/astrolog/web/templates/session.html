@@ -46,6 +46,7 @@
   <tbody>
     {% for observation in session.observations %}
       {% set image = observation.image %}
+      {% set telescope = observation.telescope %}
       {% set eyepiece = observation.eyepiece %}
       {% set barlow = observation.barlow %}
       <tr {% if image is not none %}data-image-name="{{image.image_loc}}" title="Click to see image"{% endif %}>
@@ -55,8 +56,8 @@
             <i class="fa fa-image" aria-hidden="true"></i>
           {% endif %}
         </td>
-        {% if observation.telescope is not none %}
-          <td>{{observation.telescope.name}} (f{{observation.telescope.f_ratio}})</td>
+        {% if telescope is not none %}
+          <td>{{telescope.name}} (f{{telescope.f_ratio}})</td>
         {% elif observation.binocular is not none %}
           <td>{{observation.binocular.name}}</td>
         {% else %}
@@ -64,9 +65,9 @@
         {% endif %}
         <td>
           {% if eyepiece is not none and barlow is not none %}
-            {{eyepiece.type}} + {{barlow.name}} {{barlow.multiplier}}X {% if eyepiece.afov is not none %} (fov: {{ eyepiece.afov / (observation.magnification * barlow.multiplier) }}&#176;) {% endif %}
+            {{eyepiece.type}} + {{barlow.name}} {{barlow.multiplier}}X {% if telescope is not none %} (fov: {{ observation.fov }}&#176;) {% endif %}
           {% elif eyepiece is not none and barlow is none %}
-            {{eyepiece.type}} {% if eyepiece.afov is not none %}  (fov: {{ eyepiece.afov / observation.magnification }}&#176;) {% endif %}
+            {{eyepiece.type}} {% if eyepiece.afov is not none %}  (fov: {{ observation.fov }}&#176;) {% endif %}
           {% elif observation.camera is not none %}
             {{observation.camera.manufacture}}: {{observation.camera.model}} ({{observation.camera.megapixel}}MP)
           {% endif %}
