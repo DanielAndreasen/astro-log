@@ -282,16 +282,16 @@ class Observation(AstroLogModel):
 
     @property
     def fov(self) -> Optional[float]:
-        if (eyepiece := self.eyepiece) is None:
-            return None
-        if not eyepiece.afov:
-            return None
         if not self.telescope:
+            return None
+        if not self.eyepiece:
+            return None
+        if not self.eyepiece.afov:
             return None
         self.telescope.use_eyepiece(self.eyepiece)
         if self.barlow:
             self.telescope.use_barlow(self.barlow)
-        return round(eyepiece.afov / self.telescope.magnification, 2)
+        return self.telescope.fov
 
     @property
     def naked_eye(self) -> bool:
