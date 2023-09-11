@@ -47,7 +47,7 @@
     <select name="eyepiece" class="form-select form-control" id="eyepiece">
       <option value=""></option>
       {% for eyepiece in eyepieces %}
-        <option value="{{eyepiece.type}}">{{eyepiece.type}} ({{eyepiece.focal_length}}mm)</option>
+        <option value="{{eyepiece.id}}">{{eyepiece.type}} ({{eyepiece.focal_length}}mm)</option>
       {% endfor %}
     </select>
   </div>

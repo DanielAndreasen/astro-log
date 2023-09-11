@@ -187,7 +187,7 @@ def new_observation(session_id: int) -> Response | str:
         match form.get("observation-type"):
             case "telescope":
                 telescope = Telescope.get_or_none(name=form.get("telescope"))
-                eyepiece = EyePiece.get_or_none(type=form.get("eyepiece"))
+                eyepiece = EyePiece.get_or_none(id=form.get("eyepiece"))
                 barlow = Barlow.get_or_none(name=form.get("barlow"))
                 camera = Camera.get_or_none(id=form.get("camera"))
                 optic_filter = Filter.get_or_none(name=form.get("optical_filter"))
