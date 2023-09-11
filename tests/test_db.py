@@ -15,6 +15,7 @@ from astrolog.database import (
     Filter,
     FrontFilter,
     Image,
+    Kind,
     Location,
     Object,
     Observation,
@@ -83,11 +84,19 @@ def get_barlow(name: str, multiplier: int) -> Barlow:
     return barlow
 
 
+def get_kind(name: str) -> Kind:
+    kind, _ = Kind.get_or_create(name=name)
+    return kind
+
+
 def get_object(
-    name: str, favourite: bool = False, to_be_watched: bool = False
+    name: str,
+    favourite: bool = False,
+    to_be_watched: bool = False,
+    kind: None | Kind = None,
 ) -> Object:
     object, _ = Object.get_or_create(
-        name=name, favourite=favourite, to_be_watched=to_be_watched
+        name=name, kind=kind, favourite=favourite, to_be_watched=to_be_watched
     )
     return object
 
@@ -318,15 +327,24 @@ class TestDB(TestCase):
         )
         self.assertEqual(session.note, "this is a note")
 
+    def test_kind(self) -> None:
+        stellar = get_kind(name="Stellar")
+        self.assertEqual(stellar.name, "Stellar")
+
     def test_object(self) -> None:
         arcturus = get_object(name="Arcturus")
         self.assertEqual(arcturus.name, "Arcturus")
         self.assertFalse(arcturus.favourite)
         self.assertFalse(arcturus.to_be_watched)
-        betelgeuse = get_object(name="Betelgeuse", favourite=True, to_be_watched=True)
+        self.assertIsNone(arcturus.kind)
+        stellar = get_kind(name="Stellar")
+        betelgeuse = get_object(
+            name="Betelgeuse", kind=stellar, favourite=True, to_be_watched=True
+        )
         self.assertEqual(betelgeuse.name, "Betelgeuse")
         self.assertTrue(betelgeuse.favourite)
         self.assertTrue(betelgeuse.to_be_watched)
+        self.assertTrue(betelgeuse.kind, stellar)
         arcturus.toggle_favourite()
         arcturus = Object.get(name="Arcturus")
         self.assertTrue(arcturus.favourite)
