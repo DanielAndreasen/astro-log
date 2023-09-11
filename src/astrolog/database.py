@@ -128,7 +128,9 @@ class Telescope(AstroLogModel):
         """True field of view, which is apparent fov (afov) / magnification"""
         if eyepiece := self.eyepiece:
             if eyepiece.afov:
-                return eyepiece.afov / (self.focal_length / eyepiece.focal_length)
+                return round(
+                    eyepiece.afov / (self.focal_length / eyepiece.focal_length), 2
+                )
             return None
 
     @property
