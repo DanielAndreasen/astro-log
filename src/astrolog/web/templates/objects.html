@@ -6,10 +6,10 @@
     <label for="object" class="input-group-text">Object</label>
     <input name="object" type="text" class="form-control" id="object">
     <label for="structure" class="input-group-text">Structure</label>
-    <select name="structure" class="form-select form-control-plaintext" id="structure">
+    <select name="structure_id" class="form-select form-control-plaintext" id="structure">
       <option value=""></option>
       {% for structure in structures %}
-        <option value="{{structure.name}}">{{structure.name}}</option>
+        <option value="{{structure.id}}">{{structure.name}}</option>
       {% endfor %}
     </select>
     <div class="input-group-text">

@@ -35,16 +35,16 @@
 
   <div id="telescope-group" class="input-group" hidden>
     <label for="telescope" class="input-group-text">Telescope</label>
-    <select name="telescope" class="form-select form-control" id="telescope">
+    <select name="telescope_id" class="form-select form-control" id="telescope">
       {% for telescope in telescopes %}
-        <option value="{{telescope.name}}">{{telescope.name}}</option>
+        <option value="{{telescope.id}}">{{telescope.name}}</option>
       {% endfor %}
     </select>
   </div>
 
   <div id="eyepiece-group" class="input-group" hidden>
     <label for="eyepiece" class="input-group-text">Eyepiece (optional)</label>
-    <select name="eyepiece" class="form-select form-control" id="eyepiece">
+    <select name="eyepiece_id" class="form-select form-control" id="eyepiece">
       <option value=""></option>
       {% for eyepiece in eyepieces %}
         <option value="{{eyepiece.id}}">{{eyepiece.type}} ({{eyepiece.focal_length}}mm)</option>
@@ -54,17 +54,17 @@
 
   <div id="barlow-group" class="input-group" hidden>
     <label for="barlow" class="input-group-text">Barlow (optional)</label>
-    <select name="barlow" class="form-select form-control" id="barlow">
+    <select name="barlow_id" class="form-select form-control" id="barlow">
       <option value=""></option>
       {% for barlow in barlows %}
-        <option value="{{barlow.name}}">{{barlow.name}} {{barlow.multiplier}}X</option>
+        <option value="{{barlow.id}}">{{barlow.name}} {{barlow.multiplier}}X</option>
       {% endfor %}
     </select>
   </div>
 
   <div id="camera-group" class="input-group" hidden>
     <label for="camera" class="input-group-text">Camera (optional)</label>
-    <select name="camera" class="form-select form-control" id="camera">
+    <select name="camera_id" class="form-select form-control" id="camera">
       <option value=""></option>
       {% for camera in cameras %}
         <option value="{{camera.id}}">{{camera.manufacture}}: {{camera.model}} ({{camera.megapixel}}MP)</option>
@@ -74,29 +74,29 @@
 
   <div id="optical-filter-group" class="input-group" hidden>
     <label for="optical_filter" class="input-group-text">Filter (optional)</label>
-    <select name="optical_filter" class="form-select form-control" id="optical_filter">
+    <select name="optical_filter_id" class="form-select form-control" id="optical_filter">
       <option value=""></option>
       {% for optical_filter in optical_filters %}
-        <option value="{{optical_filter.name}}">{{optical_filter.name}}</option>
+        <option value="{{optical_filter.id}}">{{optical_filter.name}}</option>
       {% endfor %}
     </select>
   </div>
 
   <div id="front-filter-group" class="input-group" hidden>
     <label for="front_filter" class="input-group-text">Front filter (optional)</label>
-    <select name="front_filter" class="form-select form-control" id="front_filter">
+    <select name="front_filter_id" class="form-select form-control" id="front_filter">
       <option value=""></option>
       {% for front_filter in front_filters %}
-        <option value="{{front_filter.name}}">{{front_filter.name}}</option>
+        <option value="{{front_filter.id}}">{{front_filter.name}}</option>
       {% endfor %}
     </select>
   </div>
 
   <div id="binocular-group" class="input-group" hidden>
     <label for="binocular" class="input-group-text">Binocular</label>
-    <select name="binocular" class="form-select form-control" id="binocular">
+    <select name="binocular_id" class="form-select form-control" id="binocular">
       {% for binocular in binoculars %}
-      <option value="{{binocular.name}}">{{binocular.name}} ({{binocular.aperture}}X{{binocular.magnification}})</option>
+        <option value="{{binocular.id}}">{{binocular.name}} ({{binocular.aperture}}X{{binocular.magnification}})</option>
       {% endfor %}
     </select>
   </div>
