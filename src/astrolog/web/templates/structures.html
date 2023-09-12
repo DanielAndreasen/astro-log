@@ -13,15 +13,15 @@
   <tbody>
     {% for structure in structures %}
       <tr>
-        <form action="{{url_for('add_object_to_structure')}}" method="POST">
+        <form action="{{ url_for('add_object_to_structure') }}" method="POST">
         <td>{{structure.name}}</td>
         <td>{{structure.objects_str}}</td>
         <td>
           <div class="col-sm-6">
-            <select name="object" class="form-select form-control-plaintext" id="object">
+            <select name="object_id" class="form-select form-control-plaintext" id="object">
               <option value=""></option>
               {% for object in objects %}
-                <option value="{{object.name}}">{{object.name}}</option>
+                <option value="{{object.id}}">{{object.name}}</option>
               {% endfor %}
             </select>
           </div>

@@ -147,7 +147,7 @@ def search() -> str:
 def new_session() -> Response | str:
     today = datetime.datetime.today().date().strftime("%Y-%m-%d")
     if request.method == "POST":
-        location = Location.get_or_none(name=request.form.get("location"))
+        location = Location.get_or_none(id=request.form.get("location_id"))
         date = datetime.datetime.strptime(request.form.get("date", today), "%Y-%m-%d")
         note = request.form.get("note", None)
         session, created = Session.get_or_create(
@@ -186,14 +186,14 @@ def new_observation(session_id: int) -> Response | str:
         ) = optic_filter = front_filter = binocular = barlow = camera = None
         match form.get("observation-type"):
             case "telescope":
-                telescope = Telescope.get_or_none(name=form.get("telescope"))
-                eyepiece = EyePiece.get_or_none(id=form.get("eyepiece"))
-                barlow = Barlow.get_or_none(name=form.get("barlow"))
-                camera = Camera.get_or_none(id=form.get("camera"))
-                optic_filter = Filter.get_or_none(name=form.get("optical_filter"))
-                front_filter = FrontFilter.get_or_none(name=form.get("front_filter"))
+                telescope = Telescope.get_or_none(id=form.get("telescope_id"))
+                eyepiece = EyePiece.get_or_none(id=form.get("eyepiece_id"))
+                barlow = Barlow.get_or_none(id=form.get("barlow_id"))
+                camera = Camera.get_or_none(id=form.get("camera_id"))
+                optic_filter = Filter.get_or_none(id=form.get("optical_filter_id"))
+                front_filter = FrontFilter.get_or_none(id=form.get("front_filter_id"))
             case "binocular":
-                binocular = Binocular.get_or_none(name=form.get("binocular"))
+                binocular = Binocular.get_or_none(id=form.get("binocular_id"))
             case "naked_eye":
                 pass
         try:
@@ -289,7 +289,7 @@ def add_structure() -> Response | str:
 def add_object_to_structure() -> Response:
     form = request.form
     structure = Structure.get(int(form.get("structure", -1)))
-    if (object := Object.get_or_none(name=form.get("object"))) is None:
+    if (object := Object.get_or_none(id=form.get("object_id"))) is None:
         flash("Please select an object before submitting", category="warning")
         return redirect(url_for("structures"))
     structure.add_object(object)
@@ -316,7 +316,7 @@ def objects() -> str:
                     object, _ = Object.get_or_create(
                         name=name, favourite=favourite, to_be_watched=True
                     )
-                if structure := Structure.get_or_none(name=form.get("structure")):
+                if structure := Structure.get_or_none(id=form.get("structure_id")):
                     structure.add_object(object)
     return render_template(
         "objects.html",
