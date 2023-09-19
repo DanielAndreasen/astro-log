@@ -13,6 +13,29 @@
   </div>
 </div>
 
+<!-- Modal for updating notes -->
+<div class="modal fade" id="modal-note" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-body">
+        <form
+          action="{{ url_for( 'ajax.update_observation_note') }}"
+          method="POST">
+          <textarea id="observation-note" name="observation-note" rows="6" cols="72"></textarea>
+          <input id="observation-id" name="observation-id" hidden>
+          <button
+            onclick="update_note()"
+            data-bs-dismiss="modal"
+            class="btn btn-sm btn-success"
+            type="submit">
+            Update note
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 {% set loc = session.location %}
 
@@ -86,7 +109,7 @@
             {{observation.front_filter.name}} + {{observation.optic_filter.name}}
           {% endif %}
         </td>
-        <td>{{ observation.note or '' }}</td>
+        <td class="note-col" id="{{observation.id}}">{{ observation.note or '' }}</td>
         <td>
           <div class="input-group">
             <form
@@ -103,7 +126,7 @@
   </tbody>
 </table>
 
-<a class="btn btn-success" href="{{ url_for('new_observation', session_id=session.id) }}">Add observation</a>
+<a class="btn btn-success" href="{{ url_for( 'new_observation', session_id=session.id) }}">Add observation</a>
 
 <script>
   $('.table > tbody > tr').click(function() {
@@ -112,9 +135,29 @@
       const img = document.getElementsByClassName('img-fluid')[0];
       img.src = src;
       const myModal = new bootstrap.Modal(document.getElementById('myModal'));
-    myModal.toggle();
+      myModal.toggle();
     }
   });
+
+  $('.table > tbody > tr > td').click(function() {
+    if (this.className === 'note-col') {
+      var note = this.firstChild.textContent;
+      const textarea = document.getElementById('observation-note');
+      const input = document.getElementById('observation-id');
+      textarea.textContent = note;
+      input.value = this.id;
+      const myModal = new bootstrap.Modal(document.getElementById('modal-note'));
+      myModal.toggle();
+    }
+  })
+
+  function update_note() {
+    const textarea = document.getElementById('observation-note');
+    const input = document.getElementById('observation-id');
+    const td = document.getElementById(input.value);
+    var cell = td.firstChild;
+    cell.textContent = textarea.value;
+  }
 </script>
 
 {% endblock %}
