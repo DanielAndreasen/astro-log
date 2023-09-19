@@ -2,7 +2,7 @@ from typing import cast
 
 from flask import Blueprint, request
 
-from astrolog.database import Kind, Object, Observation, Session
+from astrolog.database import Kind, Object, Observation
 
 bp = Blueprint("ajax", __name__, url_prefix="/ajax")
 
