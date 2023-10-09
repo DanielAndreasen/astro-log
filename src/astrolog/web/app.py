@@ -780,6 +780,12 @@ def gallery() -> str:
     return render_template("gallery.html", images=images, enumerate=enumerate)
 
 
+@app.route("/report", methods=["GET"])
+def report() -> str:
+    today = datetime.datetime.today().date().strftime("%Y-%m-%d")
+    return render_template("report.html", today=today)
+
+
 if __name__ == "__main__":  # pragma: no cover
     # Setup DB
     DEFAULT_DB = os.path.join(os.path.abspath("."), "AstroLog.db")
