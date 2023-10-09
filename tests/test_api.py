@@ -1,4 +1,5 @@
 import datetime
+import random
 from unittest import TestCase
 
 from peewee import SqliteDatabase
@@ -19,6 +20,7 @@ from astrolog.database import (
     Telescope,
     database_proxy,
 )
+from astrolog.report import Report
 
 db = SqliteDatabase(":memory:")
 database_proxy.initialize(db)
@@ -214,3 +216,75 @@ class TestAPI(TestCase):
         self.assertFalse(deleted)
         self.assertIsNotNone(Location.get_or_none(1))
         self.assertIsNotNone(Session.get_or_none(1))
+
+    def test_get_monthly_report(self) -> None:
+        telescope = Telescope.create(
+            name="Explorer 150P", aperture=150, focal_length=750
+        )
+        eyepiece = EyePiece.create(type="Plössl", focal_length=6, width=1.25)
+
+        date1 = datetime.datetime(2013, 12, 1).date()
+        date2 = datetime.datetime(2013, 12, 5).date()
+        date3 = datetime.datetime(2013, 12, 9).date()
+        location = Location.create(
+            name="Horsens",
+            country="Denmark",
+            latitude="55:51:38",
+            longitude="-9:51:1",
+            altitude=0,
+        )
+        session1 = Session.create(date=date1, location=location)
+        session2 = Session.create(date=date2, location=location)
+        session3 = Session.create(date=date3, location=location)
+        sessions = (session1, session2, session3)
+
+        objects = (
+            Object.create(name="arcturus"),
+            Object.create(name="betelgeuse"),
+            Object.create(name="capella"),
+            Object.create(name="M31"),
+            Object.create(name="M42"),
+            Object.create(name="M81"),
+        )
+
+        # Create observations
+        unique_objects = set()
+        object_observations: dict[Object, int] = dict()
+        n_observations = 0
+        for session in sessions:
+            for obj in objects:
+                if random.random() > 0.5:
+                    unique_objects.add(obj)
+                    if obj in object_observations.keys():
+                        object_observations[obj] += 1
+                    else:
+                        object_observations[obj] = 1
+                    n_observations += 1
+                    api.create_observation(
+                        session,
+                        obj,
+                        telescope=telescope,
+                        eyepiece=eyepiece,
+                    )
+
+        most_observed_objects = set(
+            obj
+            for obj, obs in object_observations.items()
+            if obs == max(object_observations.values())
+        )
+
+        empty_report = api.get_monthly_report(2013, 11)
+        self.assertIsNone(empty_report)
+
+        report = api.get_monthly_report(2013, 12)
+        self.assertIsNotNone(report)
+        self.assertIsInstance(report, Report)
+        if report:
+            self.assertEqual(report.n_sessions, len(sessions))
+            self.assertEqual(report.n_observations, n_observations)
+            self.assertEqual(report.unique_objects, unique_objects)
+            self.assertEqual(report.most_observed_objects, most_observed_objects)
+
+    def test_get_yearly_report(self) -> None:
+        """Same implementation as above, but simpler query"""
+        pass
