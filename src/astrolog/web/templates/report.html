@@ -5,7 +5,11 @@
 <h1>Generate observing report</h1>
 
 <!-- TODO: Implement HTMX -->
-<form action="{{ url_for('ajax.get_report') }}" method="POST">
+<!-- <form action="{{ url_for('ajax.get_report') }}" method="POST"> -->
+<form
+  hx-post="{{ url_for('ajax.get_report') }}"
+  hx-swap="beforeend"
+  hx-target="#report">
 
   <div class="mb-1 row">
     <label for="date" class="col-sm-1 col-form-label">Date</label>
@@ -30,5 +34,12 @@
   <button class="btn mt-3" type="submit">Get report</button>
 
 </form>
+
+<div id="report" hx-target="closest table" hx-swap="outerHTML swap:0.5s">
+  <table>
+
+  </table>
+</div>
+
 
 {% endblock %}
