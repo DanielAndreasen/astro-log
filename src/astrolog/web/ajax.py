@@ -1,6 +1,6 @@
 from typing import cast
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, render_template, request
 
 from astrolog.api import get_monthly_report, get_yearly_report
 from astrolog.database import Kind, Object, Observation
@@ -34,18 +34,10 @@ def update_observation_note() -> tuple[str, int]:
     return "", 204
 
 
-@bp.route("/get_report", methods=["POST"])
-def get_report() -> tuple[str, int]:
-    # TODO: Do some magic HTMX stuff here
-    form: dict[str, str] = cast(dict[str, str], request.form)
-    year, month = map(int, form["date"].split("-")[0:2])
-    match form["frequency"]:
-        case "monthly":
-            report = get_monthly_report(year, month)
-        case "yearly":
-            report = get_yearly_report(year)
-        case _:
-            return "", 204
-    if report:
-        return jsonify(report)
-    return "", 204
+@bp.route("/get_report", methods=["GET"])
+def get_report() -> str:
+    date_str = request.values.get("date", "")
+    year, month = map(int, date_str.split("-")[0:2])
+    report_monthly = get_monthly_report(year, month)
+    report_yearly = get_yearly_report(year)
+    return render_template("sub/report.html", year=report_yearly, month=report_monthly)

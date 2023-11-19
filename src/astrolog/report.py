@@ -50,6 +50,6 @@ class Report:
         return cls(
             n_sessions=n_sessions,
             n_observations=n_observations,
-            unique_objects=unique_objects,
-            most_observed_objects=most_observed_objects,
+            unique_objects=sorted(unique_objects, key=lambda x: x.name),
+            most_observed_objects=sorted(most_observed_objects, key=lambda x: x.name),
         )

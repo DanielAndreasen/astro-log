@@ -1,44 +1,30 @@
 {% extends "template.html" %}
+<script src="https://unpkg.com/htmx.org@1.9.8"></script>
 
 {% block body %}
 
 <h1>Generate observing report</h1>
 
-<!-- TODO: Implement HTMX -->
-<!-- <form action="{{ url_for('ajax.get_report') }}" method="POST"> -->
-<form
-  hx-post="{{ url_for('ajax.get_report') }}"
-  hx-swap="beforeend"
-  hx-target="#report">
-
-  <div class="mb-1 row">
-    <label for="date" class="col-sm-1 col-form-label">Date</label>
-    <div class="col-sm-4">
-      <input name="date" type="date" value="{{today}}" class="form-control-plaintext" id="date">
-    </div>
+<div class="mb-1 row">
+  <label for="date" class="col-sm-1 col-form-label">Date</label>
+  <div class="col-sm-4">
+    <input
+      name="date"
+      type="date"
+      value="{{today}}"
+      class="form-control-plaintext"
+      id="date"
+      hx-get="{{ url_for('ajax.get_report') }}"
+      hx-target="#report"
+      hx-swap="innerHTML"
+    >
   </div>
+</div>
 
-  <div class="form-check">
-    <input class="form-check-input" type="radio" name="frequency" id="monthly" value="monthly" checked>
-    <label class="form-check-label" for="monthly">
-      Monthly
-    </label>
+
+<div id="report" hx-target="next div" hx-swap="outerHTML swap:0.5s">
+  <div>
   </div>
-  <div class="form-check">
-    <input class="form-check-input" type="radio" name="frequency" id="yearly" value="yearly">
-    <label class="form-check-label" for="yearly">
-      Yearly
-    </label>
-  </div>
-
-  <button class="btn mt-3" type="submit">Get report</button>
-
-</form>
-
-<div id="report" hx-target="closest table" hx-swap="outerHTML swap:0.5s">
-  <table>
-
-  </table>
 </div>
 
 

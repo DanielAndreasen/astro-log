@@ -1,0 +1,95 @@
+<div class="row">
+
+  <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-monthly" aria-expanded="true" aria-controls="collapse-monthly">
+    <span class="fa fa-list"></span> Toggle monthly report
+  </button>
+  <div class="collapse show" id="collapse-monthly">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Monthly report</h5>
+        <p>You did {{month.n_observations}} observations this month over {{month.n_sessions}} sessions</p>
+        <h6>Most observed objects</h6>
+        <table class="table">
+          <thead>
+            <th>Name</th>
+            <th>Kind</th>
+            <th>Structure</th>
+          </thead>
+          <tbody>
+            {% for object in month.most_observed_objects %}
+            <tr>
+              <td>{{object.name}}</td>
+              <td>{{object.kind.name}}</td>
+              <td>{{object.structure.name}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <h6>Unique objects</h6>
+        <table class="table">
+          <thead>
+            <th>Name</th>
+            <th>Kind</th>
+            <th>Structure</th>
+          </thead>
+          <tbody>
+            {% for object in month.unique_objects %}
+            <tr>
+              <td>{{object.name}}</td>
+              <td>{{object.kind.name}}</td>
+              <td>{{object.structure.name}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-yearly" aria-expanded="false" aria-controls="collapse-yearly">
+    <span class="fa fa-list"></span> Toggle yearly report
+  </button>
+  <div class="collapse" id="collapse-yearly">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Yearly report</h5>
+        <p>You did {{year.n_observations}} observations this year over {{year.n_sessions}} sessions</p>
+        <h6>Most observed objects</h6>
+        <table class="table">
+          <thead>
+            <th>Name</th>
+            <th>Kind</th>
+            <th>Structure</th>
+          </thead>
+          <tbody>
+            {% for object in year.most_observed_objects %}
+            <tr>
+              <td>{{object.name}}</td>
+              <td>{{object.kind.name}}</td>
+              <td>{{object.structure.name}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <h6>Unique objects</h6>
+        <table class="table">
+          <thead>
+            <th>Name</th>
+            <th>Kind</th>
+            <th>Structure</th>
+          </thead>
+          <tbody>
+            {% for object in year.unique_objects %}
+            <tr>
+              <td>{{object.name}}</td>
+              <td>{{object.kind.name}}</td>
+              <td>{{object.structure.name}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
