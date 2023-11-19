@@ -14,6 +14,7 @@ from astrolog.database import (
     Telescope,
     User,
 )
+from astrolog.report import Report
 
 
 def create_observation(
@@ -60,6 +61,22 @@ def create_observation(
         front_filter=front_filter,
         note=note,
     )
+
+
+def get_monthly_report(year: int, month: int) -> None | Report:
+    query = Session.select().where(
+        (Session.date.year == year) & (Session.date.month == month)
+    )
+    if not query.count():
+        return None
+    return Report.from_query(query)
+
+
+def get_yearly_report(year: int) -> None | Report:
+    query = Session.select().where((Session.date.year == year))
+    if not query.count():
+        return None
+    return Report.from_query(query)
 
 
 def delete_location(location: Location) -> bool:

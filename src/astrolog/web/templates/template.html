@@ -21,6 +21,7 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer">
     </script>
+    <script src="https://unpkg.com/htmx.org@1.9.8"></script>
     <title>AstroLog</title>
 
     {% block html_head%}
@@ -59,6 +60,9 @@
                   <li><a class="dropdown-item" href="{{url_for('visibility')}}">Visibility curve</a></li>
                   <li><a class="dropdown-item" href="{{url_for('finding_chart')}}">Finding chart</a></li>
                 </ul>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{url_for('report')}}">Report</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{url_for('gallery')}}">Gallery</a>

@@ -1,7 +1,8 @@
 from typing import cast
 
-from flask import Blueprint, request
+from flask import Blueprint, render_template, request
 
+from astrolog.api import get_monthly_report, get_yearly_report
 from astrolog.database import Kind, Object, Observation
 
 bp = Blueprint("ajax", __name__, url_prefix="/ajax")
@@ -31,3 +32,12 @@ def update_observation_note() -> tuple[str, int]:
     observation.note = form["observation-note"]
     observation.save()
     return "", 204
+
+
+@bp.route("/get_report", methods=["GET"])
+def get_report() -> str:
+    date_str = request.values.get("date", "")
+    year, month = map(int, date_str.split("-")[0:2])
+    report_monthly = get_monthly_report(year, month)
+    report_yearly = get_yearly_report(year)
+    return render_template("sub/report.html", year=report_yearly, month=report_monthly)

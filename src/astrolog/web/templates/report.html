@@ -1,0 +1,30 @@
+{% extends "template.html" %}
+
+{% block body %}
+
+<h1>Generate observing report</h1>
+
+<div class="mb-1 row">
+  <label for="date" class="col-sm-1 col-form-label">Date</label>
+  <div class="col-sm-4">
+    <input
+      name="date"
+      type="date"
+      value="{{today}}"
+      class="form-control-plaintext"
+      id="date"
+      hx-get="{{ url_for('ajax.get_report') }}"
+      hx-target="#report"
+      hx-swap="innerHTML"
+    >
+  </div>
+</div>
+
+
+<div id="report" hx-target="next div" hx-swap="outerHTML swap:0.5s">
+  <div>
+  </div>
+</div>
+
+
+{% endblock %}
