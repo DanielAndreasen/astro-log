@@ -282,8 +282,13 @@ class TestAPI(TestCase):
         if report:
             self.assertEqual(report.n_sessions, len(sessions))
             self.assertEqual(report.n_observations, n_observations)
-            self.assertEqual(report.unique_objects, unique_objects)
-            self.assertEqual(report.most_observed_objects, most_observed_objects)
+            self.assertEqual(
+                report.unique_objects, sorted(unique_objects, key=lambda x: x.name)
+            )
+            self.assertEqual(
+                report.most_observed_objects,
+                sorted(most_observed_objects, key=lambda x: x.name),
+            )
 
     def test_get_yearly_report(self) -> None:
         """Same implementation as above, but simpler query"""
