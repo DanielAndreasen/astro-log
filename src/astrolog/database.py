@@ -23,12 +23,13 @@ meter = cast(u.UnitBase, u.m)
 
 
 class AstroLogModel(Model):
+    id = AutoField()
+
     class Meta:
         database = database_proxy
 
 
 class Location(AstroLogModel):
-    id = AutoField()
     name = TextField()
     country = TextField()
     latitude = TextField()
@@ -55,17 +56,14 @@ class Location(AstroLogModel):
 
 
 class Filter(AstroLogModel):
-    id = AutoField()
     name = TextField()
 
 
 class FrontFilter(AstroLogModel):
-    id = AutoField()
     name = TextField()
 
 
 class EyePiece(AstroLogModel):
-    id = AutoField()
     type = TextField()
     focal_length = IntegerField()
     width = FloatField()
@@ -82,20 +80,17 @@ class EyePiece(AstroLogModel):
 
 
 class Barlow(AstroLogModel):
-    id = AutoField()
     name = TextField()
     multiplier = IntegerField()
 
 
 class Binocular(AstroLogModel):
-    id = AutoField()
     name = TextField()
     aperture = IntegerField()
     magnification = IntegerField()
 
 
 class Camera(AstroLogModel):
-    id = AutoField()
     manufacture = TextField()
     model = TextField()
     megapixel = FloatField()
@@ -104,7 +99,6 @@ class Camera(AstroLogModel):
 class Telescope(AstroLogModel):
     _eyepiece = _front_filter = _barlow = _camera = None
 
-    id = AutoField()
     name = TextField()
     aperture = IntegerField()
     focal_length = IntegerField()
@@ -165,7 +159,6 @@ class Telescope(AstroLogModel):
 
 
 class Structure(AstroLogModel):
-    id = AutoField()
     name = TextField()
 
     def add_object(self, object: "Object") -> None:
@@ -184,12 +177,10 @@ class Structure(AstroLogModel):
 
 
 class Kind(AstroLogModel):
-    id = AutoField()
     name = TextField()
 
 
 class Object(AstroLogModel):
-    id = AutoField()
     name = TextField()
     favourite = BooleanField(default=False)
     to_be_watched: BooleanField | bool = BooleanField(default=False)
@@ -207,13 +198,11 @@ class Object(AstroLogModel):
 
 
 class AltName(AstroLogModel):
-    id = AutoField()
     object = ForeignKeyField(Object)
     name = TextField(unique=True)
 
 
 class Condition(AstroLogModel):
-    id = AutoField()
     temperature = IntegerField()
     humidity = IntegerField(
         null=True, constraints=[Check("humidity >= 0"), Check("humidity <= 100")]
@@ -222,7 +211,6 @@ class Condition(AstroLogModel):
 
 
 class Session(AstroLogModel):
-    id = AutoField()
     date = DateField()
     location = ForeignKeyField(Location)
     moon_phase = IntegerField(
@@ -243,7 +231,6 @@ class Session(AstroLogModel):
 
 
 class Image(AstroLogModel):
-    id = AutoField()
     fname = TextField()
 
     @property
@@ -256,7 +243,6 @@ class Image(AstroLogModel):
 
 
 class Observation(AstroLogModel):
-    id = AutoField()
     object = ForeignKeyField(Object)
     session = ForeignKeyField(Session)
     binocular = ForeignKeyField(Binocular, null=True)
@@ -305,7 +291,6 @@ class Observation(AstroLogModel):
 
 
 class User(AstroLogModel):
-    id = AutoField()
     username = TextField()
     hashed_password = BlobField()
 
