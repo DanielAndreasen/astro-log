@@ -124,9 +124,7 @@ def search() -> str:
         .join(AltName, JOIN.LEFT_OUTER)
         .switch(Object)
         .join(Structure, JOIN.LEFT_OUTER)
-        .where(
-            (Object.name**expr) | (AltName.name**expr) | (Structure.name**expr)
-        )
+        .where((Object.name**expr) | (AltName.name**expr) | (Structure.name**expr))
     )
     observations = Observation.select().where(
         (Observation.note**expr) | (Observation.object.in_(objects))
@@ -174,16 +172,16 @@ def new_observation(session_id: int) -> Response | str:
             flash("Object name must be provided", category="danger")
             return redirect(url_for("new_observation", session_id=session.id))
         favourite = form.get("favourite") == ""
-        obj, _ = Object.get_or_create(name=obj)
+        obj, _ = Object.get_or_create(name=obj.strip(" "))
         obj.favourite = favourite
         obj.save()
         if obj.to_be_watched:
             flash(
                 f"Congratulations! First time observing {obj.name}", category="success"
             )
-        telescope = (
-            eyepiece
-        ) = optic_filter = front_filter = binocular = barlow = camera = None
+        telescope = eyepiece = optic_filter = front_filter = binocular = barlow = (
+            camera
+        ) = None
         match form.get("observation-type"):
             case "telescope":
                 telescope = Telescope.get_or_none(id=form.get("telescope_id"))
@@ -314,7 +312,7 @@ def objects() -> str:
                     flash("Object has already been observed", category="warning")
                 else:
                     object, _ = Object.get_or_create(
-                        name=name, favourite=favourite, to_be_watched=True
+                        name=name.strip(" "), favourite=favourite, to_be_watched=True
                     )
                 if structure := Structure.get_or_none(id=form.get("structure_id")):
                     structure.add_object(object)
